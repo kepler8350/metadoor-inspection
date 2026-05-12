@@ -1,9 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, request, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-import os
 from datetime import datetime
-import json
 
 app = Flask(__name__)
 app.secret_key = 'metadoor-secret-key-2024'
@@ -12,27 +10,18 @@ app.secret_key = 'metadoor-secret-key-2024'
 def init_db():
     conn = sqlite3.connect('metadoor.db')
     c = conn.cursor()
-    
-    # 사용자 테이블
     c.execute('''CREATE TABLE IF NOT EXISTS users
                  (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)''')
-    
-    # 점검 기록 테이블
     c.execute('''CREATE TABLE IF NOT EXISTS inspections
                  (id INTEGER PRIMARY KEY, user_id INTEGER, location TEXT, items TEXT, 
                   signature TEXT, completed_at TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id))''')
-    
-    # 부산 구 목록
     conn.commit()
-    
-    # 기본 관리자 계정 추가
     try:
         c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
                  ('admin', generate_password_hash('admin123'), 'admin'))
         conn.commit()
     except:
         pass
-    
     conn.close()
 
 init_db()
@@ -46,25 +35,85 @@ def login():
         
         conn = sqlite3.connect('metadoor.db')
         c = conn.cursor()
-        c.execute('SELECT id, username, role FROM users WHERE username = ?', (username,))
-        user = c.fetchone()
+        c.execute('SELECT id, username, role, password FROM users WHERE username = ?', (username,))
+        result = c.fetchone()
         conn.close()
         
-        if user:
-            c = conn.cursor()
-            c.execute('SELECT password FROM users WHERE username = ?', (username,))
-            stored_password = c.fetchone()[0]
-            conn.close()
-            
-            if check_password_hash(stored_password, password):
-                session['user_id'] = user[0]
-                session['username'] = user[1]
-                session['role'] = user[2]
-                return redirect(url_for('dashboard'))
+        if result and check_password_hash(result[3], password):
+            session['user_id'] = result[0]
+            session['username'] = result[1]
+            session['role'] = result[2]
+            return redirect(url_for('dashboard'))
         
-        return render_template('login.html', error='로그인 실패')
+        error = '로그인 실패'
+    else:
+        error = None
     
-    return render_template('login.html')
+    html = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 로그인</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }}
+        .container {{
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }}
+        h1 {{ text-align: center; color: #333; margin-bottom: 10px; }}
+        .subtitle {{ text-align: center; color: #666; margin-bottom: 30px; }}
+        .form-group {{ margin-bottom: 20px; }}
+        label {{ display: block; margin-bottom: 5px; color: #333; font-weight: bold; }}
+        input {{ width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }}
+        input:focus {{ outline: none; border-color: #667eea; }}
+        button {{ width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }}
+        button:hover {{ background: #5568d3; }}
+        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; }}
+        .links {{ text-align: center; margin-top: 20px; }}
+        .links a {{ color: #667eea; text-decoration: none; }}
+        .links a:hover {{ text-decoration: underline; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ 메타도어</h1>
+        <p class="subtitle">유지보수 점검 시스템</p>
+        
+        {f'<div class="error">{error}</div>' if error else ''}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>사용자명</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">로그인</button>
+        </form>
+        
+        <div class="links">
+            <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+            <p style="margin-top: 10px; font-size: 12px; color: #999;">테스트 계정: admin / admin123</p>
+        </div>
+    </div>
+</body>
+</html>'''
+    return html
 
 # 회원가입
 @app.route('/register', methods=['GET', 'POST'])
@@ -75,7 +124,6 @@ def register():
         
         conn = sqlite3.connect('metadoor.db')
         c = conn.cursor()
-        
         try:
             c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
                      (username, generate_password_hash(password), 'user'))
@@ -84,9 +132,71 @@ def register():
             return redirect(url_for('login'))
         except:
             conn.close()
-            return render_template('register.html', error='이미 존재하는 사용자명')
+            error = '이미 존재하는 사용자명'
+    else:
+        error = None
     
-    return render_template('register.html')
+    html = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 회원가입</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }}
+        .container {{
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }}
+        h1 {{ text-align: center; color: #333; margin-bottom: 30px; }}
+        .form-group {{ margin-bottom: 20px; }}
+        label {{ display: block; margin-bottom: 5px; color: #333; font-weight: bold; }}
+        input {{ width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }}
+        input:focus {{ outline: none; border-color: #667eea; }}
+        button {{ width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }}
+        button:hover {{ background: #5568d3; }}
+        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; }}
+        .links {{ text-align: center; margin-top: 20px; }}
+        .links a {{ color: #667eea; text-decoration: none; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>회원가입</h1>
+        
+        {f'<div class="error">{error}</div>' if error else ''}
+        
+        <form method="POST">
+            <div class="form-group">
+                <label>사용자명</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">회원가입</button>
+        </form>
+        
+        <div class="links">
+            <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
+        </div>
+    </div>
+</body>
+</html>'''
+    return html
 
 # 대시보드
 @app.route('/dashboard')
@@ -94,20 +204,92 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    conn = sqlite3.connect('metadoor.db')
-    c = conn.cursor()
-    c.execute('SELECT COUNT(*) FROM inspections WHERE user_id = ?', (session['user_id'],))
-    inspection_count = c.fetchone()[0]
+    html = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 대시보드</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        .header h1 {{ font-size: 28px; }}
+        .header a {{ color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 5px; }}
+        .container {{
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }}
+        .stats {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }}
+        .stat-card {{
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }}
+        .stat-number {{ font-size: 48px; color: #667eea; font-weight: bold; }}
+        .stat-label {{ color: #666; margin-top: 10px; }}
+        .actions {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }}
+        .action-btn {{
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            text-decoration: none;
+            color: #667eea;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }}
+        .action-btn:hover {{ transform: translateY(-5px); }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ 메타도어 대시보드</h1>
+        <div>
+            <span style="margin-right: 20px;">{session['username']}님 환영합니다!</span>
+            <a href="/logout">로그아웃</a>
+        </div>
+    </div>
     
-    c.execute('SELECT * FROM inspections WHERE user_id = ? ORDER BY completed_at DESC LIMIT 5',
-             (session['user_id'],))
-    recent_inspections = c.fetchall()
-    conn.close()
-    
-    return render_template('dashboard.html', 
-                         username=session['username'],
-                         inspection_count=inspection_count,
-                         recent_inspections=recent_inspections)
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">📊</div>
+                <div class="stat-label">통계 및 분석</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="/inspection" class="action-btn">✏️ 새 점검 입력</a>
+            <a href="/statistics" class="action-btn">📊 통계</a>
+        </div>
+    </div>
+</body>
+</html>'''
+    return html
 
 # 점검 입력
 @app.route('/inspection', methods=['GET', 'POST'])
@@ -117,67 +299,205 @@ def inspection():
     
     if request.method == 'POST':
         location = request.form.get('location')
-        items_json = request.form.get('items_json')
-        signature = request.form.get('signature')
-        
         conn = sqlite3.connect('metadoor.db')
         c = conn.cursor()
-        c.execute('INSERT INTO inspections (user_id, location, items, signature, completed_at) VALUES (?, ?, ?, ?, ?)',
-                 (session['user_id'], location, items_json, signature, datetime.now()))
+        c.execute('INSERT INTO inspections (user_id, location, items, completed_at) VALUES (?, ?, ?, ?)',
+                 (session['user_id'], location, '[]', datetime.now()))
         conn.commit()
         conn.close()
-        
         return redirect(url_for('inspection_complete'))
     
     busan_districts = ['강서구', '사상구', '동구', '영도구', '남구', '중구', '서구', '부산진구', 
                       '동래구', '남동구', '북구', '해운대구', '수영구', '연제구', '금정구']
     
-    return render_template('inspection.html', districts=busan_districts)
+    options = ''.join([f'<option value="{d}">{d}</option>' for d in busan_districts])
+    
+    html = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 점검 입력</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }}
+        .container {{
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }}
+        .form-card {{
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        h2 {{ margin-bottom: 30px; color: #333; }}
+        .form-group {{ margin-bottom: 20px; }}
+        label {{ display: block; margin-bottom: 8px; color: #333; font-weight: bold; }}
+        input, select {{ width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }}
+        input:focus, select:focus {{ outline: none; border-color: #667eea; }}
+        button[type="submit"] {{
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }}
+        button[type="submit"]:hover {{ background: #229954; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ 메타도어</h1>
+        <a href="/dashboard" style="color: white; text-decoration: none;">← 대시보드</a>
+    </div>
+    
+    <div class="container">
+        <div class="form-card">
+            <h2>유지보수 점검</h2>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label>점검 위치 (부산 구)</label>
+                    <select name="location" required>
+                        <option value="">선택하세요</option>
+                        {options}
+                    </select>
+                </div>
+                <button type="submit">점검 완료</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>'''
+    return html
 
 # 점검 완료
 @app.route('/inspection-complete')
 def inspection_complete():
-    return render_template('inspection_complete.html')
+    html = '''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 완료</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        .icon { font-size: 100px; margin-bottom: 20px; }
+        h1 { color: #27ae60; font-size: 36px; margin-bottom: 20px; }
+        p { color: #666; margin-bottom: 30px; font-size: 16px; }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-weight: bold;
+        }
+        .button:hover { background: #5568d3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">✓</div>
+        <h1>점검이 완료되었습니다!</h1>
+        <p>점검 기록이 성공적으로 저장되었습니다.</p>
+        
+        <a href="/dashboard" class="button">대시보드로 돌아가기</a>
+        <a href="/inspection" class="button">다음 점검</a>
+    </div>
+</body>
+</html>'''
+    return html
 
-# 사용자 관리 (관리자용)
-@app.route('/users')
-def users():
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return redirect(url_for('login'))
-    
-    conn = sqlite3.connect('metadoor.db')
-    c = conn.cursor()
-    c.execute('SELECT id, username, role FROM users')
-    all_users = c.fetchall()
-    conn.close()
-    
-    return render_template('users.html', users=all_users)
-
-# 점검 통계
+# 통계
 @app.route('/statistics')
 def statistics():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    conn = sqlite3.connect('metadoor.db')
-    c = conn.cursor()
+    html = '''<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 통계</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 { margin-bottom: 20px; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 점검 통계</h1>
+        <a href="/dashboard" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 5px;">← 대시보드</a>
+    </div>
     
-    # 지역별 점검 현황
-    c.execute('SELECT location, COUNT(*) FROM inspections WHERE user_id = ? GROUP BY location',
-             (session['user_id'],))
-    location_stats = c.fetchall()
-    
-    # 월별 점검 현황
-    c.execute('''SELECT strftime('%Y-%m', completed_at) as month, COUNT(*) 
-                 FROM inspections WHERE user_id = ? GROUP BY month ORDER BY month DESC''',
-             (session['user_id'],))
-    monthly_stats = c.fetchall()
-    
-    conn.close()
-    
-    return render_template('statistics.html', 
-                         location_stats=location_stats,
-                         monthly_stats=monthly_stats)
+    <div class="container">
+        <div class="stat-card">
+            <h3>점검 통계</h3>
+            <p>통계 데이터를 불러오는 중입니다...</p>
+        </div>
+    </div>
+</body>
+</html>'''
+    return html
 
 # 로그아웃
 @app.route('/logout')
@@ -185,7 +505,7 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# 메인 페이지
+# 메인
 @app.route('/')
 def index():
     if 'user_id' in session:
