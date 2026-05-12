@@ -1,15 +1,9 @@
-from flask import Flask, render_template, request, jsonify, session
-from flask_session import Session
+from flask import Flask, render_template, request, jsonify
 import os
 from datetime import datetime
-import sys
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-
-# 세션 설정
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
+app.secret_key = 'metadoor-secret-key-2024'
 
 # 점검 데이터 저장소
 inspection_data = {}
@@ -31,16 +25,13 @@ def login():
     user_id = data.get('userId')
     password = data.get('password')
     
-    if user_id and password:
-        session['user_id'] = user_id
-        session['logged_in'] = True
+    if user_id == 'test' and password == 'test':
         return jsonify({'success': True, 'message': '로그인 성공'})
     
     return jsonify({'success': False, 'message': '아이디 또는 비밀번호가 올바르지 않습니다'}), 401
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
-    session.clear()
     return jsonify({'success': True})
 
 @app.route('/api/districts', methods=['GET'])
@@ -49,17 +40,13 @@ def get_districts():
 
 @app.route('/api/inspection', methods=['POST'])
 def save_inspection():
-    if not session.get('logged_in'):
-        return jsonify({'success': False, 'message': '로그인이 필요합니다'}), 401
-    
     data = request.json
     inspection_id = datetime.now().strftime('%Y%m%d%H%M%S')
     
     inspection_data[inspection_id] = {
-        'user_id': session.get('user_id'),
+        'user_id': data.get('userId', 'test'),
         'district': data.get('district'),
         'inspection_item': data.get('inspectionItem'),
-        'location_detail': data.get('locationDetail'),
         'action': data.get('action'),
         'signature': data.get('signature'),
         'timestamp': datetime.now().isoformat()
@@ -71,30 +58,10 @@ def save_inspection():
         'inspection_id': inspection_id
     })
 
-@app.route('/api/inspections', methods=['GET'])
-def get_inspections():
-    if not session.get('logged_in'):
-        return jsonify({'success': False, 'message': '로그인이 필요합니다'}), 401
-    
-    user_inspections = {
-        k: v for k, v in inspection_data.items()
-        if v['user_id'] == session.get('user_id')
-    }
-    
-    return jsonify({'inspections': user_inspections})
-
-@app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok', 'message': 'MetaDoor Inspection System is running'})
+    return jsonify({'status': 'ok', 'message': 'MetaDoor is running'})
 
 if __name__ == '__main__':
-    # Railway는 PORT 환경변수를 설정합니다
-    # 포트가 없으면 5000 사용
     port = int(os.environ.get('PORT', 5000))
-    
-    # 로그 출력
-    print(f"Starting MetaDoor Inspection System on port {port}", file=sys.stderr)
-    sys.stderr.flush()
-    
-    # debug=False 필수
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
