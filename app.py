@@ -27,12 +27,5 @@ def health():
     return 'OK'
 
 if __name__ == '__main__':
-    # Railway에서 PORT 환경변수 사용, 없으면 5000
-    port = int(os.environ.get('PORT', 5000))
-    
-    print(f'[MetaDoor] Starting on port {port}', file=sys.stderr, flush=True)
-    sys.stderr.flush()
-    
-    # host='0.0.0.0' 는 모든 인터페이스에서 listen
-    # threaded=True로 멀티스레드 지원
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+    port = int(os.environ.get('PORT', 8000))
+    print(f'Flask would run on port {port}', file=sys.stderr, flush=True)
