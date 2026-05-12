@@ -1,16 +1,32 @@
 {
-  "name": "metadoor-inspection",
+  "name": "metadoor-mobile-app",
   "version": "1.0.0",
-  "description": "메타도어 점검 시스템",
-  "main": "app.py",
+  "description": "메타도어 모바일 점검 앱",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "python app.py"
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "eject": "expo eject",
+    "build": "eas build"
   },
-  "keywords": [
-    "metadoor",
-    "inspection",
-    "maintenance"
-  ],
-  "author": "MetaDoor",
-  "license": "MIT"
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.71.13",
+    "expo": "~48.0.0",
+    "expo-status-bar": "~1.4.4",
+    "@react-navigation/native": "^6.0.0",
+    "@react-navigation/bottom-tabs": "^6.0.0",
+    "react-native-screens": "~3.20.0",
+    "react-native-safe-area-context": "4.4.1",
+    "react-native-gesture-handler": "~2.9.0",
+    "axios": "^1.4.0",
+    "react-native-image-picker": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/react": "~18.0.0",
+    "@types/react-native": "~0.71.0",
+    "typescript": "~4.9.4"
+  },
+  "private": true
 }

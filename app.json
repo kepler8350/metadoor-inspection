@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "메타도어 점검 앱",
+    "slug": "metadoor-inspection-app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.metadoor.inspection"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1e5a96"
+      },
+      "package": "com.metadoor.inspection"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "사진 접근 권한이 필요합니다.",
+          "cameraPermission": "카메라 접근 권한이 필요합니다."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "metadoor-inspection"
+      }
+    }
+  }
+}
