@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_session import Session
 import os
 from datetime import datetime
+import sys
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -82,6 +83,18 @@ def get_inspections():
     
     return jsonify({'inspections': user_inspections})
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok', 'message': 'MetaDoor Inspection System is running'})
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # Railway는 PORT 환경변수를 설정합니다
+    # 포트가 없으면 5000 사용
+    port = int(os.environ.get('PORT', 5000))
+    
+    # 로그 출력
+    print(f"Starting MetaDoor Inspection System on port {port}", file=sys.stderr)
+    sys.stderr.flush()
+    
+    # debug=False 필수
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
