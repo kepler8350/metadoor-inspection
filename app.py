@@ -86,5 +86,13 @@ def get_inspections():
 
 if __name__ == '__main__':
     # Railway는 PORT 환경변수를 자동으로 설정합니다
-    port = int(os.environ.get('PORT', '5000'))
+    # gunicorn을 사용할 때는 자동으로 PORT가 바인딩됩니다
+    # 로컬 개발용 포트
+    port = 5000
+    if os.environ.get('PORT'):
+        try:
+            port = int(os.environ.get('PORT'))
+        except:
+            port = 5000
+    
     app.run(host='0.0.0.0', port=port, debug=False)
