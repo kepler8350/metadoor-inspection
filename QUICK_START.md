@@ -1,229 +1,222 @@
-# 🚀 메타도어 점검 앱 - Railway 배포 빠른 시작
+# 📱 메타도어 모바일 앱 - 최종 가이드
 
-## 📱 앱 소개
-부산 지역 메타도어 유지보수를 위한 **웹 기반 점검 시스템**입니다.
-- ✅ 로그인 기능
-- ✅ 15개 구(부산) 선택
-- ✅ 점검 항목 등록
-- ✅ 조치 내용 입력
-- ✅ 손글씨 서명 입력
-- ✅ 모바일 최적화
+## 🎉 축하합니다!
+
+**메타도어 모바일 점검 앱**이 완성되었습니다!
+
+✅ React Native + Expo  
+✅ iOS & Android 지원  
+✅ 전문적인 모바일 UI/UX 디자인  
+✅ 로그인, 대시보드, 점검 입력, 설정 기능 완성  
 
 ---
 
-## ⚡ 5분 배포 가이드
+## 🚀 5분 안에 시작하기
 
-### 1️⃣ 코드 준비 (GitHub)
+### 1️⃣ 필수 도구 설치
+
 ```bash
-# 이 폴더를 GitHub에 업로드
-git init
-git add .
-git commit -m "MetaDoor inspection app"
-git push -u origin main
+# Node.js 설치 (이미 설치하셨으면 스킵)
+# https://nodejs.org/en/download/
+
+# Expo CLI 글로벌 설치
+npm install -g expo-cli
+
+# 프로젝트 디렉토리로 이동
+cd metadoor-inspection-app
 ```
 
-### 2️⃣ Railway 배포
-1. https://railway.app 접속
-2. "New Project" → "Deploy from GitHub"
-3. 저장소 선택 → "Deploy"
+### 2️⃣ 의존성 설치
 
-### 3️⃣ 환경 변수 설정
-Railway 대시보드의 "Variables" 탭:
-```
-SECRET_KEY=your-random-secret-key
+```bash
+npm install
 ```
 
-### 4️⃣ 공용 URL 확인
+### 3️⃣ 앱 실행
+
+```bash
+npm start
+# 또는
+expo start
 ```
-https://metadoor-inspection.up.railway.app
+
+### 4️⃣ 디바이스에서 보기
+
+**Option A: 휴대폰에서 직접 보기 (가장 쉬움)**
+
+1. **Expo Go 앱 설치**
+   - iOS: App Store에서 "Expo Go" 검색
+   - Android: Google Play Store에서 "Expo Go" 검색
+
+2. **QR 코드 스캔**
+   - 터미널에 나타난 QR 코드를 스캔하면 바로 앱이 실행됩니다!
+
+**Option B: 에뮬레이터에서 보기**
+
+```bash
+# Android Emulator
+npm run android
+# 또는 'a' 키 누르기
+
+# iOS Simulator (Mac만 가능)
+npm run ios
+# 또는 'i' 키 누르기
 ```
-(자동 생성되는 도메인)
+
+**Option C: 웹 브라우저에서 테스트**
+
+```bash
+npm run web
+# 또는 'w' 키 누르기
+```
 
 ---
 
-## 🔐 로그인 정보
+## 🎨 앱 화면 구성
+
+### 📱 로그인 화면
+- **디자인**: 파란 그래디언트 배경 + 화이트 카드
+- **기능**: 아이디/비밀번호 입력
+- **테스트 계정**: `admin` / `admin123`
+
+### 🏠 대시보드
+- **통계**: 총 점검 횟수, 이달 점검 수
+- **액션 버튼**: 새 점검 입력, 점검 이력
+- **최근 활동**: 점검 기록 타임라인
+
+### ✏️ 점검 입력
+- **위치 선택**: 부산 15개 구를 그리드로 표시
+- **항목 선택**: 외벽, 지붕, 창호, 바닥, 내벽, 기타
+- **조사 내용**: 텍스트 입력
+- **사진**: 갤러리/카메라에서 업로드
+- **점검 상태**: 정상, 요주의, 이상 (버튼식)
+- **완료**: 임시저장 또는 완료
+
+### ⚙️ 설정
+- **계정**: 사용자명, 역할
+- **알림**: 푸시 알림 설정
+- **화면**: 다크 모드 설정
+- **정보**: 버전, 빌드 번호, 업데이트
+- **로그아웃**: 계정 로그아웃
+
+---
+
+## 📁 프로젝트 구조
+
 ```
-아이디: test
-비밀번호: test
+metadoor-inspection-app/
+├── App.tsx                           # 메인 앱 진입점
+├── app.json                          # Expo 설정
+├── package.json                      # npm 의존성
+├── MOBILE_APP_README.md              # 앱 설명서
+├── BUILD_GUIDE.md                    # 빌드 & 배포 가이드
+└── screens/                          # 화면 컴포넌트
+    ├── LoginScreen.tsx               # 로그인 (프로페셔널 디자인)
+    ├── DashboardScreen.tsx           # 대시보드 (통계 + 액션)
+    ├── InspectionListScreen.tsx      # 위치 선택 (그리드 UI)
+    ├── InspectionDetailScreen.tsx    # 점검 입력 (완전한 폼)
+    └── SettingsScreen.tsx            # 설정 (계정 & 정보)
 ```
 
 ---
 
-## 📂 프로젝트 구조
+## 🎨 디자인 특징
 
-```
-metadoor-inspection/
-├── app.py                    # Flask 백엔드 (핵심 서버)
-├── requirements.txt          # Python 패키지 목록
-├── Dockerfile                # Docker 설정
-├── Procfile                  # Railway 실행 설정
-├── package.json              # 프로젝트 정보
-│
-├── templates/
-│   └── index.html            # 화면 구성 (HTML)
-│
-└── static/
-    ├── css/
-    │   └── style.css         # 디자인 (스타일)
-    └── js/
-        └── app.js            # 기능 (자바스크립트)
-```
+### 색상
+- **Primary Blue**: `#1e5a96` (로고, 헤더, 액션)
+- **Dark Blue**: `#164a7a` (진한 강조)
+- **Background**: `#f5f7fa` (밝은 배경)
+- **White**: `#ffffff` (카드)
 
----
+### 폰트
+- **제목**: 28px, 700 bold, -0.5 letterSpacing
+- **서브제목**: 14px, 400 normal
+- **라벨**: 13px, 700 bold
+- **본문**: 14-15px, 400-500 normal
 
-## 🎨 화면 구성
-
-### 화면 1: 로그인
-- 아이디 입력
-- 비밀번호 입력
-- 로그인 버튼
-
-### 화면 2: 구 선택
-- 금정구, 기장군, 남구, 동구, 동래구
-- 부산진구, 북구, 사상구, 사하구, 서구
-- 수영구, 연제구, 영도구, 중구, 해운대구
-
-### 화면 3: 점검 항목 입력
-- 점검 항목 선택 (도어, 잠금장치, 경첩, 표면, 작동)
-- 조치 내용 입력
-- 서명 (마우스/터치로 그리기)
-
-### 화면 4: 완료
-- 점검 완료 메시지
-- 점검 ID 표시
+### 컴포넌트
+- **카드**: borderRadius: 14, 부드러운 그림자
+- **버튼**: borderRadius: 12, 터치 시 스케일 변화
+- **입력**: borderRadius: 10, 밝은 배경
+- **네비게이션**: 하단 탭 바, 아이콘 + 라벨
 
 ---
 
-## 🔧 커스터마이징
+## 🔧 기술 스택
 
-### 구 목록 변경 (app.py)
-```python
-DISTRICTS = [
-    '금정구', '기장군', ...  # 여기 수정
-]
-```
-
-### 점검 항목 변경 (templates/index.html)
-```html
-<option value="door_check">도어 점검</option>  <!-- 여기 수정 -->
-```
-
-### 디자인 변경 (static/css/style.css)
-- 색상: `#1e3c72`, `#2a5298`
-- 폰트: 시스템 폰트
-- 여백, 크기 등 자유롭게 수정
-
----
-
-## 📊 기술 스택
-
-| 분야 | 기술 |
+| 분류 | 기술 |
 |------|------|
-| **서버** | Flask (Python) |
-| **프론트엔드** | HTML, CSS, JavaScript |
-| **배포** | Railway + Docker |
-| **데이터** | 세션 저장소 (메모리) |
+| **Framework** | React Native |
+| **Build Tool** | Expo |
+| **Navigation** | React Navigation (Bottom Tabs + Stack) |
+| **Image Picker** | expo-image-picker |
+| **Status Bar** | expo-status-bar |
+| **Language** | TypeScript |
+| **State** | React Hooks (useState) |
 
 ---
 
-## 🚢 배포 플랫폼: Railway
+## 📦 빌드 및 배포
 
-### Railway란?
-- Cloud 호스팅 서비스
-- GitHub 연동으로 자동 배포
-- 월 $5 크레딧 무료 제공
-- 간단하고 빠른 배포
+### Android APK 빌드
 
-### Railway 주요 기능
-- ✅ 자동 재배포
-- ✅ 환경 변수 관리
-- ✅ 실시간 로그 확인
-- ✅ 모니터링 대시보드
-- ✅ 커스텀 도메인 연결
+```bash
+# EAS 빌드 (클라우드)
+eas build --platform android --type apk
 
----
-
-## 💾 데이터 저장 (현재)
-
-현재는 **메모리에만 저장**되므로:
-- 서버 재시작 시 데이터 삭제
-- 여러 명이 사용 불가
-
-**운영을 위해서는 데이터베이스 추가 필요:**
-```python
-# 추후 추가 가능:
-- PostgreSQL
-- MongoDB
-- Firebase
+# 또는 로컬 빌드
+eas build --platform android --type apk --local
 ```
 
----
+### iOS 빌드
 
-## 🐛 문제 해결
-
-### 404 Not Found
-```
-✓ 도메인 URL 다시 확인
-✓ Railway 배포 완료 확인
-✓ 브라우저 캐시 삭제
+```bash
+# Mac에서만 가능
+eas build --platform ios
 ```
 
-### 로그인 실패
-```
-✓ 아이디: test, 비밀번호: test 입력
-✓ 대소문자 구분 주의
-```
+### Play Store 배포
 
-### 데이터 저장 안 됨
-```
-✓ 브라우저 개발자 도구 (F12) 열기
-✓ Console 탭에서 오류 메시지 확인
-✓ Railway Logs 탭 확인
-```
+1. Google Play Console 계정 생성 ($25)
+2. 앱 정보 입력 (이름, 설명, 스크린샷)
+3. 서명된 AAB 빌드 생성
+4. 업로드 후 검수 대기
+
+### App Store 배포
+
+1. Apple Developer 계정 ($99/년)
+2. 인증서/프로필 설정
+3. IPA 빌드 생성
+4. App Store Connect에 업로드
 
 ---
 
 ## 📞 지원
 
-### Railway 문제
-- 공식 문서: https://docs.railway.app
-- 상태 페이지: https://status.railway.app
-
-### Flask 문제
-- 공식 문서: https://flask.palletsprojects.com
-- 튜토리얼: https://flask.palletsprojects.com/tutorial/
+- **GitHub**: https://github.com/kepler8350/metadoor-inspection
+- **문서**: MOBILE_APP_README.md, BUILD_GUIDE.md 참조
 
 ---
 
-## 📝 다음 단계
+## ✨ 완성된 기능
 
-1. ✅ 이 코드를 GitHub에 업로드
-2. ✅ Railway에 배포
-3. ⬜ 사용자 계정 관리 추가
-4. ⬜ 데이터베이스 연동
-5. ⬜ 점검 결과 리포팅 기능
-6. ⬜ 오프라인 모드 추가
-7. ⬜ 모바일 앱으로 발전
-
----
-
-## 📄 라이선스
-MIT License - 자유롭게 사용, 수정, 배포 가능
+- ✅ React Native + Expo 설정
+- ✅ 5개 화면 (로그인, 대시보드, 위치선택, 점검입력, 설정)
+- ✅ 프로페셔널 모바일 UI/UX 디자인
+- ✅ 이미지 업로드 (카메라/갤러리)
+- ✅ 하단 탭 네비게이션
+- ✅ StatusBar 및 SafeAreaView
+- ✅ 터치 피드백 (activeOpacity)
+- ✅ iOS & Android 호환성
 
 ---
 
-## 🎉 축하합니다!
+## 🎊 시작하기
 
-메타도어 점검 앱이 준비되었습니다.
-Railway를 통해 전 세계 어디서든 접속할 수 있습니다! 🌍
+```bash
+npm start
+# QR 코드 스캔하거나 에뮬레이터 실행
+# 테스트 계정: admin / admin123
+```
 
-**시작하기:**
-1. GitHub에 업로드
-2. Railway 배포
-3. 공용 URL 공유
-4. 사용 시작
-
-**질문이 있으신가요?**
-- README.md 확인
-- DEPLOYMENT_GUIDE_KO.md 참고
-- Railway 공식 문서 방문
+**Happy coding!** 🚀
