@@ -1,11 +1,11 @@
 import os, json
 from flask import Flask, render_template_string
 
-app = Flask(__name__)
-app.secret_key = 'metadoor-2024'
+app = Flask(__name__, static_url_path='/static_metadoor')
+app.secret_key = 'metadoor-2024-secure'
 
 ITEMS = ['패널', '보드', '전원', 'PC', '카메라', '스피커', '마이크', '입력장치', '하우징', '외관데코', '기타']
-LOCATIONS = {
+LOC = {
     '금정구': ['금정도심', '금정로데오', '부곡보건소'],
     '기장군': ['기장우체국', '기장행정센터', '정관중학교'],
     '남구': ['남구청', '용호문화센터', '남부경찰서'],
@@ -22,54 +22,22 @@ LOCATIONS = {
     '중구': ['중구청', '중앙대로', '국제시장'],
 }
 
-HTML = '''<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><title>메타도어</title><style>
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui;display:flex;justify-content:center;min-height:100vh;background:#eee;padding:10px}
-.phone{width:375px;height:812px;background:#fff;border-radius:40px;border:12px #000;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);display:flex;flex-direction:column}
-.notch{background:#000;height:28px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px}
-.status{background:#000;height:24px;display:flex;justify-content:space-between;padding:0 12px;color:#fff;font-size:10px;align-items:center}
-.screen{flex:1;display:none;flex-direction:column;overflow:hidden}
-.screen.active{display:flex}
-.login{background:linear-gradient(135deg,#1e5a96,#154a7a);justify-content:center;align-items:center;padding:40px}
-.card{background:#fff;border-radius:16px;padding:32px;text-align:center}
-.logo{font-size:48px;margin-bottom:16px}.title{font-size:24px;font-weight:700;margin-bottom:8px}.subtitle{font-size:12px;color:#999;margin-bottom:24px}
-input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ddd;border-radius:8px;font-size:13px}
-.btn{width:100%;padding:11px;background:#1e5a96;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
-.list{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.header{background:linear-gradient(135deg,#1e5a96,#154a7a);color:#fff;padding:12px 16px;font-size:14px;font-weight:700}
-.sub{font-size:10px;opacity:0.8;margin-top:2px}
-.content{flex:1;display:grid;grid-template-columns:45% 55%;overflow:hidden}
-.left{background:#f5f5f5;border-right:1px solid #ddd;overflow-y:auto;padding:12px}
-.right{background:#fff;overflow-y:auto;padding:20px;display:flex;align-items:center;justify-content:center;text-align:center;color:#999}
-.dbtn{width:100%;padding:10px;background:#fff;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;font-size:13px;cursor:pointer;font-weight:500}
-.dbtn.active{background:#1e5a96;color:#fff}
-.locitem{padding:10px;background:#f0f0f0;border:1px solid #ddd;border-radius:4px;margin-bottom:6px;font-size:12px;cursor:pointer}
-.form{padding:16px;overflow-y:auto;flex-direction:column}
-.fheader{background:linear-gradient(135deg,#1e5a96,#154a7a);color:#fff;padding:12px;border-radius:8px;margin-bottom:12px;text-align:center}
-.ftitle{font-size:14px;font-weight:700}.fsub{font-size:10px;opacity:0.8;margin-top:2px}
-.fgroup{background:#f9f9f9;padding:10px;border-radius:6px;margin-bottom:10px}.label{font-size:11px;font-weight:600;margin-bottom:6px;display:block}
-select,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit}textarea{min-height:50px}
-.fbtn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.btn2{padding:10px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px}
-.bgray{background:#e0e0e0;color:#333}.bblue{background:#1e5a96;color:#fff}
-</style></head><body><div class="phone"><div class="notch">9:41</div><div class="status"><span>📶</span><span>🔋</span></div>
-<div class="screen login active"><div class="card"><div class="logo">🏛️</div><div class="title">메타도어</div><div class="subtitle">유지보수 점검 시스템</div><input type="text" id="u" value="admin" placeholder="아이디"><input type="password" id="p" value="admin123" placeholder="비밀번호"><button class="btn" onclick="login()">로그인</button></div></div>
-<div class="screen list"><div class="header">검결과 위치 선택<div class="sub">2단계 / 3단계</div></div><div class="content"><div class="left" id="d"></div><div class="right" id="r">선택하세요</div></div></div>
-<div class="screen form"><div class="fheader"><div class="ftitle" id="t"></div><div class="fsub">3단계 / 3단계</div></div><div class="fgroup"><label class="label">점검 항목</label><select id="i"></select></div><div class="fgroup"><label class="label">조사 내용</label><textarea id="c"></textarea></div><div class="fgroup"><label class="label">점검 상태</label><select id="s"><option>✓ 정상</option><option>✕ 이상</option></select></div><div class="fbtn"><button class="btn2 bgray" onclick="back()">이전</button><button class="btn2 bblue" onclick="done()">완료</button></div></div>
-</div></div><script>
+TEMPLATE = '''<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>메타도어</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui;display:flex;justify-content:center;min-height:100vh;background:#f0f0f0;padding:10px}#p{width:375px;height:812px;background:#fff;border-radius:40px;border:12px solid #000;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3)}.n{background:#000;height:28px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px}.st{background:#000;height:24px;display:flex;justify-content:space-between;padding:0 12px;color:#fff;font-size:10px;align-items:center}.s{flex:1;display:none;flex-direction:column;overflow:hidden}.s.a{display:flex}.l{background:linear-gradient(135deg,#1e5a96,#154a7a);justify-content:center;align-items:center;padding:40px}.c{background:#fff;border-radius:16px;padding:32px;text-align:center}.l1{font-size:48px;margin-bottom:16px}.l2{font-size:24px;font-weight:700;margin-bottom:8px;color:#333}.l3{font-size:12px;color:#999;margin-bottom:24px}input{width:100%;padding:10px;margin-bottom:12px;border:1px solid #ddd;border-radius:8px;font-size:13px}.b{width:100%;padding:11px;background:#1e5a96;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}.h{background:linear-gradient(135deg,#1e5a96,#154a7a);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #0d3a5c}.sb{font-size:10px;opacity:0.8;margin-top:2px}.ct{flex:1;display:grid;grid-template-columns:45% 55%;overflow:hidden}.lf{background:#f5f5f5;border-right:1px solid #ddd;overflow-y:auto;padding:12px}.rf{background:#fff;overflow-y:auto;padding:20px;display:flex;align-items:center;justify-content:center;text-align:center;color:#999}.db{width:100%;padding:10px;background:#fff;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;font-size:13px;cursor:pointer;font-weight:500;transition:all 0.2s}.db.v{background:#1e5a96;color:#fff;border-color:#1e5a96}.li{padding:10px;background:#f0f0f0;border:1px solid #ddd;border-radius:4px;margin-bottom:6px;font-size:12px;cursor:pointer;transition:all 0.2s}.li:hover{background:#e0e0e0}.f{padding:16px;overflow-y:auto;flex-direction:column}.fh{background:linear-gradient(135deg,#1e5a96,#154a7a);color:#fff;padding:12px;border-radius:8px;margin-bottom:12px;text-align:center}.ft{font-size:14px;font-weight:700}.fs{font-size:10px;opacity:0.8;margin-top:2px}.fg{background:#f9f9f9;padding:10px;border-radius:6px;margin-bottom:10px}.la{font-size:11px;font-weight:600;margin-bottom:6px;display:block}select,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit}textarea{min-height:50px;resize:vertical}.fb{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.b2{padding:10px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;transition:all 0.2s}.bg{background:#e0e0e0;color:#333}.bb{background:#1e5a96;color:#fff}.bb:hover{background:#154a7a}</style></head><body><div id="p"><div class="n">9:41</div><div class="st"><span>📶</span><span>🔋</span></div><div class="s a"><div class="c"><div class="l1">🏛️</div><div class="l2">메타도어</div><div class="l3">유지보수 점검 시스템</div><input type="text" id="u" value="admin" placeholder="아이디"><input type="password" id="pw" value="admin123" placeholder="비밀번호"><button class="b" onclick="login()">로그인</button></div></div><div class="s"><div class="h">검결과 위치 선택<div class="sb">2단계 / 3단계</div></div><div class="ct"><div class="lf" id="d"></div><div class="rf" id="r">선택하세요</div></div></div><div class="s"><div class="fh"><div class="ft" id="t"></div><div class="fs">3단계 / 3단계</div></div><div class="fg"><label class="la">점검 항목</label><select id="it"></select></div><div class="fg"><label class="la">조사 내용</label><textarea id="cn"></textarea></div><div class="fg"><label class="la">점검 상태</label><select id="st"><option>✓ 정상</option><option>✕ 이상</option></select></div><div class="fb"><button class="b2 bg" onclick="back()">이전</button><button class="b2 bb" onclick="done()">완료</button></div></div></div></div><script>
 const ITEMS=''' + json.dumps(ITEMS, ensure_ascii=False) + ''';
-const LOC=''' + json.dumps(LOCATIONS, ensure_ascii=False) + ''';
-let x=0,dist='',loc='';
-function show(s){x=s;document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.screen')[s].classList.add('active')}
-function login(){if(document.getElementById('u').value==='admin'&&document.getElementById('p').value==='admin123'){init();show(1)}}
-function init(){const dl=document.getElementById('d');dl.innerHTML='';Object.keys(LOC).forEach(k=>{const b=document.createElement('button');b.className='dbtn';b.textContent=k;b.onclick=()=>sel(k,b);dl.appendChild(b)});}
-function sel(k,b){document.querySelectorAll('.dbtn').forEach(e=>e.classList.remove('active'));b.classList.add('active');dist=k;const r=document.getElementById('r');r.innerHTML=LOC[k].map(v=>'<div class="locitem" onclick="seloc(\\''+v.replace(/'/g,"\\\\'")+'\\')">'+v+'</div>').join('');}
-function seloc(v){loc=v;document.getElementById('t').textContent=dist+' - '+v;const s=document.getElementById('i');s.innerHTML='<option>-- 선택 --</option>';ITEMS.forEach(j=>{const o=document.createElement('option');o.value=j;o.textContent=j;s.appendChild(o);});show(2);}
+const LOC=''' + json.dumps(LOC, ensure_ascii=False) + ''';
+let pg=0,ds='',lc='';
+function show(n){pg=n;document.querySelectorAll('.s').forEach(e=>e.classList.remove('a'));document.querySelectorAll('.s')[n].classList.add('a')}
+function login(){if(document.getElementById('u').value==='admin'&&document.getElementById('pw').value==='admin123'){init();show(1)}}
+function init(){const el=document.getElementById('d');el.innerHTML='';Object.keys(LOC).forEach(k=>{const btn=document.createElement('button');btn.className='db';btn.textContent=k;btn.onclick=()=>sel(k,btn);el.appendChild(btn)});}
+function sel(k,btn){document.querySelectorAll('.db').forEach(e=>e.classList.remove('v'));btn.classList.add('v');ds=k;const el=document.getElementById('r');el.innerHTML=LOC[k].map(v=>'<div class="li" onclick="seloc(\\''+v.replace(/'/g,"\\\\'")+'\\')">'+v+'</div>').join('');}
+function seloc(v){lc=v;document.getElementById('t').textContent=ds+' - '+v;const el=document.getElementById('it');el.innerHTML='<option>-- 선택 --</option>';ITEMS.forEach(j=>{const opt=document.createElement('option');opt.value=j;opt.textContent=j;el.appendChild(opt);});show(2);}
 function back(){show(1);}
-function done(){if(!document.getElementById('i').value||document.getElementById('i').value==='-- 선택 --'){alert('항목선택');return;}alert('완료!');show(1);init();}
+function done(){if(!document.getElementById('it').value||document.getElementById('it').value==='-- 선택 --'){alert('점검 항목을 선택하세요');return;}alert('점검이 완료되었습니다');show(1);init();}
 </script></body></html>'''
 
 @app.route('/')
-def home():
-    return render_template_string(HTML)
+def index():
+    return render_template_string(TEMPLATE)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
