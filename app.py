@@ -85,5 +85,6 @@ def get_inspections():
     return jsonify({'inspections': user_inspections})
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    # Railway는 PORT 환경변수를 자동으로 설정합니다
+    port = int(os.environ.get('PORT', '5000'))
     app.run(host='0.0.0.0', port=port, debug=False)
