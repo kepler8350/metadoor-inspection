@@ -4,6 +4,6 @@
     "builder": "dockerfile"
   },
   "deploy": {
-    "port": 8000
+    "port": 5000
   }
 }
