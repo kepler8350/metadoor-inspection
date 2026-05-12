@@ -1,0 +1,16 @@
+{
+  "name": "metadoor-inspection",
+  "version": "1.0.0",
+  "description": "메타도어 점검 시스템",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py"
+  },
+  "keywords": [
+    "metadoor",
+    "inspection",
+    "maintenance"
+  ],
+  "author": "MetaDoor",
+  "license": "MIT"
+}
