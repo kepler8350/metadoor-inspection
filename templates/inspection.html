@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메타도어 - 점검 입력</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 { margin-bottom: 30px; color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        .checklist {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .checklist-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .checklist-item input { margin-right: 10px; width: 20px; }
+        .checklist-item label { margin: 0; }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: crosshair;
+            width: 100%;
+            height: 200px;
+            background: white;
+            margin-bottom: 10px;
+        }
+        .signature-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .signature-controls button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .signature-controls button:hover { background: #5568d3; }
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover { background: #229954; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ 메타도어</h1>
+        <a href="/dashboard" style="color: white; text-decoration: none;">← 대시보드로 돌아가기</a>
+    </div>
+    
+    <div class="container">
+        <div class="form-card">
+            <h2>유지보수 점검</h2>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label>점검 위치 (부산 구)</label>
+                    <select name="location" required>
+                        <option value="">선택하세요</option>
+                        {% for district in districts %}
+                        <option value="{{ district }}">{{ district }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>점검 항목</label>
+                    <div class="checklist">
+                        <div class="checklist-item">
+                            <input type="checkbox" id="item1" name="item1">
+                            <label for="item1">외부 점검 (외벽, 창문, 문)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="item2" name="item2">
+                            <label for="item2">내부 점검 (벽, 바닥, 천장)</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="item3" name="item3">
+                            <label for="item3">전기/배선 점검</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="item4" name="item4">
+                            <label for="item4">난방/냉방 시스템</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="item5" name="item5">
+                            <label for="item5">수도/배수 시스템</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>특이사항</label>
+                    <textarea name="notes" rows="5" placeholder="발견된 문제나 특이사항을 기록하세요"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>서명</label>
+                    <div class="signature-controls">
+                        <button type="button" onclick="clearSignature()">서명 지우기</button>
+                    </div>
+                    <canvas id="signatureCanvas"></canvas>
+                    <input type="hidden" name="signature" id="signatureInput">
+                </div>
+                
+                <button type="submit">점검 완료</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 200;
+        }
+        
+        resizeCanvas();
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) {
+                const rect = canvas.getBoundingClientRect();
+                ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#333';
+                ctx.stroke();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            document.getElementById('signatureInput').value = canvas.toDataURL();
+        });
+        
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('signatureInput').value = '';
+        }
+        
+        document.querySelector('form').addEventListener('submit', (e) => {
+            const items = [];
+            ['item1', 'item2', 'item3', 'item4', 'item5'].forEach(id => {
+                if (document.getElementById(id).checked) {
+                    items.push(document.getElementById(id).nextElementSibling.textContent);
+                }
+            });
+            
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'items_json';
+            input.value = JSON.stringify(items);
+            e.target.appendChild(input);
+        });
+    </script>
+</body>
+</html>
