@@ -4,8 +4,6 @@
     "builder": "dockerfile"
   },
   "deploy": {
-    "numReplicas": 1,
-    "startCommand": "gunicorn --bind 0.0.0.0:$PORT app:app",
-    "restartPolicyMaxRetries": 5
+    "startCommand": "gunicorn --bind 0.0.0.0:8000 app:app"
   }
 }

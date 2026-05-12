@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_session import Session
 import os
 from datetime import datetime
-import json
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -11,7 +10,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# 점검 데이터 저장소 (실제로는 데이터베이스 사용)
+# 점검 데이터 저장소
 inspection_data = {}
 
 # 부산 구 목록
@@ -31,7 +30,6 @@ def login():
     user_id = data.get('userId')
     password = data.get('password')
     
-    # 간단한 인증 (실제로는 DB에서 확인)
     if user_id and password:
         session['user_id'] = user_id
         session['logged_in'] = True
@@ -85,14 +83,5 @@ def get_inspections():
     return jsonify({'inspections': user_inspections})
 
 if __name__ == '__main__':
-    # Railway는 PORT 환경변수를 자동으로 설정합니다
-    # gunicorn을 사용할 때는 자동으로 PORT가 바인딩됩니다
-    # 로컬 개발용 포트
-    port = 5000
-    if os.environ.get('PORT'):
-        try:
-            port = int(os.environ.get('PORT'))
-        except:
-            port = 5000
-    
+    port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port, debug=False)
