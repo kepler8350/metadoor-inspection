@@ -2,50 +2,73 @@ from flask import Flask, request, session, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-app.secret_key = 'metadoor-secret-key-2024'
+app.secret_key = os.environ.get('SECRET_KEY', 'metadoor-secret-key-2024')
 
-# 데이터베이스 초기화
+DB_PATH = '/tmp/metadoor.db'
+
 def init_db():
-    conn = sqlite3.connect('metadoor.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS inspections
-                 (id INTEGER PRIMARY KEY, user_id INTEGER, location TEXT, items TEXT, 
-                  signature TEXT, completed_at TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id))''')
-    conn.commit()
-    try:
+    """데이터베이스 초기화"""
+    if not os.path.exists(DB_PATH):
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        
+        c.execute('''CREATE TABLE users
+                     (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT)''')
+        c.execute('''CREATE TABLE inspections
+                     (id INTEGER PRIMARY KEY, user_id INTEGER, location TEXT, items TEXT, 
+                      completed_at TIMESTAMP, FOREIGN KEY(user_id) REFERENCES users(id))''')
+        
+        # 기본 관리자 계정
         c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
                  ('admin', generate_password_hash('admin123'), 'admin'))
+        
         conn.commit()
-    except:
-        pass
-    conn.close()
+        conn.close()
 
 init_db()
+
+# 헬스체크
+@app.route('/health')
+def health():
+    return 'OK', 200
+
+# 메인 페이지
+@app.route('/')
+def index():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
 
 # 로그인
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        error = None
         
-        conn = sqlite3.connect('metadoor.db')
-        c = conn.cursor()
-        c.execute('SELECT id, username, role, password FROM users WHERE username = ?', (username,))
-        result = c.fetchone()
-        conn.close()
-        
-        if result and check_password_hash(result[3], password):
-            session['user_id'] = result[0]
-            session['username'] = result[1]
-            session['role'] = result[2]
-            return redirect(url_for('dashboard'))
-        
-        error = '로그인 실패'
+        if not username or not password:
+            error = '사용자명과 비밀번호를 입력하세요.'
+        else:
+            try:
+                conn = sqlite3.connect(DB_PATH)
+                c = conn.cursor()
+                c.execute('SELECT id, username, role, password FROM users WHERE username = ?', (username,))
+                user = c.fetchone()
+                conn.close()
+                
+                if user and check_password_hash(user[3], password):
+                    session['user_id'] = user[0]
+                    session['username'] = user[1]
+                    session['role'] = user[2]
+                    return redirect(url_for('dashboard'))
+                else:
+                    error = '사용자명 또는 비밀번호가 올바르지 않습니다.'
+            except Exception as e:
+                error = f'로그인 오류: {str(e)}'
     else:
         error = None
     
@@ -73,7 +96,7 @@ def login():
             width: 100%;
             max-width: 400px;
         }}
-        h1 {{ text-align: center; color: #333; margin-bottom: 10px; }}
+        h1 {{ text-align: center; color: #333; margin-bottom: 10px; font-size: 32px; }}
         .subtitle {{ text-align: center; color: #666; margin-bottom: 30px; }}
         .form-group {{ margin-bottom: 20px; }}
         label {{ display: block; margin-bottom: 5px; color: #333; font-weight: bold; }}
@@ -81,15 +104,17 @@ def login():
         input:focus {{ outline: none; border-color: #667eea; }}
         button {{ width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }}
         button:hover {{ background: #5568d3; }}
-        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; }}
+        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; text-align: center; }}
         .links {{ text-align: center; margin-top: 20px; }}
         .links a {{ color: #667eea; text-decoration: none; }}
         .links a:hover {{ text-decoration: underline; }}
+        .info {{ background: #e3f2fd; border: 1px solid #90caf9; padding: 10px; border-radius: 5px; margin-top: 20px; font-size: 12px; color: #1565c0; }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🏛️ 메타도어</h1>
+        <h1>🏛️</h1>
+        <h1>메타도어</h1>
         <p class="subtitle">유지보수 점검 시스템</p>
         
         {f'<div class="error">{error}</div>' if error else ''}
@@ -97,7 +122,7 @@ def login():
         <form method="POST">
             <div class="form-group">
                 <label>사용자명</label>
-                <input type="text" name="username" required>
+                <input type="text" name="username" required autofocus>
             </div>
             <div class="form-group">
                 <label>비밀번호</label>
@@ -107,8 +132,13 @@ def login():
         </form>
         
         <div class="links">
-            <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
-            <p style="margin-top: 10px; font-size: 12px; color: #999;">테스트 계정: admin / admin123</p>
+            <p><a href="/register">계정이 없으신가요? 회원가입</a></p>
+        </div>
+        
+        <div class="info">
+            <strong>테스트 계정:</strong><br>
+            사용자명: admin<br>
+            비밀번호: admin123
         </div>
     </div>
 </body>
@@ -119,20 +149,32 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        password2 = request.form.get('password2', '').strip()
+        error = None
         
-        conn = sqlite3.connect('metadoor.db')
-        c = conn.cursor()
-        try:
-            c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-                     (username, generate_password_hash(password), 'user'))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('login'))
-        except:
-            conn.close()
-            error = '이미 존재하는 사용자명'
+        if not username or not password:
+            error = '사용자명과 비밀번호를 입력하세요.'
+        elif password != password2:
+            error = '비밀번호가 일치하지 않습니다.'
+        elif len(username) < 3:
+            error = '사용자명은 최소 3자 이상이어야 합니다.'
+        elif len(password) < 6:
+            error = '비밀번호는 최소 6자 이상이어야 합니다.'
+        else:
+            try:
+                conn = sqlite3.connect(DB_PATH)
+                c = conn.cursor()
+                c.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
+                         (username, generate_password_hash(password), 'user'))
+                conn.commit()
+                conn.close()
+                return redirect(url_for('login'))
+            except sqlite3.IntegrityError:
+                error = '이미 존재하는 사용자명입니다.'
+            except Exception as e:
+                error = f'회원가입 오류: {str(e)}'
     else:
         error = None
     
@@ -167,7 +209,7 @@ def register():
         input:focus {{ outline: none; border-color: #667eea; }}
         button {{ width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }}
         button:hover {{ background: #5568d3; }}
-        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; }}
+        .error {{ color: #e74c3c; margin-bottom: 20px; padding: 10px; background: #fadbd8; border-radius: 5px; text-align: center; }}
         .links {{ text-align: center; margin-top: 20px; }}
         .links a {{ color: #667eea; text-decoration: none; }}
     </style>
@@ -181,17 +223,21 @@ def register():
         <form method="POST">
             <div class="form-group">
                 <label>사용자명</label>
-                <input type="text" name="username" required>
+                <input type="text" name="username" required autofocus>
             </div>
             <div class="form-group">
                 <label>비밀번호</label>
                 <input type="password" name="password" required>
             </div>
+            <div class="form-group">
+                <label>비밀번호 확인</label>
+                <input type="password" name="password2" required>
+            </div>
             <button type="submit">회원가입</button>
         </form>
         
         <div class="links">
-            <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
+            <p><a href="/login">이미 계정이 있으신가요? 로그인</a></p>
         </div>
     </div>
 </body>
@@ -203,6 +249,15 @@ def register():
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('SELECT COUNT(*) FROM inspections WHERE user_id = ?', (session['user_id'],))
+        inspection_count = c.fetchone()[0]
+        conn.close()
+    except:
+        inspection_count = 0
     
     html = f'''<!DOCTYPE html>
 <html lang="ko">
@@ -267,9 +322,9 @@ def dashboard():
 </head>
 <body>
     <div class="header">
-        <h1>🏛️ 메타도어 대시보드</h1>
+        <h1>🏛️ 메타도어</h1>
         <div>
-            <span style="margin-right: 20px;">{session['username']}님 환영합니다!</span>
+            <span style="margin-right: 20px;">{session.get('username', 'user')}님 환영합니다!</span>
             <a href="/logout">로그아웃</a>
         </div>
     </div>
@@ -277,14 +332,14 @@ def dashboard():
     <div class="container">
         <div class="stats">
             <div class="stat-card">
-                <div class="stat-number">📊</div>
-                <div class="stat-label">통계 및 분석</div>
+                <div class="stat-number">{inspection_count}</div>
+                <div class="stat-label">총 점검 횟수</div>
             </div>
         </div>
         
         <div class="actions">
             <a href="/inspection" class="action-btn">✏️ 새 점검 입력</a>
-            <a href="/statistics" class="action-btn">📊 통계</a>
+            <a href="/statistics" class="action-btn">📊 통계 보기</a>
         </div>
     </div>
 </body>
@@ -298,18 +353,21 @@ def inspection():
         return redirect(url_for('login'))
     
     if request.method == 'POST':
-        location = request.form.get('location')
-        conn = sqlite3.connect('metadoor.db')
-        c = conn.cursor()
-        c.execute('INSERT INTO inspections (user_id, location, items, completed_at) VALUES (?, ?, ?, ?)',
-                 (session['user_id'], location, '[]', datetime.now()))
-        conn.commit()
-        conn.close()
-        return redirect(url_for('inspection_complete'))
+        location = request.form.get('location', '')
+        
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute('INSERT INTO inspections (user_id, location, items, completed_at) VALUES (?, ?, ?, ?)',
+                     (session['user_id'], location, '[]', datetime.now()))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('inspection_complete'))
+        except Exception as e:
+            return f'오류: {str(e)}', 500
     
     busan_districts = ['강서구', '사상구', '동구', '영도구', '남구', '중구', '서구', '부산진구', 
                       '동래구', '남동구', '북구', '해운대구', '수영구', '연제구', '금정구']
-    
     options = ''.join([f'<option value="{d}">{d}</option>' for d in busan_districts])
     
     html = f'''<!DOCTYPE html>
@@ -345,8 +403,8 @@ def inspection():
         h2 {{ margin-bottom: 30px; color: #333; }}
         .form-group {{ margin-bottom: 20px; }}
         label {{ display: block; margin-bottom: 8px; color: #333; font-weight: bold; }}
-        input, select {{ width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }}
-        input:focus, select:focus {{ outline: none; border-color: #667eea; }}
+        select {{ width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }}
+        select:focus {{ outline: none; border-color: #667eea; }}
         button[type="submit"] {{
             width: 100%;
             padding: 15px;
@@ -481,6 +539,16 @@ def statistics():
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .stat-card h3 { margin-bottom: 20px; color: #333; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th { background: #f9f9f9; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -492,7 +560,7 @@ def statistics():
     <div class="container">
         <div class="stat-card">
             <h3>점검 통계</h3>
-            <p>통계 데이터를 불러오는 중입니다...</p>
+            <p>통계 데이터를 조회 중입니다...</p>
         </div>
     </div>
 </body>
@@ -505,16 +573,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# 메인
-@app.route('/')
-def index():
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
-
-@app.route('/health')
-def health():
-    return 'OK'
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
