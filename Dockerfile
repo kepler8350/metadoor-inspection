@@ -2,10 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install Flask==2.3.2
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
 
 EXPOSE 8080
 
-CMD ["python", "-u", "app.py"]
+CMD ["python", "app.py"]
