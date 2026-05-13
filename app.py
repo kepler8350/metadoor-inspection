@@ -87,7 +87,7 @@ def build_html():
     H.append('function fn_sig_save(){alert("\\uc11c\\uba85\\uc774 \\uc800\\uc7a5\\ub418\\uc5c8\\uc2b5\\ub2c8\\ub2e4.");}')
     H.append('function fn_reset(){document.getElementById("it").value="-- \\ud56d\\ubaa9 \\uc120\\ud0dd --";rf();}')
     H.append('function fn_save(){if(document.getElementById("it").value==="-- \\ud56d\\ubaa9 \\uc120\\ud0dd --"){alert("\\uc810\\uac80 \\ud56d\\ubaa9\\uc744 \\uc120\\ud0dd\\ud558\\uc138\\uc694");return;}alert("\\uc800\\uc7a5 \\uc644\\ub8cc!");sh(1);ld();}')
-    H.append('<\/script></body></html>')
+    H.append('</script></body></html>')
     return ''.join(H)
 
 if __name__=='__main__':
