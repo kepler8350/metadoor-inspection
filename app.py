@@ -1,6 +1,5 @@
 import os,json,sqlite3
 from flask import Flask,Response,request,session,redirect,jsonify
-ADMIN MODE: SQLite DB, /admin 대시보드, API 저장
 app=Flask(__name__)
 app.secret_key='metadoor2024secret'
 ITEMS=['패널','보드','전원','PC','카메라','스피커','마이크','입력장치','하우징','외관데코','기타']
