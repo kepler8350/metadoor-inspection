@@ -37,3 +37,15 @@ function sel_loc(v){lo=v;document.getElementById('tt').textContent=ds+' - '+v+' 
 function fn_reset_fields(){document.getElementById('ct').value='';document.getElementById('nm').value='';if(sigCtx)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height)}
 function fn_sig_clear(){if(sigCtx)sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height)}
 function fn_sig_save(){alert('서명이 저장되었습니다.')}
+function fn_sig_save(){alert('서명이 저장되었습니다.')}
+function fn_reset(){document.getElementById('it').value='-- 항목 선택 --';fn_reset_fields()}
+function fn_save(){if(document.getElementById('it').value==='-- 항목 선택 --'){alert('점검 항목을 선택하세요');return}alert('저장 완료!');sh_page(1);ld_dists()}
+<\/script>
+</body></html>'''
+
+@app.route('/')
+def home():
+    return Response(HTML, mimetype='text/html')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
