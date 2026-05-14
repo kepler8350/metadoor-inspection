@@ -148,8 +148,6 @@ def admin_dash():
     H.append('<div class="period-bar" id="period-bar">')
     H.append(f'<select id="sel-year" onchange="loadData()"></select>')
     H.append(f'<select id="sel-month" onchange="loadData()"></select>')
-    H.append(f'<select id="sel-year" onchange="loadData()"></select>')
-    H.append(f'<select id="sel-month" onchange="loadData()"></select>')
     H.append('<button onclick="loadData()">조회</button>')
     H.append('</div>')
     H.append('</div>')
