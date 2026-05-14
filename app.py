@@ -32,6 +32,8 @@ def init_db():
     # 기존 테이블에 signature 컬럼 없으면 추가
     try:con.execute('ALTER TABLE inspections ADD COLUMN signature TEXT DEFAULT ""')
     except:pass
+    try:con.execute('ALTER TABLE inspections ADD COLUMN manager TEXT DEFAULT ""')
+    except:pass
     con.commit();con.close()
 
 def login_required(f):
@@ -251,7 +253,7 @@ function showHist(encodedKey){
     html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
       const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
-      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap">${it}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
+      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap">${it}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
     });
     html+='</tbody></table>';
   }
@@ -374,14 +376,14 @@ def api_maintenance():
     month=request.args.get('month',datetime.now().month)
     con=sqlite3.connect(DB)
     rows=con.execute(
-        "SELECT district,location,item,content,status,inspector,signature,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
+        "SELECT district,location,item,content,status,inspector,signature,manager,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
         (str(year),str(month).zfill(2))).fetchall()
     con.close()
     data={}
     for r in rows:
         key=f"{r[0]}|{r[1]}|{r[2]}"
         if key not in data:data[key]=[]
-        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'created_at':r[7]})
+        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'manager':r[7],'created_at':r[8]})
     return jsonify(data)
 
 # API: 원격점검 조회
@@ -469,8 +471,8 @@ def api_save():
     init_db()
     d=request.get_json(force=True)
     con=sqlite3.connect(DB)
-    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature) VALUES(?,?,?,?,?,?,?)',
-        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature','')))
+    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature,manager) VALUES(?,?,?,?,?,?,?,?)',
+        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature',''),d.get('manager','')))
     con.commit();con.close()
     return jsonify({'ok':True})
 
@@ -545,7 +547,7 @@ def build_html():
     H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s2").style.display="flex";fn_ld();}else showToast(res.error||"로그인 실패");});};')
     H.append('const fn_ld=()=>{const d=document.getElementById("dlist");d.innerHTML="";Object.keys(LOCS).forEach(k=>{const b=document.createElement("button");b.className="dbtn";b.textContent=k;b.onclick=()=>fn_sel(k,b);d.appendChild(b);});};')
     H.append('const fn_sel=(d,btn)=>{selD=d;document.querySelectorAll(".dbtn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");const r=document.getElementById("llist");r.innerHTML="";LOCS[d].forEach(l=>{const b=document.createElement("button");b.className="lbtn";b.textContent=l;b.onclick=()=>fn_go(l);r.appendChild(b);});};')
-    H.append('const fn_go=(l)=>{selL=l;document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value=selUser;requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
+    H.append('const fn_go=(l)=>{selL=l;document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value="";requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
     H.append('const fn_back=()=>{document.getElementById("s3").style.display="none";document.getElementById("s2").style.display="flex";};')
     H.append('let drawing=false,ctx,lastX=0,lastY=0;')
     H.append('const fn_ini_canvas=()=>{const c=document.getElementById("sig");const cr=c.getBoundingClientRect();c.width=Math.round(cr.width)||300;c.height=Math.round(cr.height)||100;ctx=c.getContext("2d");ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.lineCap="round";ctx.lineJoin="round";')
@@ -558,7 +560,7 @@ def build_html():
     H.append('const fn_clr=()=>{if(ctx){const c=document.getElementById("sig");ctx.clearRect(0,0,c.width,c.height);}};')
     H.append('const showToast=(m)=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500);};')
     H.append('const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
-    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser||insp,signature:sigData};')
+    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser,manager:insp,signature:sigData};')
     H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
     H.append('.then(r=>r.json()).then(()=>{showToast("✅ 저장 완료!");document.getElementById("sitm").value="";document.getElementById("scont").value="";document.getElementById("sinsp").value="";fn_clr();}).catch(()=>showToast("저장 실패. 다시 시도하세요."));};')
     H.append('window.onload=()=>{const c=document.getElementById("cl");const tick=()=>{const n=new Date();c.textContent=n.getHours()+":"+(n.getMinutes()<10?"0":"")+n.getMinutes();};tick();setInterval(tick,60000);};')
