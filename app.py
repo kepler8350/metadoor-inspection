@@ -334,7 +334,6 @@ function closeModal(id){document.getElementById(id).classList.remove('show');}
 window.onclick=e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('show');};
 window.onload=()=>{initYearMonth();loadData();};
 ''')
-''')
     H.append('</script></body></html>')
     return ''.join(H)
 
