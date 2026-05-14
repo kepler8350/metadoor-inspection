@@ -125,7 +125,7 @@ def admin_dash():
     H.append('.add-form h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#1a5276}')
     H.append('.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}')
     H.append('</style>')
-    H.append(f'<script>const LOCS={LOCS_J},ITEMS=rITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
+    H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
     H.append('</head><body>')
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
