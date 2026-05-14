@@ -8,12 +8,12 @@ app.secret_key='metadoor2024secret'
 ITEMS=['패널','보드','전원','PC','카메라','스피커','마이크','입력장치','하우징','외관데코','기타']
 REMOTE_ITEMS=['전원 켜짐','화면 정상','소프트웨어 실행','네트워크 연결','카메라 동작','마이크 동작','스피커 동작','모션캡처 동작','외관 청결','주변환경 정상']
 REMOTE_TREE={
-    '디지털사이니지':{'패널':['액정불량','번인현상','터치오류'],'PC':['부팅오류','소프트웨어오류','네트워크오류'],'카메라':['화각불량','초점불량','이물질'],'모션캡쳐카메라':['인식불량','캘리브레이션','렌즈오염'],'스피커':['음량불량','잡음','연결오류'],'마이크':['감도불량','잡음','연결오류']},
-    '체험형콘텐츠':{'콘텐츠재생':['영상오류','음향오류','재생불가'],'인터랙션':['터치반응불량','모션인식오류','응답지연'],'소프트웨어':['앱실행오류','업데이트오류','시스템오류']},
-    '통신관리':{'인터넷연결':['유선연결불량','무선연결불량','속도저하'],'네트워크':['IP설정오류','방화벽문제','VPN오류'],'원격접속':['접속불가','응답지연','보안이슈']},
-    '전원관리':{'전원공급':['전압이상','과전류','전원불안정'],'UPS':['배터리불량','자동절체오류','용량부족'],'절전기능':['스케줄러오류','자동ON/OFF오류','소비전력이상']},
-    '안전관리':{'발열':['패널과열','PC과열','주변온도이상'],'외관':['파손발견','이물질','케이블정리불량'],'비상시스템':['비상전원이상','경보장치오류','소화기불량']},
-    '통합관리CMS':{'CMS서버':['접속불가','응답지연','서버오류'],'콘텐츠동기화':['업데이트실패','배포오류','버전불일치'],'원격제어':['전원제어불가','콘텐츠제어오류','모니터링오류']}
+    '디지털사이니지':{'패널':['액정','번인','터치'],'PC':['OS','CPU','MEM','파일시스템','시스템로그','악성코드'],'카메라':[],'모션캡쳐카메라':[],'스피커':[],'마이크':[]},
+    '체험형콘텐츠':{'콘텐츠재생':[],'인터랙션':[],'소프트웨어':[]},
+    '통신관리':{'인터넷연결':[],'네트워크':[],'원격접속':[]},
+    '전원관리':{'전원공급':[],'UPS':[],'절전기능':[]},
+    '안전관리':{'발열':[],'외관':[],'비상시스템':[]},
+    '통합관리CMS':{'CMS서버':[],'콘텐츠동기화':[],'원격제어':[]}
 }
 LOCS={'금정구':['금정아이숲','금정체육공원','금정도서관'],'기장군':['기장어린이도서관','안데르센동화마을'],'남구':['대동골문화센터'],'동구':['애니랑 들락날락'],'동래구':['온빛어린이작은도서관','혁신어울림센터','부산사회복지종합센터','부산해양자연사박물관'],'부산진구':['부산진구 기적의도서관','전포어울더울작은도서관','부산진구어린이청소년도서관','꿈자람작은도서관'],'북구':['만덕종합사회복지관','시랑골아이누리 작은도서관','덕천도서관'],'사상구':['사상육아종합지원센터','꿈나래작은도서관','주례쌈지도서관','사상어린이도서관','그리며 들락날락','부산도서관 꿈뜨락'],'사하구':['을숙도문화회관','다대도서관','노을나루길작은도서관'],'서구':['천마니작은도서관','아동보호종합센터','한형석자유아동극장'],'수영구':['도모헌 숲속체험관','망미작은도서관'],'연제구':['부산시청','연제만화도서관'],'영도구':['풀잎작은도서관','부산복합혁신센터'],'중구':['근현대역사관'],'해운대구':['송정동 어린이작은도서관','영화의전당','반송종합사회복지관']}
 DB='/tmp/metadoor.db'
@@ -347,12 +347,19 @@ function rSelSub1(btn){
   btn.classList.add('active');
   const tree=REMOTE_TREE[window._rIt]||{};
   const sub2s=tree[s1]||[];
-  let html='';
-  sub2s.forEach(function(s2){html+='<button class="cat-btn" data-v="'+s2+'" onclick="rSelSub2(this)">'+s2+'</button>';});
-  document.getElementById('r-sub2-btns').innerHTML=html;
-  document.getElementById('r-sub2-wrap').style.display='block';
-  document.getElementById('r-action-wrap').style.display='none';
-  document.getElementById('r-sel-path').textContent='';
+  if(sub2s.length===0){
+    // 하위 항목 없음 → 바로 조치 입력 표시
+    document.getElementById('r-sub2-wrap').style.display='none';
+    document.getElementById('r-action-wrap').style.display='block';
+    document.getElementById('r-sel-path').textContent='선택: '+s1;
+  } else {
+    let html='';
+    sub2s.forEach(function(s2){html+='<button class="cat-btn" data-v="'+s2+'" onclick="rSelSub2(this)">'+s2+'</button>';});
+    document.getElementById('r-sub2-btns').innerHTML=html;
+    document.getElementById('r-sub2-wrap').style.display='block';
+    document.getElementById('r-action-wrap').style.display='none';
+    document.getElementById('r-sel-path').textContent='';
+  }
 }
 function rSelSub2(btn){
   const s2=btn.getAttribute('data-v')||btn.textContent.trim();
