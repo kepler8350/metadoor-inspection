@@ -328,17 +328,23 @@ function openRemoteInput(encodedKey){
     stepHtml+='<div id="r-sub2-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>';
   }
   stepHtml+='<div id="r-action-wrap" style="'+(sub1s.length>0?'display:none':'')+'">';
-  const today=new Date().toISOString().slice(0,10);
-  stepHtml+='<div class="form-row"><label>점검일자</label><input type="date" id="rc-date" value="'+today+'"></div>';
+  const now=new Date();
+  const dtLocal=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  stepHtml+='<div class="form-row"><label>점검일자</label><input type="datetime-local" id="rc-date" value="'+dtLocal+'"></div>';
   stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
   stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
-  stepHtml+='<div class="form-row"><label>점검자</label><input type="text" id="rc-insp" placeholder="점검자명"></div>';
+  stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">-- 선택 --</option></select></div>';
   stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;font-weight:600"></div>';
   stepHtml+='<button class="btn-primary" onclick="saveRemoteNew()">저장</button>';
   stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('+String.fromCharCode(39)+'remote-modal'+String.fromCharCode(39)+')">취소</button>';
   stepHtml+='</div>';
   document.getElementById('remote-modal-body').innerHTML=hist+stepHtml;
   document.getElementById('remote-modal').classList.add('show');
+  // 회원 목록 로드
+  fetch('/api/members').then(function(r){return r.json();}).then(function(members){
+    const sel=document.getElementById('rc-insp');
+    if(sel){members.forEach(function(m){const o=document.createElement('option');o.value=m.name;o.textContent=m.name+(m.username?' ('+m.username+')':'');sel.appendChild(o);});}
+  });
 }
 function rSelSub1(btn){
   const s1=btn.getAttribute('data-v')||btn.textContent.trim();
