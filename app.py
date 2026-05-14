@@ -93,9 +93,9 @@ def admin_dash():
     H.append('.tbl-wrap{background:#fff;border-radius:10px;overflow:auto;box-shadow:0 2px 8px rgba(0,0,0,.08)}')
     H.append('table{border-collapse:collapse;font-size:12px;min-width:100%}')
     H.append('th{background:#1a5276;color:#fff;padding:10px 8px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2}')
-    H.append('th.loc-th{position:sticky;left:0;z-index:3;background:#1a5276;min-width:150px}')
+    H.append('th.loc-th{position:sticky;left:0;z-index:3;background:#1a5276;min-width:0;white-space:nowrap}')
     H.append('td{padding:8px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;text-align:center;white-space:nowrap}')
-    H.append('td.loc-td{position:sticky;left:0;background:#f8f9fa;font-weight:600;font-size:12px;text-align:left;z-index:1;border-right:2px solid #ddd}')
+    H.append('td.loc-td{position:sticky;left:0;background:#f8f9fa;font-weight:600;font-size:11px;text-align:left;z-index:1;border-right:2px solid #ddd;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}')
     H.append('td.ok{color:#27ae60;font-size:11px}')
     H.append('td.has-data{cursor:pointer;background:#fff3cd;color:#856404;font-size:11px;font-weight:600}')
     H.append('td.has-data:hover{background:#ffe082}')
@@ -192,7 +192,7 @@ function loadMaintenance(){
     ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
     html+='</tr></thead><tbody>';
     locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
+      html+=`<tr><td class="loc-td">${d} ${l}</td>`;
       ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
@@ -233,7 +233,7 @@ function loadRemote(){
     REMOTE_ITEMS.forEach(it=>{html+=`<th style="max-width:80px;font-size:11px">${it}</th>`;});
     html+='</tr></thead><tbody>';
     locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
+      html+=`<tr><td class="loc-td">${d} ${l}</td>`;
       REMOTE_ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
