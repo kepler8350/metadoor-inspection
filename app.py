@@ -307,7 +307,7 @@ function openRemoteInput(encodedKey){
   if(recs&&recs.length>0){
     hist='<div style="margin-bottom:12px;background:#f8f9fa;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">📋 최근 점검이력</div>';
     recs.slice().reverse().forEach(r=>{
-      hist+='<div class="hist-row"><div class="hist-meta">📅 '+r.check_date+' | 👤 '+(r.inspector||'-')+' | 상태: <b style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+'">'+r.status+'</b></div>';
+      hist+='<div class="hist-row"><div class="hist-meta">📅 '+(r.check_date||'')+' | 👤 '+(r.inspector||'-')+' | 상태: <b style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+'">'+r.status+'</b></div>';
       if(r.check_item&&r.check_item!==it)hist+='<div style="font-size:11px;color:#1a5276;margin:2px 0">🔹 '+r.check_item+'</div>';
       hist+='<div class="hist-content">'+(r.note||'(내용없음)')+'</div></div>';
     });
@@ -321,7 +321,7 @@ function openRemoteInput(encodedKey){
     stepHtml+='<div style="background:#eaf0fb;border-radius:8px;padding:10px;margin-bottom:10px">';
     stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">① 장치 선택</div>';
     stepHtml+='<div id="r-sub1-btns" style="display:flex;flex-wrap:wrap;gap:6px">';
-    sub1s.forEach(s=>{stepHtml+='<button class="cat-btn" onclick="rSelSub1(this,''+s+'')">'+s+'</button>';});
+    sub1s.forEach(function(s){stepHtml+='<button class="cat-btn" data-v="'+s+'" onclick="rSelSub1(this)">'+s+'</button>';});
     stepHtml+='</div></div>';
     stepHtml+='<div id="r-sub2-wrap" style="display:none;background:#e8f8f5;border-radius:8px;padding:10px;margin-bottom:10px">';
     stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">② 점검항목 선택</div>';
@@ -333,29 +333,31 @@ function openRemoteInput(encodedKey){
   stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
   stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
   stepHtml+='<div class="form-row"><label>점검자</label><input type="text" id="rc-insp" placeholder="점검자명"></div>';
-  stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;margin-bottom:6px"></div>';
+  stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;font-weight:600"></div>';
   stepHtml+='<button class="btn-primary" onclick="saveRemoteNew()">저장</button>';
-  stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('remote-modal')">취소</button>';
+  stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('+String.fromCharCode(39)+'remote-modal'+String.fromCharCode(39)+')">취소</button>';
   stepHtml+='</div>';
   document.getElementById('remote-modal-body').innerHTML=hist+stepHtml;
   document.getElementById('remote-modal').classList.add('show');
 }
-function rSelSub1(btn,s1){
+function rSelSub1(btn){
+  const s1=btn.getAttribute('data-v')||btn.textContent.trim();
   window._rSub1=s1; window._rSub2='';
-  document.querySelectorAll('#r-sub1-btns .cat-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#r-sub1-btns .cat-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   const tree=REMOTE_TREE[window._rIt]||{};
   const sub2s=tree[s1]||[];
   let html='';
-  sub2s.forEach(s2=>{html+='<button class="cat-btn" onclick="rSelSub2(this,''+s2+'')">'+s2+'</button>';});
+  sub2s.forEach(function(s2){html+='<button class="cat-btn" data-v="'+s2+'" onclick="rSelSub2(this)">'+s2+'</button>';});
   document.getElementById('r-sub2-btns').innerHTML=html;
   document.getElementById('r-sub2-wrap').style.display='block';
   document.getElementById('r-action-wrap').style.display='none';
   document.getElementById('r-sel-path').textContent='';
 }
-function rSelSub2(btn,s2){
+function rSelSub2(btn){
+  const s2=btn.getAttribute('data-v')||btn.textContent.trim();
   window._rSub2=s2;
-  document.querySelectorAll('#r-sub2-btns .cat-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#r-sub2-btns .cat-btn').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('r-action-wrap').style.display='block';
   document.getElementById('r-sel-path').textContent='선택: '+window._rSub1+' > '+s2;
@@ -368,8 +370,9 @@ function saveRemoteNew(){
     inspector:document.getElementById('rc-insp').value,
     check_date:document.getElementById('rc-date').value};
   fetch('/api/remote/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-  .then(r=>r.json()).then(()=>{closeModal('remote-modal');loadRemote();});
+  .then(function(r){return r.json();}).then(function(){closeModal('remote-modal');loadRemote();});
 }
+
 function saveRemote(d,l,it){
   const data={district:d,location:l,check_item:it,
     status:document.getElementById('rc-status').value,
