@@ -274,11 +274,11 @@ function loadRemote(){
     let locs=[];
     Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
     let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    REMOTE_ITEMS.forEach(it=>{html+=`<th style="max-width:80px;font-size:11px">${it}</th>`;});
+    Object.keys(REMOTE_TREE).forEach(it=>{html+=`<th style="min-width:90px;font-size:12px">${it}</th>`;});
     html+='</tr></thead><tbody>';
     locs.forEach(({d,l})=>{
       html+=`<tr><td class="loc-td">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
-      REMOTE_ITEMS.forEach(it=>{
+      Object.keys(REMOTE_TREE).forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
         window._rData[key]=recs;
