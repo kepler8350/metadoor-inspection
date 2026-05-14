@@ -240,7 +240,7 @@ def build_html():
     H.append('  document.getElementById("stitle").textContent=selD+" / "+selL;')
     H.append('  document.getElementById("s2").style.display="none";')
     H.append('  document.getElementById("s3").style.display="flex";')
-    H.append('  fn_st("정상");fn_ini_canvas();')
+    H.append('  fn_st("정상");setTimeout(fn_ini_canvas,30);')
     H.append('};')
     H.append('const fn_back=()=>{')
     H.append('  document.getElementById("s3").style.display="none";')
