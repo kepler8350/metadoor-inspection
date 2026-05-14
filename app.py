@@ -188,6 +188,7 @@ function loadMaintenance(){
   .then(r=>r.json()).then(data=>{
     let locs=[];
     Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
+    window._mData={};
     let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
     ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
     html+='</tr></thead><tbody>';
@@ -196,11 +197,12 @@ function loadMaintenance(){
       ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
+        window._mData[key]=recs;
         if(recs.length===0){html+=`<td class="ok">정상</td>`;}
         else{
           const last=recs[recs.length-1];
-          html+=`<td class="${last.content?'has-data':'ok'}" onclick="showHist('${d}','${l}','${it}',${JSON.stringify(recs).replace(/</g,'&lt;')})">`;
-          html+=recs.length+'건</td>';
+          const cls=last.content?'has-data':'ok';
+          html+=`<td class="${cls}" onclick="showHist('${encodeURIComponent(key)}')">${recs.length}건</td>`;
         }
       });
       html+='</tr>';
@@ -209,7 +211,11 @@ function loadMaintenance(){
     document.getElementById('content').innerHTML=html;
   });
 }
-function showHist(d,l,it,recs){
+function showHist(encodedKey){
+  const key=decodeURIComponent(encodedKey);
+  const parts=key.split('|');
+  const d=parts[0],l=parts[1],it=parts[2];
+  const recs=(window._mData&&window._mData[key])||[];
   document.getElementById('hist-title').textContent=d+' '+l+' - '+it;
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
@@ -238,12 +244,13 @@ function loadRemote(){
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
         const hasAbnormal=recs.some(r=>r.status==='이상');
-        if(hasAbnormal){
-          html+=`<td class="abnormal" onclick="openRemoteInput('${d}','${l}','${it}',${JSON.stringify(recs).replace(/</g,'&lt;')})">⚠️ 이상</td>`;
+        window._rData[key]=recs;
+        window._rData[key]=recs;
+          html+=`<td class="abnormal" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))">⚠️ 이상</td>`;
         }else if(recs.length>0){
-          html+=`<td class="has-data" onclick="openRemoteInput('${d}','${l}','${it}',${JSON.stringify(recs).replace(/</g,'&lt;')})">확인(${recs.length})</td>`;
+          html+=`<td class="has-data" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))">확인(${recs.length})</td>`;
         }else{
-          html+=`<td class="ok" onclick="openRemoteInput('${d}','${l}','${it}',[])" style="cursor:pointer">정상</td>`;
+          html+=`<td class="ok" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))" style="cursor:pointer">정상</td>`;
         }
       });
       html+='</tr>';
@@ -252,7 +259,7 @@ function loadRemote(){
     document.getElementById('content').innerHTML=html;
   });
 }
-function openRemoteInput(d,l,it,recs){
+function openRemoteInput(key){const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2],recs=(window._rData&&window._rData[key])||[];
   document.getElementById('remote-modal-title').textContent=d+' '+l+' - '+it;
   let hist='';
   if(recs&&recs.length>0){
