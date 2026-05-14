@@ -384,7 +384,7 @@ def api_members():
     con=sqlite3.connect(DB)
     rows=con.execute('SELECT id,username,name,phone,created_at FROM members ORDER BY id DESC').fetchall()
     con.close()
-    return jsonify([{'id':r[0],"username':r[1],'name':r[2],'phone':r[3],'created_at':r[4]} for r in rows])
+    return jsonify([{'id':r[0],'username':r[1],'name':r[2],'phone':r[3],'created_at':r[4]} for r in rows])
 
 # API: 회원 추가
 @app.route('/api/members/add',methods=['POST'])
