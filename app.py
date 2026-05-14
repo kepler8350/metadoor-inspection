@@ -16,6 +16,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         district TEXT,location TEXT,item TEXT,
         content TEXT,status TEXT,inspector TEXT,
+        signature TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     con.execute('''CREATE TABLE IF NOT EXISTS remote_inspections(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,9 +221,10 @@ function showHist(encodedKey){
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">방문자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap">사인</th></tr></thead><tbody>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
-      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').slice(0,10)}</td><td style="padding:8px 6px;text-align:center">${r.status||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">-</td></tr>`;
+      const signImg=r.signature?`<img src="${r.signature}" style="max-height:48px;max-width:80px;object-fit:contain">`:'-';
+      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
     });
     html+='</tbody></table>';
   }
@@ -345,14 +347,14 @@ def api_maintenance():
     month=request.args.get('month',datetime.now().month)
     con=sqlite3.connect(DB)
     rows=con.execute(
-        "SELECT district,location,item,content,status,inspector,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
+        "SELECT district,location,item,content,status,inspector,signature,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
         (str(year),str(month).zfill(2))).fetchall()
     con.close()
     data={}
     for r in rows:
         key=f"{r[0]}|{r[1]}|{r[2]}"
         if key not in data:data[key]=[]
-        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'created_at':r[6]})
+        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'created_at':r[7]})
     return jsonify(data)
 
 # API: 원격점검 조회
@@ -428,8 +430,8 @@ def api_save():
     init_db()
     d=request.get_json(force=True)
     con=sqlite3.connect(DB)
-    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector) VALUES(?,?,?,?,?,?)',
-        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector','')))
+    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature) VALUES(?,?,?,?,?,?,?)',
+        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature','')))
     con.commit();con.close()
     return jsonify({'ok':True})
 
@@ -517,7 +519,7 @@ def build_html():
     H.append('const fn_clr=()=>{if(ctx){const c=document.getElementById("sig");ctx.clearRect(0,0,c.width,c.height);}};')
     H.append('const showToast=(m)=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500);};')
     H.append('const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
-    H.append('const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:insp};')
+    H.append('const sigData=ctx?document.getElementById("sig").toDataURL('image/png'):'';const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:insp,signature:sigData};')
     H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
     H.append('.then(r=>r.json()).then(()=>{showToast("✅ 저장 완료!");document.getElementById("sitm").value="";document.getElementById("scont").value="";document.getElementById("sinsp").value="";fn_clr();}).catch(()=>showToast("저장 실패. 다시 시도하세요."));};')
     H.append('window.onload=()=>{const c=document.getElementById("cl");const tick=()=>{const n=new Date();c.textContent=n.getHours()+":"+(n.getMinutes()<10?"0":"")+n.getMinutes();};tick();setInterval(tick,60000);};')
