@@ -224,10 +224,10 @@ function showHist(encodedKey){
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
       const signImg=r.signature?`<img src="${r.signature}" style="max-height:48px;max-width:80px;object-fit:contain">`:'-';
-      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
+      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
     });
     html+='</tbody></table>';
   }
