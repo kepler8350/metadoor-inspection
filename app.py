@@ -452,6 +452,18 @@ def api_member_del(mid):
     return jsonify({'ok':True})
 
 # API: 점검 저장 (모바일 앱)
+@app.route('/api/user/login',methods=['POST'])
+def api_user_login():
+    init_db()
+    d=request.get_json(force=True)
+    pw=hashlib.sha256(d.get('password','').encode()).hexdigest()
+    con=sqlite3.connect(DB)
+    row=con.execute('SELECT username,name FROM members WHERE username=? AND password=?',
+        (d.get('username',''),pw)).fetchone()
+    con.close()
+    if row:return jsonify({'ok':True,'name':row[1]or row[0],'username':row[0]})
+    return jsonify({'ok':False,'error':'아이디 또는 비밀번호가 올바르지 않습니다'})
+
 @app.route('/api/inspection',methods=['POST'])
 def api_save():
     init_db()
@@ -529,11 +541,11 @@ def build_html():
     H.append('<div class="toast" id="toast"></div></div>')
     H.append('<script>')
     H.append(f'const LOCS={LC},ITEMS={IT};')
-    H.append('let selD="",selL="",curSt="정상";')
-    H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;if(u==="admin"&&p==="admin123"){document.getElementById("s1").style.display="none";document.getElementById("s2").style.display="flex";fn_ld();}else showToast("아이디 또는 비밀번호를 확인하세요");};')
+    H.append('let selD="",selL="",selUser="",curSt="정상";')
+    H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s2").style.display="flex";fn_ld();}else showToast(res.error||"로그인 실패");});};')
     H.append('const fn_ld=()=>{const d=document.getElementById("dlist");d.innerHTML="";Object.keys(LOCS).forEach(k=>{const b=document.createElement("button");b.className="dbtn";b.textContent=k;b.onclick=()=>fn_sel(k,b);d.appendChild(b);});};')
     H.append('const fn_sel=(d,btn)=>{selD=d;document.querySelectorAll(".dbtn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");const r=document.getElementById("llist");r.innerHTML="";LOCS[d].forEach(l=>{const b=document.createElement("button");b.className="lbtn";b.textContent=l;b.onclick=()=>fn_go(l);r.appendChild(b);});};')
-    H.append('const fn_go=(l)=>{selL=l;document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
+    H.append('const fn_go=(l)=>{selL=l;document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value=selUser;requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
     H.append('const fn_back=()=>{document.getElementById("s3").style.display="none";document.getElementById("s2").style.display="flex";};')
     H.append('let drawing=false,ctx,lastX=0,lastY=0;')
     H.append('const fn_ini_canvas=()=>{const c=document.getElementById("sig");const cr=c.getBoundingClientRect();c.width=Math.round(cr.width)||300;c.height=Math.round(cr.height)||100;ctx=c.getContext("2d");ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.lineCap="round";ctx.lineJoin="round";')
@@ -546,7 +558,7 @@ def build_html():
     H.append('const fn_clr=()=>{if(ctx){const c=document.getElementById("sig");ctx.clearRect(0,0,c.width,c.height);}};')
     H.append('const showToast=(m)=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500);};')
     H.append('const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
-    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:insp,signature:sigData};')
+    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser||insp,signature:sigData};')
     H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
     H.append('.then(r=>r.json()).then(()=>{showToast("✅ 저장 완료!");document.getElementById("sitm").value="";document.getElementById("scont").value="";document.getElementById("sinsp").value="";fn_clr();}).catch(()=>showToast("저장 실패. 다시 시도하세요."));};')
     H.append('window.onload=()=>{const c=document.getElementById("cl");const tick=()=>{const n=new Date();c.textContent=n.getHours()+":"+(n.getMinutes()<10?"0":"")+n.getMinutes();};tick();setInterval(tick,60000);};')
