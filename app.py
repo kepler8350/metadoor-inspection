@@ -29,6 +29,9 @@ def init_db():
         username TEXT UNIQUE,password TEXT,
         name TEXT,phone TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    # 기존 테이블에 signature 컬럼 없으면 추가
+    try:con.execute('ALTER TABLE inspections ADD COLUMN signature TEXT DEFAULT ""')
+    except:pass
     con.commit();con.close()
 
 def login_required(f):
