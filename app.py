@@ -92,9 +92,9 @@ def admin_dash():
     H.append('.content{flex:1;overflow:auto;padding:16px}')
     H.append('.tbl-wrap{background:#fff;border-radius:10px;overflow:auto;box-shadow:0 2px 8px rgba(0,0,0,.08)}')
     H.append('table{border-collapse:collapse;font-size:12px;min-width:100%}')
-    H.append('th{background:#1a5276;color:#fff;padding:10px 8px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2}')
+    H.append('th{background:#1a5276;color:#fff;padding:10px 4px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2;min-width:52px;width:52px}')
     H.append('th.loc-th{position:sticky;left:0;z-index:3;background:#1a5276;min-width:0;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;font-size:10px}')
-    H.append('td{padding:8px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;text-align:center;white-space:nowrap}')
+    H.append('td{padding:8px 4px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;text-align:center;white-space:nowrap;min-width:52px;width:52px}')
     H.append('td.loc-td{position:sticky;left:0;background:#f8f9fa;font-weight:600;font-size:11px;text-align:left;z-index:1;border-right:2px solid #ddd;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis}')
     H.append('td.ok{color:#27ae60;font-size:11px}')
     H.append('td.has-data{cursor:pointer;background:#fff3cd;color:#856404;font-size:11px;font-weight:600}')
@@ -138,7 +138,7 @@ def admin_dash():
     H.append('</div>')
     H.append('<div class="main">')
     H.append('<div class="topbar">')
-    H.append('<h1 id="page-title">유지보수현홤</h1>')
+    H.append('<h1 id="page-title">유지보수현황</h1>')
     H.append('<div class="period-bar" id="period-bar">')
     H.append(f'<select id="sel-year" onchange="loadData()"></select>')
     H.append(f'<select id="sel-month" onchange="loadData()"></select>')
@@ -220,12 +220,11 @@ function showHist(encodedKey){
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">방문자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap">사인</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
-      html+=`<div class="hist-row">
-        <div class="hist-meta">📅 ${r.created_at} | 👤 ${r.inspector||'-'} | 상태: ${r.status||'-'}</div>
-        <div class="hist-content">${r.content||'(내용 없음)'}</div>
-      </div>`;
+      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').slice(0,10)}</td><td style="padding:8px 6px;text-align:center">${r.status||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">-</td></tr>`;
     });
+    html+='</tbody></table>';
   }
   document.getElementById('hist-body').innerHTML=html;
   document.getElementById('hist-modal').classList.add('show');
