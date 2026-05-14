@@ -197,7 +197,7 @@ function loadMaintenance(){
     ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
     html+='</tr></thead><tbody>';
     locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
+      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
       ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
@@ -216,18 +216,42 @@ function loadMaintenance(){
     document.getElementById('content').innerHTML=html;
   });
 }
+function showLocHist(encodedLoc){
+  const loc=decodeURIComponent(encodedLoc);
+  const parts=loc.split('|'),d=parts[0],l=parts[1];
+  document.getElementById('hist-title').textContent=d+' '+l+' - 전체 점검이력';
+  let html='';
+  const allRecs=[];
+  ITEMS.forEach(it=>{
+    const key=d+'|'+l+'|'+it;
+    const recs=(window._mData&&window._mData[key])||[];
+    recs.forEach(r=>allRecs.push({...r,item:it}));
+  });
+  allRecs.sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
+  if(allRecs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
+  else{
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
+    allRecs.forEach(r=>{
+      const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:40px;max-width:70px;object-fit:contain">':'-';
+      html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">'+(r.created_at||'').replace('T',' ').slice(0,19)+'</td><td style="padding:8px 6px;text-align:center;white-space:nowrap">'+r.item+'</td><td style="padding:8px 6px;text-align:center">'+( r.inspector||'-')+'</td><td style="padding:8px 6px">'+(r.content||'-')+'</td><td style="padding:8px 6px;text-align:center">'+signImg+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  }
+  document.getElementById('hist-body').innerHTML=html;
+  document.getElementById('hist-modal').classList.add('show');
+}
 function showHist(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
   const recs=(window._mData&&window._mData[key])||[];
-  document.getElementById('hist-title').textContent=d+' '+l+' - '+it;
+  document.getElementById('hist-title').textContent=d+' '+l;
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
-      const signImg=r.signature?`<img src="${r.signature}" style="max-height:48px;max-width:80px;object-fit:contain">`:'-';
-      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
+      const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
+      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap">${it}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
     });
     html+='</tbody></table>';
   }
@@ -268,7 +292,7 @@ function openRemoteInput(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
   const recs=(window._rData&&window._rData[key])||[];
-  document.getElementById('remote-modal-title').textContent=d+' '+l+' - '+it;
+  document.getElementById('remote-modal-title').textContent=d+' '+l;
   let hist='';
   if(recs&&recs.length>0){
     hist='<div style="margin-bottom:16px;background:#f8f9fa;border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px">📋 점검 이력</div>';
