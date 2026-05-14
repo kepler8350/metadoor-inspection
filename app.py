@@ -95,7 +95,7 @@ def admin_dash():
     H.append('th{background:#1a5276;color:#fff;padding:10px 8px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2}')
     H.append('th.loc-th{position:sticky;left:0;z-index:3;background:#1a5276;min-width:0;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;font-size:10px}')
     H.append('td{padding:8px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0;text-align:center;white-space:nowrap}')
-    H.append('td.loc-td{position:sticky;left:0;background:#f8f9fa;font-weight:600;font-size:11px;text-align:left;z-index:1;border-right:2px solid #ddd;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;font-size:10px}')
+    H.append('td.loc-td{position:sticky;left:0;background:#f8f9fa;font-weight:600;font-size:11px;text-align:left;z-index:1;border-right:2px solid #ddd;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis}')
     H.append('td.ok{color:#27ae60;font-size:11px}')
     H.append('td.has-data{cursor:pointer;background:#fff3cd;color:#856404;font-size:11px;font-weight:600}')
     H.append('td.has-data:hover{background:#ffe082}')
@@ -104,14 +104,14 @@ def admin_dash():
     H.append('.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}')
     H.append('.modal.show{display:flex}')
     H.append('.modal-box{background:#fff;border-radius:12px;padding:28px;min-width:480px;max-width:600px;max-height:80vh;overflow-y:auto;position:relative}')
-    H.append('.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a5276;border-bottom:2px solid #1a5276;padding-bottom:8px}')
+    H.append('.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a5276;binder-bottom:2px solid #1a5276;padding-bottom:8px}')
     H.append('.modal-close{position:absolute;top:12px;right:16px;font-size:20px;cursor:pointer;color:#999;background:none;border:none}')
     H.append('.hist-row{padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}')
     H.append('.hist-row:last-child{border-bottom:none}')
     H.append('.hist-meta{color:#999;font-size:11px;margin-bottom:4px}')
     H.append('.hist-content{color:#333}')
     H.append('.form-row{margin-bottom:14px}')
-    H.append('.form-row label{display:block;font-size:12px;color:#555;font-weight:600;margin-bottom:5px}')
+    H.append('.form-row label{display:block;font-size:12px;color:#555;font-weight:600!margin-bottom:5px}')
     H.append('.form-row input,.form-row select,.form-row textarea{width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;font-size:13px}')
     H.append('.form-row textarea{resize:vertical;height:80px}')
     H.append('.btn-primary{padding:10px 20px;background:#1a5276;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600}')
@@ -125,9 +125,8 @@ def admin_dash():
     H.append('.add-form h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#1a5276}')
     H.append('.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}')
     H.append('</style>')
-    H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
+    H.append(f'<script>const LOCS={LOCS_J},ITEMS=rITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
     H.append('</head><body>')
-    # 사이드바
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
     H.append('<div class="sb-menu">')
@@ -137,135 +136,141 @@ def admin_dash():
     H.append('</div>')
     H.append('<div class="sb-footer"><form method="post" action="/admin/logout"><button class="logout-btn">로그아웃</button></form></div>')
     H.append('</div>')
-    # 메인
     H.append('<div class="main">')
     H.append('<div class="topbar">')
-    H.append('<h1 id="page-title">유지보수현황</h1>')
+    H.append('<h1 id="page-title">유지보수현홤</h1>')
     H.append('<div class="period-bar" id="period-bar">')
     H.append(f'<select id="sel-year" onchange="loadData()"></select>')
     H.append(f'<select id="sel-month" onchange="loadData()"></select>')
-    H.append('<button onclick="loadData()">조회</button>')
-    H.append('</div>')
-    H.append('</div>')
-    H.append('<div class="content" id="content"></div>')
-    H.append('</div>')
-    # 상세 이력 모달
-    H.append('<div class="modal" id="hist-modal"><div class="modal-box"><button class="modal-close" onclick="closeModal(\'hist-modal\')">✕</button><div class="modal-title" id="hist-title"></div><div id="hist-body"></div></div></div>')
-    # 원격점검 입력 모달
-    H.append('<div class="modal" id="remote-modal"><div class="modal-box"><button class="modal-close" onclick="closeModal(\'remote-modal\')">✕</button><div class="modal-title" id="remote-modal-title">원격점검 입력</div>')
-    H.append('<div id="remote-modal-body"></div></div></div>')
-    H.append('<script>')
-    H.append('''
-function goMenu(m){
-  curMenu=m;
-  const titles={maintenance:"유지보수현황",remote:"원격점검",members:"회원관리"};
-  document.getElementById('page-title').textContent=titles[m]||m;
-  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.sb-item').forEach(b=>{if(b.textContent.includes(titles[m]))b.classList.add('active');});
-  const pb=document.getElementById('period-bar');
-  pb.style.display=(m==='members')?'none':'flex';
-  loadData();
-  history.pushState({},'','/admin?menu='+m);
-}
-function initYearMonth(){
-  const sy=document.getElementById('sel-year'),sm=document.getElementById('sel-month');
-  const ny=new Date().getFullYear();
-  sy.innerHTML='';
-  for(let y=ny-2;y<=ny+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y+'년';if(y===ny)o.selected=true;sy.appendChild(o);}
-  sm.innerHTML='';
-  const nm=new Date().getMonth()+1;
-  for(let mo=1;mo<=12;mo++){const o=document.createElement('option');o.value=mo;o.textContent=mo+'월';if(mo===nm)o.selected=true;sm.appendChild(o);}
-}
-function loadData(){
-  curYear=parseInt(document.getElementById('sel-year').value||new Date().getFullYear());
-  curMonth=parseInt(document.getElementById('sel-month').value||new Date().getMonth()+1);
-  if(curMenu==='maintenance')loadMaintenance();
-  else if(curMenu==='remote')loadRemote();
-  else loadMembers();
-}
-function loadMaintenance(){
-  fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
-  .then(r=>r.json()).then(data=>{
-    let locs=[];
-    Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
-    window._mData={};
-    let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
-    html+='</tr></thead><tbody>';
-    locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d} ${l}</td>`;
-      ITEMS.forEach(it=>{
-        const key=d+'|'+l+'|'+it;
-        const recs=data[key]||[];
-        window._mData[key]=recs;
-        if(recs.length===0){html+=`<td class="ok">정상</td>`;}
-        else{
-          const last=recs[recs.length-1];
-          const cls=last.content?'has-data':'ok';
-          html+=`<td class="${cls}" onclick="showHist('${encodeURIComponent(key)}')">${recs.length}건</td>`;
-        }
-      });
-      html+='</tr>';
-    });
-    html+='</tbody></table></div>';
-    document.getElementById('content').innerHTML=html;
-  });
-}
-function showHist(encodedKey){
-  const key=decodeURIComponent(encodedKey);
-  const parts=key.split('|');
-  const d=parts[0],l=parts[1],it=parts[2];
-  const recs=(window._mData&&window._mData[key])||[];
-  document.getElementById('hist-title').textContent=d+' '+l+' - '+it;
-  let html='';
-  if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
-  else{
-    recs.slice().reverse().forEach(r=>{
-      html+=`<div class="hist-row">
-        <div class="hist-meta">📅 ${r.created_at} | 👤 ${r.inspector||'-'} | 상태: ${r.status||'-'}</div>
-        <div class="hist-content">${r.content||'(내용 없음)'}</div>
-      </div>`;
-    });
-  }
-  document.getElementById('hist-body').innerHTML=html;
-  document.getElementById('hist-modal').classList.add('show');
-}
-function loadRemote(){
-  fetch(`/api/remote?year=${curYear}&month=${curMonth}`)
-  .then(r=>r.json()).then(data=>{
-    let locs=[];
-    Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
-    let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    REMOTE_ITEMS.forEach(it=>{html+=`<th style="max-width:80px;font-size:11px">${it}</th>`;});
-    html+='</tr></thead><tbody>';
-    locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d} ${l}</td>`;
-      REMOTE_ITEMS.forEach(it=>{
-        const key=d+'|'+l+'|'+it;
-        const recs=data[key]||[];
-        const hasAbnormal=recs.some(r=>r.status==='이상');
-        window._rData[key]=recs;
-        window._rData[key]=recs;
-          html+=`<td class="abnormal" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))">⚠️ 이상</td>`;
-        }else if(recs.length>0){
-          html+=`<td class="has-data" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))">확인(${recs.length})</td>`;
-        }else{
-          html+=`<td class="ok" onclick="openRemoteInput(decodeURIComponent('${encodeURIComponent(key)}'))" style="cursor:pointer">정상</td>`;
-        }
-      });
-      html+='</tr>';
-    });
-    html+='</tbody></table></div>';
-    document.getElementById('content').innerHTML=html;
-  });
-}
-function openRemoteInput(key){const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2],recs=(window._rData&&window._rData[key])||[];
-  document.getElementById('remote-modal-title').textContent=d+' '+l+' - '+it;
+    H.append('<button onclick="loadData()">조회؝]ۏ��B��\[�
+	��]���B��\[�
+	��]���B��\[�
+	�]��\��H��۝[��YH��۝[����]���B��\[�
+	��]���B��\[�
+	�]��\��H�[�[�YH�\�[[�[��]��\��H�[�[X�����]ۈ�\��H�[�[X���H�ۘ�X��H����S[�[
+	�\�[[�[	�H���%O؝]ۏ�]��\��H�[�[]]H�YH�\�]]H���]��]�YH�\�X��H���]���]���]���B��\[�
+	�]��\��H�[�[�YH��[[�K[[�[��]��\��H�[�[X�����]ۈ�\��H�[�[X���H�ۘ�X��H����S[�[
+	ܙ[[�K[[�[	�H���%O؝]ۏ�]��\��H�[�[]]H�YH��[[�K[[�[]]H��&�:��{($:��;'�z�)O�]���B��\[�
+	�]�YH��[[�K[[�[X��H���]���]���]���B��\[�
+	��ܚ\��B��\[�
+	���[��[ۈ��Y[�JJ^�\�Y[�O[N�ۜ�]\�^�XZ[�[�[��N��'(;)�:��;"&;f!;fjH��[[�N��&�:��{($:���Y[X�\�Έ�f�;&�:� :��N��[Y[���][[Y[��RY
+	�Y�K]]I�K�^�۝[�]]\��W_N��[Y[��]Y\�T�[X�ܐ[
+	˜؋Z][I�K��ܑXX�
+�O����\��\���[[ݙJ	�X�]�I�JN��[Y[��]Y\�T�[X�ܐ[
+	˜؋Z][I�K��ܑXX�
+�O��Y���^�۝[��[��Y\�]\��WJJX���\��\��Y
+	�X�]�I�N�JN�ۜ��Y��[Y[���][[Y[��RY
+	�\�[�X�\��N���[K�\�^OJOOOI�Y[X�\���O�ۛۙIΉٛ^	��Y]J
+N\�ܞK�\��]J�K	��	��YZ[��Y[�OI��JNB��[��[ۈ[�]YX\�[۝
+
+^�ۜ��OY��[Y[���][[Y[��RY
+	��[^YX\��K�OY��[Y[���][[Y[��RY
+	��[[[۝	�N�ۜ��O[�]�]J
+K��]�[YX\�
+N�K�[��\�SI���܊]O[�KL��O[�J�N�J��^��ۜ��Y��[Y[��ܙX]Q[[Y[�
+	��[ۉ�N�˝�[YO^N�˝^�۝[�^J���a	��Y�OOO[�J[˜�[X�Y]�YN��K�\[��[
+�N�B��K�[��\�SI���ۜ��O[�]�]J
+K��][۝
+
+J�N�܊][�LN�[�LL��[���^��ۜ��Y��[Y[��ܙX]Q[[Y[�
+	��[ۉ�N�˝�[YO[[��˝^�۝[�[[���&�	��Y�[�OO[�J[˜�[X�Y]�YN��K�\[��[
+�N�B�B��[��[ۈ�Y]J
+^�\�YX\�\\��R[�
+��[Y[���][[Y[��RY
+	��[^YX\��K��[Y_�]�]J
+K��]�[YX\�
+JN�\�[۝\\��R[�
+��[Y[���][[Y[��RY
+	��[[[۝	�K��[Y_�]�]J
+K��][۝
+
+J�JNY��\�Y[�OOOI�XZ[�[�[��I�[�YXZ[�[�[��J
+N[�HY��\�Y[�OOOIܙ[[�I�[�Y�[[�J
+N[�H�YY[X�\��
+NB��[��[ۈ�YXZ[�[�[��J
+^�[��˗�Q]O^�N�]�
+�\K�XZ[�[�[��O�YX\�I��\�YX\�I�[۝I��\�[۝X
+B��[��O�����ۊ
+JK�[�]OO�]���V�Nؚ�X��[��Y\����K��ܑXX�
+
+��JOO�˙�ܑXX�
+O���˜\�
+�JJJN][I�]��\��H��]ܘ\��X�O�XY����\��H���]��!);.f���UST˙�ܑXX�
+]O��[
+�X��]O���JN[
+�I�����XY���O����˙�ܑXX�
+
+�JOO�[
+�X���\��H���]���H	�O��UST˙�ܑXX�
+]O��ۜ��^OY
+��	��
+��	��]�ۜ��X��Y]V��^W_�N�[��˗�Q]V��^WO\�X��Y��X�˛[��OOL
+^�[
+�X�\��H��ȏ��h�n.���B�[�^�ۜ�\�\�X��ܙX�˛[��LWN�ۜ���[\���۝[���\�Y]IΉ�����ۜ�Z�^OY[���UT�P��\ۙ[�
+�^JN[
+�X�\��H����H�ۘ�X��H����\�
+	��Z�^_I�H��ܙX�˛[��_z����B�JN[
+�I�����JN[
+�I����O��X�O��]�����[Y[���][[Y[��RY
+	��۝[�	�K�[��\�SZ[JNB��[��[ۈ���\�
+[���Y�^J^�ۜ��^OYX��UT�P��\ۙ[�
+[���Y�^JN�ۜ�\��Z�^K��]
+	�	�K\\���K\\���WK]\\��̗N�ۜ��X��J�[��˗�Q]I���[��˗�Q]V��^WJ_�N��[Y[���][[Y[��RY
+	�\�]]I�K�^�۝[�Y
+��	��
+��H	��]][I��Y�\�X���X�˛[��OOL
+^�[I��[OH���܎��NNN�^X[Yێ��[�\��Y[�Ό���� :��;'n����B�[�^�X�˜�X�J
+K��]�\��J
+K��ܑXX�
+�O�[
+�X]��\��H�\�\��ȏ��]��\��H�\�[Y]H��'�H	܋�ܙX]Y�]H<'�i	܋�[��X�ܟ	�I�H;�$;�$H	܋��]\�	�I�O�]���]��\��H�\�X�۝[���܋��۝[�	ʺ��;&�{'�{&a	�O�]����]��JNB���[Y[���][[Y[��RY
+	�\�X��I�K�[��\�SZ[��[Y[���][[Y[��RY
+	�\�[[�[	�K��\��\��Y
+	�����NB��[��[ۈ�Y�[[�J
+^�[��˗ܑ]O^�N�]�
+�\Kܙ[[�O�YX\�I��\�YX\�I�[۝I��\�[۝X
+B��[��O�����ۊ
+JK�[�]OO�]���V�Nؚ�X��[��Y\����K��ܑXX�
+
+��JOO�˙�ܑXX�
+O���˜\�
+�JJJN][I�]��\��H��]ܘ\��X�O�XY����\��H���]��!);.f����SS�W�UST˙�ܑXX�
+]O��[
+�X�[OH�X^]�Y�ٛ۝\�^�N�L\���]O���JN[
+�I�����XY���O����˙�ܑXX�
+
+�JOO�[
+�X���\��H���]���H	�O���SS�W�UST˙�ܑXX�
+]O��ۜ��^OY
+��	��
+��	��]�ۜ��X��Y]V��^W_�N�[��˗ܑ]V��^WO\�X���ۜ�\�X��ܛX[\�X�˜��YJ�O����]\�OOI�'m; �I�NY�\�X��ܛX[
+^[
+�X�\��H�X��ܛX[�ۘ�X��H��[��[[�R[�]
+	��[���UT�P��\ۙ[�
+�^J_I�H����;�#�;'m; �O��Y[�HY��X�˛[���
+^[
+�X�\��H�\�Y]H�ۘ�X��H��[��[[�R[�]
+	��[���UT�P��\ۙ[�
+�^J_I�H��f�{'n
+	ܙX�˛[��JO��Y[�^[
+�X�\��H��Ȉۘ�X��H��[��[[�R[�]
+	��[���UT�P��\ۙ[�
+�^J_I�H��[OH��\��܎��[�\���(%{ �O��B�JN[
+�I�����JN[
+�I����O��X�O��]�����[Y[���][[Y[��RY
+	��۝[�	�K�[��\�SZ[JNB��[��[ۈ�[��[[�R[�]
+[���Y�^J^�ۜ��^OYX��UT�P��\ۙ[�
+[���Y�^JN�ۜ�\��Z�^K��]
+	�	�K\\���K\\���WK]\\��̗N�ۜ��X��J�[��˗ܑ]I���[��˗ܑ]V��^WJ_�N��[Y[���][[Y[��RY
+	ܙ[[�K[[�[]]I�K�^�۝[�Y
+��	��
+��H	��]]\�I��Y��X�ɉ��X�˛[���
+^\�Yt;
   let hist='';
   if(recs&&recs.length>0){
     hist='<div style="margin-bottom:16px;background:#f8f9fa;border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px">📋 점검 이력</div>';
     recs.slice().reverse().forEach(r=>{
-      hist+=`<div class="hist-row"><div class="hist-meta">📅 ${r.check_date} | 👤 ${r.inspector||'-'} | 상태: <b style="color:${r.status==='이상'?'#e74c3c':'#27ae60'}">${r.status}</b></div><div class="hist-content">${r.note||'*�k�용 없음)'}</div></div>`;
+      hist+=`<div class="hist-row"><div class="hist-meta">📅 ${r.check_date} | 👤 ${r.inspector||'-'} | 상태: <b style="color:${r.status==='이상'?'#e74c3c':'#27ae60'}">${r.status}</b></div><div class="hist-content">${r.note||'(내용 없음)'}</div></div>`;
     });
     hist+='</div>';
   }
