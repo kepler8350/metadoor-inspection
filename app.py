@@ -333,7 +333,8 @@ function openRemoteInput(encodedKey){
   stepHtml+='<div class="form-row"><label>점검일자</label><input type="datetime-local" id="rc-date" value="'+dtLocal+'"></div>';
   stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
   stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
-  stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">-- 선택 --</option></select></div>';
+  const mOpts=(window._membersList||[]).map(function(m){return '<option value="'+m.name+'">'+m.name+'</option>';}).join('');
+  stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">-- 선택 --</option>'+mOpts+'</select></div>';
   stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;font-weight:600"></div>';
   stepHtml+='<button class="btn-primary" onclick="saveRemoteNew()">저장</button>';
   stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('+String.fromCharCode(39)+'remote-modal'+String.fromCharCode(39)+')">취소</button>';
