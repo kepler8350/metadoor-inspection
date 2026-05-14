@@ -7,6 +7,14 @@ app=Flask(__name__)
 app.secret_key='metadoor2024secret'
 ITEMS=['패널','보드','전원','PC','카메라','스피커','마이크','입력장치','하우징','외관데코','기타']
 REMOTE_ITEMS=['전원 켜짐','화면 정상','소프트웨어 실행','네트워크 연결','카메라 동작','마이크 동작','스피커 동작','모션캡처 동작','외관 청결','주변환경 정상']
+REMOTE_TREE={
+    '디지털사이니지':{'패널':['액정불량','번인현상','터치오류'],'PC':['부팅오류','소프트웨어오류','네트워크오류'],'카메라':['화각불량','초점불량','이물질'],'모션캡쳐카메라':['인식불량','캘리브레이션','렌즈오염'],'스피커':['음량불량','잡음','연결오류'],'마이크':['감도불량','잡음','연결오류']},
+    '체험형콘텐츠':{'콘텐츠재생':['영상오류','음향오류','재생불가'],'인터랙션':['터치반응불량','모션인식오류','응답지연'],'소프트웨어':['앱실행오류','업데이트오류','시스템오류']},
+    '통신관리':{'인터넷연결':['유선연결불량','무선연결불량','속도저하'],'네트워크':['IP설정오류','방화벽문제','VPN오류'],'원격접속':['접속불가','응답지연','보안이슈']},
+    '전원관리':{'전원공급':['전압이상','과전류','전원불안정'],'UPS':['배터리불량','자동절체오류','용량부족'],'절전기능':['스케줄러오류','자동ON/OFF오류','소비전력이상']},
+    '안전관리':{'발열':['패널과열','PC과열','주변온도이상'],'외관':['파손발견','이물질','케이블정리불량'],'비상시스템':['비상전원이상','경보장치오류','소화기불량']},
+    '통합관리CMS':{'CMS서버':['접속불가','응답지연','서버오류'],'콘텐츠동기화':['업데이트실패','배포오류','버전불일치'],'원격제어':['전원제어불가','콘텐츠제어오류','모니터링오류']}
+}
 LOCS={'금정구':['금정아이숲','금정체육공원','금정도서관'],'기장군':['기장어린이도서관','안데르센동화마을'],'남구':['대동골문화센터'],'동구':['애니랑 들락날락'],'동래구':['온빛어린이작은도서관','혁신어울림센터','부산사회복지종합센터','부산해양자연사박물관'],'부산진구':['부산진구 기적의도서관','전포어울더울작은도서관','부산진구어린이청소년도서관','꿈자람작은도서관'],'북구':['만덕종합사회복지관','시랑골아이누리 작은도서관','덕천도서관'],'사상구':['사상육아종합지원센터','꿈나래작은도서관','주례쌈지도서관','사상어린이도서관','그리며 들락날락','부산도서관 꿈뜨락'],'사하구':['을숙도문화회관','다대도서관','노을나루길작은도서관'],'서구':['천마니작은도서관','아동보호종합센터','한형석자유아동극장'],'수영구':['도모헌 숲속체험관','망미작은도서관'],'연제구':['부산시청','연제만화도서관'],'영도구':['풀잎작은도서관','부산복합혁신센터'],'중구':['근현대역사관'],'해운대구':['송정동 어린이작은도서관','영화의전당','반송종합사회복지관']}
 DB='/tmp/metadoor.db'
 
@@ -111,7 +119,7 @@ def admin_dash():
     H.append('.modal.show{display:flex}')
     H.append('.modal-box{background:#fff;border-radius:12px;padding:28px;min-width:480px;max-width:600px;max-height:80vh;overflow-y:auto;position:relative}')
     H.append('.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a5276;binder-bottom:2px solid #1a5276;padding-bottom:8px}')
-    H.append('.modal-close{position:absolute;top:12px;right:16px;font-size:20px;cursor:pointer;color:#999;background:none;border:none}')
+    H.append('.modal-close{position:absolute;top:12px;right:16px;font-size:20px;cursor:pointer;color:#999;background:none;border:none}.cat-btn{padding:6px 14px;border:1.5px solid #1a5276;border-radius:20px;background:#fff;color:#1a5276;cursor:pointer;font-size:12px;font-weight:600;margin:2px;transition:all 0.15s}.cat-btn:hover,.cat-btn.active{background:#1a5276;color:#fff}')
     H.append('.hist-row{padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}')
     H.append('.hist-row:last-child{border-bottom:none}')
     H.append('.hist-meta{color:#999;font-size:11px;margin-bottom:4px}')
@@ -131,7 +139,8 @@ def admin_dash():
     H.append('.add-form h3{font-size:14px;font-weight:700;margin-bottom:14px;color:#1a5276}')
     H.append('.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}')
     H.append('</style>')
-    H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
+    RTREE_J=json.dumps(REMOTE_TREE,ensure_ascii=False)
+    H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J},REMOTE_TREE={RTREE_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
     H.append('</head><body>')
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
@@ -291,31 +300,74 @@ function loadRemote(){
 function openRemoteInput(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
+  document.getElementById('remote-modal-title').textContent=d+' '+l+' - '+it;
   const recs=(window._rData&&window._rData[key])||[];
-  document.getElementById('remote-modal-title').textContent=d+' '+l;
   let hist='';
   if(recs&&recs.length>0){
-    hist='<div style="margin-bottom:16px;background:#f8f9fa;border-radius:8px;padding:12px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px">📋 점검 이력</div>';
+    hist='<div style="margin-bottom:12px;background:#f8f9fa;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">📋 최근 점검이력</div>';
     recs.slice().reverse().forEach(r=>{
-      hist+=`<div class="hist-row"><div class="hist-meta">📅 ${r.check_date} | 👤 ${r.inspector||'-'} | 상태: <b style="color:${r.status==='이상'?'#e74c3c':'#27ae60'}">${r.status}</b></div><div class="hist-content">${r.note||'(내용 없음)'}</div></div>`;
+      hist+='<div class="hist-row"><div class="hist-meta">📅 '+r.check_date+' | 👤 '+(r.inspector||'-')+' | 상태: <b style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+'">'+r.status+'</b></div>';
+      if(r.check_item&&r.check_item!==it)hist+='<div style="font-size:11px;color:#1a5276;margin:2px 0">🔹 '+r.check_item+'</div>';
+      hist+='<div class="hist-content">'+(r.note||'(내용없음)')+'</div></div>';
     });
     hist+='</div>';
   }
+  window._rKey=key; window._rD=d; window._rL=l; window._rIt=it; window._rSub1=''; window._rSub2='';
+  const tree=REMOTE_TREE[it]||{};
+  const sub1s=Object.keys(tree);
+  let stepHtml='';
+  if(sub1s.length>0){
+    stepHtml+='<div style="background:#eaf0fb;border-radius:8px;padding:10px;margin-bottom:10px">';
+    stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">① 장치 선택</div>';
+    stepHtml+='<div id="r-sub1-btns" style="display:flex;flex-wrap:wrap;gap:6px">';
+    sub1s.forEach(s=>{stepHtml+='<button class="cat-btn" onclick="rSelSub1(this,''+s+'')">'+s+'</button>';});
+    stepHtml+='</div></div>';
+    stepHtml+='<div id="r-sub2-wrap" style="display:none;background:#e8f8f5;border-radius:8px;padding:10px;margin-bottom:10px">';
+    stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">② 점검항목 선택</div>';
+    stepHtml+='<div id="r-sub2-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>';
+  }
+  stepHtml+='<div id="r-action-wrap" style="'+(sub1s.length>0?'display:none':'')+'">';
   const today=new Date().toISOString().slice(0,10);
-  document.getElementById('remote-modal-body').innerHTML=hist+`
-    <div class="form-row"><label>점검 일자</label><input type="date" id="rc-date" value="${today}"></div>
-    <div class="form-row"><label>상태</label>
-      <select id="rc-status">
-        <option value="정상">정상</option>
-        <option value="이상">이상</option>
-      </select>
-    </div>
-    <div class="form-row"><label>내용</label><textarea id="rc-note" placeholder="점검 내용 입력..."></textarea></div>
-    <div class="form-row"><label>점검자</label><input type="text" id="rc-insp" placeholder="점검자 이름"></div>
-    <button class="btn-primary" onclick="saveRemote('${d}','${l}','${it}')">저장</button>
-    <button class="btn-sec" style="margin-left:8px" onclick="closeModal('remote-modal')">취소</button>
-  `;
+  stepHtml+='<div class="form-row"><label>점검일자</label><input type="date" id="rc-date" value="'+today+'"></div>';
+  stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
+  stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
+  stepHtml+='<div class="form-row"><label>점검자</label><input type="text" id="rc-insp" placeholder="점검자명"></div>';
+  stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;margin-bottom:6px"></div>';
+  stepHtml+='<button class="btn-primary" onclick="saveRemoteNew()">저장</button>';
+  stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('remote-modal')">취소</button>';
+  stepHtml+='</div>';
+  document.getElementById('remote-modal-body').innerHTML=hist+stepHtml;
   document.getElementById('remote-modal').classList.add('show');
+}
+function rSelSub1(btn,s1){
+  window._rSub1=s1; window._rSub2='';
+  document.querySelectorAll('#r-sub1-btns .cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const tree=REMOTE_TREE[window._rIt]||{};
+  const sub2s=tree[s1]||[];
+  let html='';
+  sub2s.forEach(s2=>{html+='<button class="cat-btn" onclick="rSelSub2(this,''+s2+'')">'+s2+'</button>';});
+  document.getElementById('r-sub2-btns').innerHTML=html;
+  document.getElementById('r-sub2-wrap').style.display='block';
+  document.getElementById('r-action-wrap').style.display='none';
+  document.getElementById('r-sel-path').textContent='';
+}
+function rSelSub2(btn,s2){
+  window._rSub2=s2;
+  document.querySelectorAll('#r-sub2-btns .cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('r-action-wrap').style.display='block';
+  document.getElementById('r-sel-path').textContent='선택: '+window._rSub1+' > '+s2;
+}
+function saveRemoteNew(){
+  const checkItem=window._rIt+(window._rSub1?'>'+window._rSub1:'')+(window._rSub2?'>'+window._rSub2:'');
+  const data={district:window._rD,location:window._rL,check_item:checkItem,
+    status:document.getElementById('rc-status').value,
+    note:document.getElementById('rc-note').value,
+    inspector:document.getElementById('rc-insp').value,
+    check_date:document.getElementById('rc-date').value};
+  fetch('/api/remote/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+  .then(r=>r.json()).then(()=>{closeModal('remote-modal');loadRemote();});
 }
 function saveRemote(d,l,it){
   const data={district:d,location:l,check_item:it,
