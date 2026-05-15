@@ -146,7 +146,8 @@ def admin_dash():
     H.append('</style>')
     RTREE_J=json.dumps(REMOTE_TREE,ensure_ascii=False)
     H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
-    H.append('<script>const REMOTE_TREE='+RTREE_J+';</script>')
+    H.append('<script>const REMOTE_TREE='+RTREE_J+';
+    html+='<div style="text-align:right;margin-bottom:12px"><button onclick="printReport()" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(231,76,60,0.3)">🖨️ 보고서 출력 (PDF)</button></div>';</script>')
     H.append('</head><body>')
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
@@ -573,6 +574,90 @@ function saveRemote(d,l,it){
   fetch('/api/remote/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
   .then(r=>r.json()).then(()=>{closeModal('remote-modal');loadRemote();});
 }
+function printReport(){
+  var yr=curYear||new Date().getFullYear();
+  var mo=curMonth||new Date().getMonth()+1;
+  var mnt=window._reportData||{total:0,locs:0};
+  var rmt=window._reportRemote||{total:0,abnCount:0,abnormals:[]};
+  var A4='width:794px;min-height:1123px;background:#fff;margin:20px auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);page-break-after:always;position:relative;';
+  var abRows='';
+  (rmt.abnormals||[]).forEach(function(a){
+    abRows+='<tr style="border-bottom:1px solid #eee">';
+    abRows+='<td style="padding:7px 10px;font-size:12px;text-align:center">'+((a.check_date||'').slice(0,10))+'</td>';
+    abRows+='<td style="padding:7px 10px;font-size:12px">'+a.d+' '+a.l+'</td>';
+    abRows+='<td style="padding:7px 10px;font-size:12px">'+a.it+'</td>';
+    abRows+='<td style="padding:7px 10px;font-size:12px;text-align:center"><span style="color:#e74c3c;font-weight:700">'+(a.status||'이상')+'</span></td>';
+    abRows+='<td style="padding:7px 10px;font-size:12px">'+(a.note||'-')+'</td>';
+    abRows+='</tr>';
+  });
+  if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">이상 없음</td></tr>';
+  var maintRows='';
+  var maintRecs=[];
+  if(window._maintData){Object.values(window._maintData).forEach(function(arr){arr.forEach(function(r){maintRecs.push(r);});});}
+  maintRecs.sort(function(a,b){return (b.created_at||'').localeCompare(a.created_at||'');});
+  maintRecs.slice(0,20).forEach(function(r){
+    maintRows+='<tr style="border-bottom:1px solid #eee">';
+    maintRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.item||'-')+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.inspector||'-')+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.content||'-').slice(0,30)+'</td>';
+    maintRows+='</tr>';
+  });
+  var pop=document.getElementById('print-preview-pop');
+  if(!pop){pop=document.createElement('div');pop.id='print-preview-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom:40px';document.body.appendChild(pop);}
+  var moStr=String(mo).padStart(2,'0');
+  var imgUrl='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%A0%90%EA%B2%80%EB%B3%B4%EA%B3%A0%EC%84%9C001.jpg';
+  pop.innerHTML=
+    '<div id="pp-toolbar" style="position:sticky;top:0;z-index:1;background:rgba(15,30,50,0.95);width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;box-sizing:border-box;box-shadow:0 2px 10px rgba(0,0,0,0.5)">'+
+    '<span style="color:#fff;font-size:14px;font-weight:700">보고서 미리보기  '+yr+'년 '+mo+'월</span>'+
+    '<div style="display:flex;gap:10px">'+
+    '<button id="pp-pdf-btn" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:9px 20px;cursor:pointer;font-size:13px;font-weight:700">PDF 저장</button>'+
+    '<button id="pp-close-btn" style="background:#555;color:#fff;border:none;border-radius:6px;padding:9px 16px;cursor:pointer;font-size:13px">x 닫기</button>'+
+    '</div></div>'+
+    '<div id="pp-pages">'+
+    '<div style="'+A4+'overflow:hidden">'+
+    '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover">'+
+    '</div>'+
+    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
+    '<div style="border-bottom:3px solid #1a5276;padding-bottom:12px;margin-bottom:28px">'+
+    '<h1 style="font-size:24px;color:#1a5276;margin:0 0 6px">MetaDoor 유지보수 점검 보고서</h1>'+
+    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 부산광역시 메타도어 점검 현황</p></div>'+
+    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:14px">종합 현황</h2>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:28px">'+
+    '<div style="background:#f0f8ff;border:1px solid #cde;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#1a5276">'+(mnt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">유지보수 점검</div></div>'+
+    '<div style="background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#27ae60">'+(mnt.locs||0)+'<span style="font-size:12px">곳</span></div><div style="font-size:11px;color:#555;margin-top:3px">점검 위치</div></div>'+
+    '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
+    '<div style="background:#fff0f0;border:1px solid #f5c0c0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">'+(rmt.abnCount||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격 이상</div></div>'+
+    '</div>'+
+    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (최근 20건)</h2>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
+    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">점검일</th><th style="padding:8px">항목</th><th style="padding:8px">점검자</th><th style="padding:8px;width:40%">조치내용</th></tr></thead>'+
+    '<tbody>'+maintRows+'</tbody></table>'+
+    '</div>'+
+    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
+    '<div style="border-bottom:3px solid #e74c3c;padding-bottom:12px;margin-bottom:28px">'+
+    '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 이상 현황</h1>'+
+    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
+    '<thead><tr style="background:#e74c3c;color:#fff"><th style="padding:9px">점검일</th><th style="padding:9px">설치위치</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th></tr></thead>'+
+    '<tbody>'+abRows+'</tbody></table>'+
+    '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
+    '</div>'+
+    '</div>';
+  pop.style.display='flex';
+  document.getElementById('pp-close-btn').addEventListener('click',function(){pop.style.display='none';});
+  document.getElementById('pp-pdf-btn').addEventListener('click',function(){
+    var toolbar=document.getElementById('pp-toolbar');
+    toolbar.style.display='none';
+    pop.style.background='white';
+    pop.style.overflow='visible';
+    pop.style.position='static';
+    document.body.style.overflow='visible';
+    window.print();
+    setTimeout(function(){toolbar.style.display='flex';pop.style.background='rgba(0,0,0,0.8)';pop.style.overflow='auto';pop.style.position='fixed';document.body.style.overflow='';},1000);
+  });
+}
+
 function loadReport(){
   const yr=curYear||new Date().getFullYear(),mo=curMonth||(new Date().getMonth()+1);
   const yStr=yr+'년',mStr=mo+'월';
@@ -614,12 +699,14 @@ function loadReport(){
     html+='</div>';
 
     // ── 유지보수 항목별 현황 ──
+    window._reportData={total:mTotal,locs:mLocs};
+    window._reportRemote={total:rTotal,abnCount:rAbnCount,abnormals:abnormals};
     html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:16px">';
     html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">🔧 유지보수 점검항목별 건수</h3>';
     if(Object.keys(mItems).length===0){
       html+='<p style="color:#999;text-align:center;padding:12px">이번 달 점검 내역이 없습니다</p>';
     } else {
-      html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f0f4f8"><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">점검항목</th><th style="padding:8px;text-align:center;border-bottom:2px solid #ddd">건수</th></tr></thead><tbody>';
+      html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f0f4f8"><th style="padding:8px;text-align:center;border-bottom:2px solid #ddd">건수</th></tr></thead><tbody>';
       ITEMS.forEach(function(it){
         if(mItems[it]) html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px">'+it+'</td><td style="padding:8px;text-align:center;font-weight:700;color:#1a5276">'+mItems[it]+'건</td></tr>';
       });
@@ -661,9 +748,9 @@ function loadReport(){
     if(abnormals.length===0){
       html+='<p style="color:#27ae60;text-align:center;padding:12px;font-weight:600">✅ 이번 달 이상 없음</p>';
     } else {
-      html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fdf2f2"><th style="padding:8px;border-bottom:2px solid #e0e0e0">일자</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">설치위치</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">대분류</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">점검항목</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">조치내용</th></tr></thead><tbody>';
+      html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fdf2f2"><th style="padding:8px;border-bottom:2px solid #e0e0e0">일자</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">설치위치</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">대분류</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">조치내용</th></tr></thead><tbody>';
       abnormals.forEach(function(a){
-        html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:7px;white-space:nowrap">'+(a.check_date||'').slice(0,10)+'</td><td style="padding:7px">'+a.d+' '+a.l+'</td><td style="padding:7px">'+a.it+'</td><td style="padding:7px">'+a.check_item+'</td><td style="padding:7px">'+(a.note||'-')+'</td></tr>';
+        html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:7px;white-space:nowrap">'+(a.check_date||'').slice(0,10)+'</td><td style="padding:7px">'+a.d+' '+a.l+'</td><td style="padding:7px">'+a.it+'</td><td style="padding:7px"></td><td style="padding:7px">'+(a.note||'-')+'</td></tr>';
       });
       html+='</tbody></table>';
     }
