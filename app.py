@@ -617,7 +617,7 @@ function printReport(){
     '<div id="pp-pages">'+
     '<div style="'+A4+'overflow:hidden">'+
     '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover">'+
-    '<div style="position:absolute;top:7.2%;left:50%;transform:translateX(-8px);font-size:18px;font-weight:900;color:#222">'+mo+'</div>'+
+    '<div style="position:absolute;top:14.5%;left:57%;transform:translateX(-50%);font-size:18px;font-weight:900;color:#000">'+mo+'</div>'+
     '</div>'+
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #1a5276;padding-bottom:12px;margin-bottom:28px">'+
