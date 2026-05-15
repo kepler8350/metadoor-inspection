@@ -576,12 +576,10 @@ function saveRemote(d,l,it){
 }
 function printReport(){
   var yr=curYear||new Date().getFullYear();
-  var mo=curMonth||(new Date().getMonth()+1);
+  var mo=curMonth||new Date().getMonth()+1;
   var mnt=window._reportData||{total:0,locs:0};
   var rmt=window._reportRemote||{total:0,abnCount:0,abnormals:[]};
-  var moStr=String(mo).padStart(2,'0');
-  var A4='width:794px;min-height:1123px;background:#fff;margin:20px auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);page-break-after:always;position:relative;box-sizing:border-box;';
-
+  var A4='width:794px;min-height:1123px;background:#fff;margin:20px auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);page-break-after:always;position:relative;';
   var abRows='';
   (rmt.abnormals||[]).forEach(function(a){
     abRows+='<tr style="border-bottom:1px solid #eee">';
@@ -593,51 +591,41 @@ function printReport(){
     abRows+='</tr>';
   });
   if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">이상 없음</td></tr>';
-
   var maintRows='';
   var maintRecs=[];
-  if(window._maintData){
-    Object.entries(window._maintData).forEach(function(kv){
-      var k=kv[0],arr=kv[1];
-      var p=k.split('|');
-      arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:r.item||p[2],content:r.content});});
-    });
-  }
+  if(window._maintData){Object.entries(window._maintData).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:r.item,content:r.content});});});}
   maintRecs.sort(function(a,b){return (b.created_at||'').localeCompare(a.created_at||'');});
   maintRecs.slice(0,20).forEach(function(r){
     maintRows+='<tr style="border-bottom:1px solid #eee">';
     maintRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
     maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.item||'-')+'</td>';
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.content||'-').slice(0,50)+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+((r.district||'')+' '+(r.location||'')).trim()+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.content||'-').slice(0,30)+'</td>';
     maintRows+='</tr>';
   });
-
   var pop=document.getElementById('print-preview-pop');
   if(!pop){pop=document.createElement('div');pop.id='print-preview-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom:40px';document.body.appendChild(pop);}
-
+  var moStr=String(mo).padStart(2,'0');
   var imgUrl='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%A0%90%EA%B2%80%EB%B3%B4%EA%B3%A0%EC%84%9C001.jpg';
-
   pop.innerHTML=
-    '<div id="pp-toolbar" style="position:sticky;top:0;z-index:9999;background:rgba(15,30,50,0.95);width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;box-sizing:border-box">'+
-    '<span style="color:#fff;font-size:14px;font-weight:700">보고서 미리보기 '+yr+'년 '+mo+'월</span>'+
+    '<div id="pp-toolbar" style="position:sticky;top:0;z-index:1;background:rgba(15,30,50,0.95);width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;box-sizing:border-box;box-shadow:0 2px 10px rgba(0,0,0,0.5)">'+
+    '<span style="color:#fff;font-size:14px;font-weight:700">보고서 미리보기  '+yr+'년 '+mo+'월</span>'+
     '<div style="display:flex;gap:10px">'+
     '<button id="pp-pdf-btn" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:9px 20px;cursor:pointer;font-size:13px;font-weight:700">PDF 저장</button>'+
     '<button id="pp-close-btn" style="background:#555;color:#fff;border:none;border-radius:6px;padding:9px 16px;cursor:pointer;font-size:13px">x 닫기</button>'+
     '</div></div>'+
     '<div id="pp-pages">'+
     '<div style="'+A4+'overflow:hidden">'+
-    '<div style="position:relative;width:100%;height:1123px">'+
-    '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover;display:block">'+
-    '<div style="position:absolute;top:3.8%;left:50%;transform:translateX(-50%);font-size:18px;font-weight:700;color:#000;letter-spacing:2px;white-space:nowrap">'+mo+'월</div>'+
-    '</div></div>'+
-    '<div style="'+A4+'padding:60px 50px">'+
+    '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover">'+
+    
+    '<div style="position:absolute;top:3.5%;left:51%;margin-left:-18px;font-size:20px;font-weight:900;color:#000">'+mo+'</div>'+
+    '</div>'+
+    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #1a5276;padding-bottom:12px;margin-bottom:28px">'+
     '<h1 style="font-size:24px;color:#1a5276;margin:0 0 6px">MetaDoor 유지보수 점검 보고서</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 부산광역시 메타도어 점검 현황</p>'+
-    '</div>'+
+    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 부산광역시 메타도어 점검 현황</p></div>'+
     '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:14px">종합 현황</h2>'+
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:28px">'+
     '<div style="background:#f0f8ff;border:1px solid #cde;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#1a5276">'+(mnt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">유지보수 점검</div></div>'+
     '<div style="background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#27ae60">'+(mnt.locs||0)+'<span style="font-size:12px">곳</span></div><div style="font-size:11px;color:#555;margin-top:3px">점검 위치</div></div>'+
     '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
@@ -645,45 +633,30 @@ function printReport(){
     '</div>'+
     '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (최근 20건)</h2>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#1a5276;color:#fff">'+
-    '<th style="padding:8px;text-align:left">일자</th>'+
-    '<th style="padding:8px;text-align:left">설치위치</th>'+
-    '<th style="padding:8px;text-align:left">점검항목</th>'+
-    '<th style="padding:8px;text-align:left">점검내용</th>'+
-    '</tr></thead><tbody>'+maintRows+'</tbody></table>'+
+    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">일자</th><th style="padding:8px">설치위치</th><th style="padding:8px">점검항목</th><th style="padding:8px;width:40%">점검내용</th></tr></thead>'+
+    '<tbody>'+maintRows+'</tbody></table>'+
     '</div>'+
-    '<div style="'+A4+'padding:60px 50px">'+
+    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #e74c3c;padding-bottom:12px;margin-bottom:28px">'+
     '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 이상 현황</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p>'+
-    '</div>'+
+    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#e74c3c;color:#fff">'+
-    '<th style="padding:9px">일자</th><th style="padding:9px">설치위치</th><th style="padding:9px">점검항목</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th>'+
-    '</tr></thead><tbody>'+abRows+'</tbody></table>'+
+    '<thead><tr style="background:#e74c3c;color:#fff"><th style="padding:9px">점검일</th><th style="padding:9px">설치위치</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th></tr></thead>'+
+    '<tbody>'+abRows+'</tbody></table>'+
     '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
     '</div>'+
     '</div>';
-
   pop.style.display='flex';
   document.getElementById('pp-close-btn').addEventListener('click',function(){pop.style.display='none';});
-  document.getElementById('pp-pdf-btn').addEventListener('click',function(){
+  document.getElementById('pp-pdf-btn').addEventListener('click',function(){var sb=document.querySelector('.sidebar');if(sb)sb.style.display='none';
     var toolbar=document.getElementById('pp-toolbar');
-    var sidebar=document.querySelector('.sidebar');
-    var adminHeader=document.querySelector('.admin-header,.top-bar,header');
     toolbar.style.display='none';
-    if(sidebar)sidebar.style.display='none';
-    if(adminHeader)adminHeader.style.display='none';
-    pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;overflow:visible;z-index:10000';
+    pop.style.background='white';
+    pop.style.overflow='visible';
+    pop.style.position='static';
     document.body.style.overflow='visible';
     window.print();
-    setTimeout(function(){
-      toolbar.style.display='flex';
-      if(sidebar)sidebar.style.display='';
-      if(adminHeader)adminHeader.style.display='';
-      pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom:40px';
-      document.body.style.overflow='';
-    },1500);
+    setTimeout(function(){toolbar.style.display='flex';pop.style.background='rgba(0,0,0,0.8)';pop.style.overflow='auto';pop.style.position='fixed';document.body.style.overflow='';},1000);
   });
 }
 
