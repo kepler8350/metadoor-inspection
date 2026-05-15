@@ -300,7 +300,7 @@ function showHist(encodedKey){
       let imgsHtml='';
       if(_imgs.length>0){
         _imgs.forEach(function(src,i){
-          imgsHtml+='<img src="'+src+'" data-src="'+src+'" style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:zoom-in;border:1px solid #ddd" onclick="openPhotoPopup(this.getAttribute('data-src'))">';
+          imgsHtml+='<img src="'+src style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:zoom-in;border:1px solid #ddd" onclick="openPhotoPopup(this.src)">';
         });
       } else {
         imgsHtml='-';
