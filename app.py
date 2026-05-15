@@ -592,13 +592,14 @@ function printReport(){
   if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">이상 없음</td></tr>';
   var maintRows='';
   var maintRecs=[];
-  if(window._maintData){Object.entries(window._maintData).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:r.item,content:r.content});});});}
+  if(window._maintData){Object.entries(window._maintData).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:p[2],content:r.content});});});}
   maintRecs.sort(function(a,b){return (b.created_at||'').localeCompare(a.created_at||'');});
   maintRecs.slice(0,20).forEach(function(r){
     maintRows+='<tr style="border-bottom:1px solid #eee">';
     maintRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.item||'-')+'</td>';
     maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
+    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.item||'-')+'</td>';
+
     maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.content||'-').slice(0,30)+'</td>';
     maintRows+='</tr>';
   });
@@ -616,7 +617,7 @@ function printReport(){
     '<div id="pp-pages">'+
     '<div style="'+A4+'overflow:hidden">'+
     '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover">'+
-    '<div style="position:absolute;top:3.5%;left:51%;margin-left:-18px;font-size:20px;font-weight:900;color:#000">'+mo+'</div>'+
+    '<div style="position:absolute;top:7.2%;left:50%;transform:translateX(-8px);font-size:18px;font-weight:900;color:#222">'+mo+'</div>'+
     '</div>'+
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #1a5276;padding-bottom:12px;margin-bottom:28px">'+
@@ -629,7 +630,7 @@ function printReport(){
     '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
     '<div style="background:#fff0f0;border:1px solid #f5c0c0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">'+(rmt.abnCount||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격 이상</div></div>'+
     '</div>'+
-    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (최근 20건)</h2>'+
+    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (촜 '+maintRecs.length+'건)</h2>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
     '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">일자</th><th style="padding:8px">설치위치</th><th style="padding:8px">점검항목</th><th style="padding:8px;width:40%">점검내용</th></tr></thead>'+
     '<tbody>'+maintRows+'</tbody></table>'+
