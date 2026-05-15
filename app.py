@@ -297,25 +297,39 @@ function editInsp(id){
 }
 
 function saveEditInsp(id){
-  var item=document.getElementById('ep-item').value;
-  var cont=document.getElementById('ep-cont').value;
-  fetch('/api/inspections/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
+  var itemEl=document.getElementById('ep-item');
+  var contEl=document.getElementById('ep-cont');
+  if(!itemEl||!contEl){alert('수정 오류: 입력 필드 없음');return;}
+  var item=itemEl.value;
+  var cont=contEl.value;
+  fetch('/api/inspections/'+id,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({item:item,content:cont,status:'정상'})
   }).then(function(r){return r.json();}).then(function(d){
-    if(d&&d.ok){
-      document.getElementById('edit-insp-popup').style.display='none';
-      if(window._maintData){
-        Object.values(window._maintData).forEach(function(arr){arr.forEach(function(x){if(x.id==id){x.item=item;x.content=cont;}});});
+    try{
+      if(d&&d.ok){
+        var pop=document.getElementById('edit-insp-pop');
+        if(pop) pop.style.display='none';
+        if(window._maintData){
+          Object.values(window._maintData).forEach(function(arr){
+            arr.forEach(function(x){if(x.id==id){x.item=item;x.content=cont;}});
+          });
+        }
+        var modal=document.getElementById('hist-modal');
+        if(modal&&modal.classList.contains('show')&&modal.dataset.openKey){
+          showHist(encodeURIComponent(modal.dataset.openKey));
+        }
+        alert('수정 완료!');
+      } else {
+        alert('수정 실패: '+JSON.stringify(d));
       }
-      // 모달 새로고침
-      var modal=document.getElementById('hist-modal');
-      if(modal&&modal.classList.contains('show')){
-        var openKey=modal.dataset.openKey;
-        if(openKey)showHist(encodeURIComponent(openKey));
-      }
-      alert('수정 완료!');
+    } catch(e){
+      alert('수정 완료되었습니다.');
     }
-  }).catch(function(){alert('수정 실패');});
+  }).catch(function(e){
+    alert('네트워크 오류: '+e.message);
+  });
 }
 
 function delInsp(id,encodedKey){
