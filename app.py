@@ -292,7 +292,7 @@ function showHist(encodedKey){
     html+='<th style="padding:8px 6px">조치사항</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap">사진</th>';
-    html+='<th style="padding:8px 6px;white-space:nowrap">수정/삭제</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">관리</th>';
     html+='</tr></thead><tbody>';
     recs.forEach(function(r){
       const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
