@@ -316,8 +316,8 @@ function loadRemote(){
           var key=d+'|'+l+'|'+it;
           var recs=(window._rData[key])||[];
           var ab=recs.filter(function(r){return r.status==='이상';}).length;
-          var col=recs.length===0?'#ccc':(ab>0?'#e74c3c':'#27ae60');
-          var lbl=recs.length===0?'-':(ab>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'');
+          var col=recs.length===0?'#27ae60':(ab>0?'#e74c3c':'#27ae60');
+          var lbl=recs.length===0?'정상':(ab>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'');
           html+='<td data-key="'+key+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
         });
         html+='</tr>';
@@ -804,6 +804,10 @@ def build_html():
     H.append('<div class="row"><label>담당자</label><input type="text" id="sinsp" placeholder="담당자 이름" style="margin-bottom:0"></div>')
     H.append('<div class="row"><label>서명</label><canvas id="sig" height="100"></canvas>')
     H.append('<button onclick="fn_clr()" style="margin-top:4px;padding:6px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:12px;cursor:pointer;width:100%">서명 지우기</button></div>')
+    H.append('<span class="lbl" style="margin-top:14px;display:block">📷 사진 첨부 (최대 5개)</span>')
+    H.append('<input type="file" id="imgInput" accept="image/*" multiple style="display:none" onchange="fn_img_add(this)">')
+    H.append('<div id="img-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>')
+    H.append('<button class="bl2" id="imgAddBtn" onclick="fn_open_img()" style="margin-top:4px">📷 사진 추가</button>')
     H.append('<button class="sbtn" onclick="fn_save()">💾 점검 저장</button></div></div>')
     H.append('<div class="toast" id="toast"></div></div>')
     H.append('<script>')
