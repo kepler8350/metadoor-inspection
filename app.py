@@ -44,6 +44,8 @@ def init_db():
     except:pass
     try:con.execute('ALTER TABLE inspections ADD COLUMN manager TEXT DEFAULT ""')
     except:pass
+    try:con.execute('ALTER TABLE inspections ADD COLUMN images TEXT DEFAULT ""')
+    except:pass
     con.commit();con.close()
 
 def login_required(f):
@@ -279,10 +281,12 @@ function showHist(encodedKey){
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th><th style="padding:8px 6px">관리</th></tr></thead><tbody>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th><th style="padding:8px 6px">사진</th><th style="padding:8px 6px">관리</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
       const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
-      html+=`<tr id="irow_${r.id}" style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_${r.id}" style="font-size:11px;border:1px solid #ddd;border-radius:3px">${ITEMS.map(ii=>'<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>').join('')}</select></td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px"><textarea id="icont_${r.id}" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">${r.content||''}</textarea></td><td style="padding:8px 6px;text-align:center">${signImg}</td><td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp(${r.id})">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp(${r.id},\''+key+'\')">삭제</button></td></tr>`;
+      const imgList=r.images?JSON.parse(r.images||'[]'):[];
+      const imgsHtml=imgList.length>0?imgList.map(function(s){return '<img src="'+s+'" style="max-height:60px;max-width:60px;object-fit:cover;border-radius:4px;margin:2px;cursor:pointer" onclick="window.open(this.src)">';}).join(''):'';
+      html+=`<tr id="irow_${r.id}" style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_${r.id}" style="font-size:11px;border:1px solid #ddd;border-radius:3px">${ITEMS.map(ii=>'<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>').join('')}</select></td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px"><textarea id="icont_${r.id}" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">${r.content||''}</textarea></td><td style="padding:8px 6px;text-align:center">${signImg}</td><td style="padding:6px;text-align:center;font-size:11px">${imgsHtml||'-'}</td><td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp(${r.id})">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp(${r.id},\''+key+'\')">삭제</button></td></tr>`;
     });
     html+='</tbody></table>';
   }
@@ -290,35 +294,39 @@ function showHist(encodedKey){
   document.getElementById('hist-modal').classList.add('show');
 }
 function loadRemote(){
-  window._rData={};
-  fetch(`/api/remote?year=${curYear}&month=${curMonth}`)
-  .then(r=>r.json()).then(data=>{
-    let locs=[];
-    Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
-    let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    Object.keys(REMOTE_TREE).forEach(it=>{html+=`<th style="min-width:90px;font-size:12px">${it}</th>`;});
+  const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
+  fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
+    // 대분류 기준으로 집계 (key: "구|위치|대분류>장치>항목" → "구|위치|대분류")
+    window._rData={};
+    Object.keys(data).forEach(function(k){
+      var pts=k.split('|'); if(pts.length<3)return;
+      var mainKey=pts[0]+'|'+pts[1]+'|'+pts[2].split('>')[0];
+      if(!window._rData[mainKey])window._rData[mainKey]=[];
+      data[k].forEach(function(r){window._rData[mainKey].push(Object.assign({},r,{check_item:pts[2]}));});
+    });
+    var html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:900px">';
+    html+='<thead><tr style="background:#1a5276;color:#fff"><th style="min-width:180px;padding:10px;text-align:left;position:sticky;left:0;background:#1a5276;z-index:2">설치위치</th>';
+    Object.keys(REMOTE_TREE).forEach(function(it){html+='<th style="min-width:120px;padding:10px;font-size:12px">'+it+'</th>';});
     html+='</tr></thead><tbody>';
-    locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
-      Object.keys(REMOTE_TREE).forEach(it=>{
-        const key=d+'|'+l+'|'+it;
-        const recs=data[key]||[];
-        window._rData[key]=recs;
-        const hasAbnormal=recs.some(r=>r.status==='이상');
-        if(hasAbnormal){
-          html+=`<td class="abnormal" onclick="openRemoteInput('${encodeURIComponent(key)}')">⚠️ 이상</td>`;
-        }else if(recs.length>0){
-          html+=`<td class="has-data" onclick="openRemoteInput('${encodeURIComponent(key)}')">확인(${recs.length})</td>`;
-        }else{
-          html+=`<td class="ok" onclick="openRemoteInput('${encodeURIComponent(key)}')" style="cursor:pointer">정상</td>`;
-        }
+    Object.keys(LOCS).forEach(function(d){
+      LOCS[d].forEach(function(l){
+        html+='<tr><td class="loc-td" style="padding:10px;position:sticky;left:0;background:#fff;border-bottom:1px solid #f0f0f0;cursor:pointer" onclick="showLocHist(encodeURIComponent(''+d+'|'+l+''))"><b style="font-size:12px">'+d+'</b><br><span style="font-size:12px;color:#555">'+l+'</span></td>';
+        Object.keys(REMOTE_TREE).forEach(function(it){
+          var key=d+'|'+l+'|'+it;
+          var recs=(window._rData[key])||[];
+          var abnormal=recs.filter(function(r){return r.status==='이상';}).length;
+          var col=abnormal>0?'#e74c3c':'#27ae60';
+          var label=recs.length===0?'<span style="color:#ccc;font-size:11px">-</span>':'<span style="color:'+col+';font-weight:600;font-size:12px">'+(abnormal>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'')+'</span>';
+          html+='<td style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer" onclick="openRemoteInput(encodeURIComponent(''+key+''))">'+label+'</td>';
+        });
+        html+='</tr>';
       });
-      html+='</tr>';
     });
     html+='</tbody></table></div>';
     document.getElementById('content').innerHTML=html;
   });
 }
+
 function openRemoteInput(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
@@ -593,14 +601,14 @@ def api_maintenance():
     month=request.args.get('month',datetime.now().month)
     con=sqlite3.connect(DB)
     rows=con.execute(
-        "SELECT district,location,item,content,status,inspector,signature,manager,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
+        "SELECT district,location,item,content,status,inspector,signature,manager,images,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
         (str(year),str(month).zfill(2))).fetchall()
     con.close()
     data={}
     for r in rows:
         key=f"{r[0]}|{r[1]}|{r[2]}"
         if key not in data:data[key]=[]
-        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'manager':r[7],'created_at':r[8]})
+        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'manager':r[7],'images':r[8],'created_at':r[9]})
     return jsonify(data)
 
 # API: 원격점검 조회
@@ -724,8 +732,8 @@ def api_save():
     init_db()
     d=request.get_json(force=True)
     con=sqlite3.connect(DB)
-    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature,manager) VALUES(?,?,?,?,?,?,?,?)',
-        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature',''),d.get('manager','')))
+    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature,manager,images) VALUES(?,?,?,?,?,?,?,?,?)',
+        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature',''),d.get('manager',''),d.get('images','')))
     con.commit();con.close()
     return jsonify({'ok':True})
 
@@ -796,11 +804,11 @@ def build_html():
     H.append('<div class="toast" id="toast"></div></div>')
     H.append('<script>')
     H.append(f'const LOCS={LC},ITEMS={IT};')
-    H.append('let selD="",selL="",selUser="",curSt="정상";')
+    H.append('let selD="",selL="",selUser="",curSt="정상",_imgList=[];')
     H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s2").style.display="flex";fn_ld();}else showToast(res.error||"로그인 실패");});};')
     H.append('const fn_ld=()=>{const d=document.getElementById("dlist");d.innerHTML="";Object.keys(LOCS).forEach(k=>{const b=document.createElement("button");b.className="dbtn";b.textContent=k;b.onclick=()=>fn_sel(k,b);d.appendChild(b);});};')
     H.append('const fn_sel=(d,btn)=>{selD=d;document.querySelectorAll(".dbtn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");const r=document.getElementById("llist");r.innerHTML="";LOCS[d].forEach(l=>{const b=document.createElement("button");b.className="lbtn";b.textContent=l;b.onclick=()=>fn_go(l);r.appendChild(b);});};')
-    H.append('const fn_go=(l)=>{selL=l;document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value="";requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
+    H.append('const fn_go=(l)=>{selL=l;_imgList=[];document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value="";requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
     H.append('const fn_back=()=>{document.getElementById("s3").style.display="none";document.getElementById("s2").style.display="flex";};')
     H.append('let drawing=false,ctx,lastX=0,lastY=0;')
     H.append('const fn_ini_canvas=()=>{const c=document.getElementById("sig");const cr=c.getBoundingClientRect();c.width=Math.round(cr.width)||300;c.height=Math.round(cr.height)||100;ctx=c.getContext("2d");ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.lineCap="round";ctx.lineJoin="round";')
@@ -812,8 +820,37 @@ def build_html():
     H.append('c.addEventListener("touchend",()=>drawing=false);};')
     H.append('const fn_clr=()=>{if(ctx){const c=document.getElementById("sig");ctx.clearRect(0,0,c.width,c.height);}};')
     H.append('const showToast=(m)=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500);};')
-    H.append('const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
-    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser,manager:insp,signature:sigData};')
+    H.append('const fn_img_add=(input)=>{
+  const files=Array.from(input.files);
+  if(_imgList.length+files.length>5){showToast('최대 5개까지 첨부 가능합니다');input.value='';return;}
+  files.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const data={src:e.target.result,name:f.name};
+      _imgList.push(data);
+      fn_render_imgs();
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value='';
+};
+const fn_render_imgs=()=>{
+  const wrap=document.getElementById('img-preview');
+  if(!wrap)return;
+  wrap.innerHTML='';
+  _imgList.forEach((img,i)=>{
+    const div=document.createElement('div');
+    div.style.cssText='position:relative;width:80px;height:80px';
+    div.innerHTML='<img src="'+img.src+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd">'
+      +'<button onclick="fn_img_del('+i+')" style="position:absolute;top:-6px;right:-6px;background:#e74c3c;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1">×</button>';
+    wrap.appendChild(div);
+  });
+  const btn=document.querySelector('button[onclick="document.getElementById('imgInput').click()"]');
+  if(btn)btn.style.display=_imgList.length>=5?'none':'inline-block';
+};
+const fn_img_del=(i)=>{_imgList.splice(i,1);fn_render_imgs();};
+const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
+    H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser,manager:insp,signature:sigData,images:JSON.stringify(_imgList.map(function(i){return i.src;}))};')
     H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
     H.append('.then(r=>r.json()).then(()=>{showToast("✅ 저장 완료!");document.getElementById("sitm").value="";document.getElementById("scont").value="";document.getElementById("sinsp").value="";fn_clr();}).catch(()=>showToast("저장 실패. 다시 시도하세요."));};')
     H.append('window.onload=()=>{const c=document.getElementById("cl");const tick=()=>{const n=new Date();c.textContent=n.getHours()+":"+(n.getMinutes()<10?"0":"")+n.getMinutes();};tick();setInterval(tick,60000);};')
