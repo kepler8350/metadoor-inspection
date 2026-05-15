@@ -1,4 +1,5 @@
 import os,json,sqlite3,hashlib
+import os,json,sqlite3,hashlib
 from flask import Flask,Response,request,session,redirect,jsonify
 from functools import wraps
 from datetime import datetime
@@ -16,9 +17,10 @@ REMOTE_TREE={
     '통합관리CMS':{'CMS서버':[],'콘텐츠동기화':[],'원격제어':[]}
 }
 LOCS={'금정구':['금정아이숲','금정체육공원','금정도서관'],'기장군':['기장어린이도서관','안데르센동화마을'],'남구':['대동골문화센터'],'동구':['애니랑 들락날락'],'동래구':['온빛어린이작은도서관','혁신어울림센터','부산사회복지종합센터','부산해양자연사박물관'],'부산진구':['부산진구 기적의도서관','전포어울더울작은도서관','부산진구어린이청소년도서관','꿈자람작은도서관'],'북구':['만덕종합사회복지관','시랑골아이누리 작은도서관','덕천도서관'],'사상구':['사상육아종합지원센터','꿈나래작은도서관','주례쌈지도서관','사상어린이도서관','그리며 들락날락','부산도서관 꿈뜨락'],'사하구':['을숙도문화회관','다대도서관','노을나루길작은도서관'],'서구':['천마니작은도서관','아동보호종합센터','한형석자유아동극장'],'수영구':['도모헌 숲속체험관','망미작은도서관'],'연제구':['부산시청','연제만화도서관'],'영도구':['풀잎작은도서관','부산복합혁신센터'],'중구':['근현대역사관'],'해운대구':['송정동 어린이작은도서관','영화의전당','반송종합사회복지관']}
-DB='/tmp/metadoor.db'
+DB='/data/metadoor.db'
 
 def init_db():
+    os.makedirs(os.path.dirname(DB),exist_ok=True)
     con=sqlite3.connect(DB)
     con.execute('''CREATE TABLE IF NOT EXISTS inspections(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +37,7 @@ def init_db():
     con.execute('''CREATE TABLE IF NOT EXISTS members(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,password TEXT,
-        name TEXT,phone TEXT,
+        name TEXT,phone TEXT,plain_pw TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     # 기존 테이블에 signature 컬럼 없으면 추가
     try:con.execute('ALTER TABLE inspections ADD COLUMN signature TEXT DEFAULT ""')
@@ -251,6 +253,24 @@ function showLocHist(encodedLoc){
   document.getElementById('hist-body').innerHTML=html;
   document.getElementById('hist-modal').classList.add('show');
 }
+function editInsp(id){
+  var item=document.getElementById('iitem_'+id);
+  var cont=document.getElementById('icont_'+id);
+  if(!item||!cont)return;
+  fetch('/api/inspections/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({item:item.value,content:cont.value,status:'정상'})})
+  .then(function(r){return r.json();}).then(function(){showToast('수정됐습니다');loadMaintenance();});
+}
+function delInsp(id,encodedKey){
+  if(!confirm('이 점검 기록을 삭제하시겠습니까?'))return;
+  fetch('/api/inspections/'+id,{method:'DELETE'})
+  .then(function(r){return r.json();}).then(function(){
+    var row=document.getElementById('irow_'+id);
+    if(row)row.remove();
+    loadMaintenance();
+    showToast('삭제됐습니다');
+  });
+}
 function showHist(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
@@ -259,10 +279,10 @@ function showHist(encodedKey){
   let html='';
   if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
   else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th></tr></thead><tbody>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th><th style="padding:8px 6px">관리</th></tr></thead><tbody>';
     recs.slice().reverse().forEach(r=>{
       const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
-      html+=`<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap">${it}</td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px">${r.content||'-'}</td><td style="padding:8px 6px;text-align:center">${signImg}</td></tr>`;
+      html+=`<tr id="irow_${r.id}" style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_${r.id}" style="font-size:11px;border:1px solid #ddd;border-radius:3px">${ITEMS.map(ii=>'<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>').join('')}</select></td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px"><textarea id="icont_${r.id}" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">${r.content||''}</textarea></td><td style="padding:8px 6px;text-align:center">${signImg}</td><td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp(${r.id})">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp(${r.id},\''+key+'\')">삭제</button></td></tr>`;
     });
     html+='</tbody></table>';
   }
@@ -507,27 +527,46 @@ function loadReport(){
   });
 }
 function loadMembers(){
-  fetch('/api/members').then(r=>r.json()).then(members=>{
-    let html=`<div class="add-form">
-      <h3>➕ 회원 등록</h3>
-      <div class="form-grid">
-        <div class="form-row"><label>아이디</label><input type="text" id="m-id" placeholder="아이디"></div>
-        <div class="form-row"><label>비밀번호</label><input type="password" id="m-pw" placeholder="비밀번호"></div>
-        <div class="form-row"><label>이름</label><input type="text" id="m-name" placeholder="이름"></div>
-        <div class="form-row"><label>연락처</label><input type="text" id="m-phone" placeholder="010-0000-0000"></div>
-      </div>
-      <button class="btn-primary" onclick="addMember()">등록</button>
-    </div>`;
-    html+='<div class="tbl-wrap"><table class="member-table"><thead><tr><th>#</th><th>아이디</th><th>이름</th><th>연락처</th><th>등록일</th><th>관리</th></tr></thead><tbody>';
-    if(members.length===0){html+='<tr><td colspan="6" style="text-align:center;padding:30px;color:#999">등록된 회원이 없습니다</td></tr>';}
-    members.forEach(m=>{
-      html+=`<tr><td>${m.id}</td><td>${m.username}</td><td>${m.name}</td><td>${m.phone||'-'}</td><td>${m.created_at?.slice(0,10)||''}</td>
-        <td><button class="btn-danger" onclick="delMember(${m.id},'${m.username}')">삭제</button></td></tr>`;
+  fetch('/api/members').then(function(r){return r.json();}).then(function(members){
+    let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+    html+='<h3 style="font-size:16px;color:#1a5276;margin:0">👥 회원 목록</h3></div>';
+    html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:20px">';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#1a5276;color:#fff">';
+    html+='<th style="padding:10px">No</th><th>이름</th><th>아이디</th><th>비밀번호</th><th>연락처</th><th>관리</th></tr></thead><tbody>';
+    members.forEach(function(m){
+      html+='<tr id="mrow_'+m.id+'" style="border-bottom:1px solid #f0f0f0">';
+      html+='<td style="padding:8px;text-align:center">'+m.id+'</td>';
+      html+='<td style="padding:8px;text-align:center"><input id="m_name_'+m.id+'" value="'+m.name+'" style="border:1px solid #ddd;border-radius:4px;padding:4px 6px;width:80px;font-size:12px"></td>';
+      html+='<td style="padding:8px;text-align:center"><input id="m_uid_'+m.id+'" value="'+m.username+'" style="border:1px solid #ddd;border-radius:4px;padding:4px 6px;width:80px;font-size:12px"></td>';
+      html+='<td style="padding:8px;text-align:center"><input id="m_pw_'+m.id+'" value="'+(m.password||'')+'" style="border:1px solid #ddd;border-radius:4px;padding:4px 6px;width:70px;font-size:12px"></td>';
+      html+='<td style="padding:8px;text-align:center"><input id="m_ph_'+m.id+'" value="'+(m.phone||'')+'" style="border:1px solid #ddd;border-radius:4px;padding:4px 6px;width:110px;font-size:12px"></td>';
+      html+='<td style="padding:8px;text-align:center;white-space:nowrap"><button class="btn-primary" style="padding:4px 10px;font-size:12px;margin-right:4px" onclick="editMember('+m.id+')">수정</button><button class="btn-del" onclick="delMember('+m.id+')">삭제</button></td>';
+      html+='</tr>';
     });
     html+='</tbody></table></div>';
+    // 회원 추가 폼
+    html+='<div class="card" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px">';
+    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">➕ 회원 추가</h3>';
+    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">';
+    html+='<div><label style="font-size:12px;color:#666">이름</label><input id="m-name" placeholder="이름" style="width:100%;margin-top:4px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px"></div>';
+    html+='<div><label style="font-size:12px;color:#666">아이디</label><input id="m-uid" placeholder="아이디" style="width:100%;margin-top:4px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px"></div>';
+    html+='<div><label style="font-size:12px;color:#666">비밀번호</label><input id="m-pw" type="password" placeholder="비밀번호" style="width:100%;margin-top:4px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px"></div>';
+    html+='<div><label style="font-size:12px;color:#666">연락처</label><input id="m-phone" placeholder="010-0000-0000" style="width:100%;margin-top:4px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px"></div>';
+    html+='</div><button class="btn-primary" onclick="addMember()">회원 추가</button></div>';
     document.getElementById('content').innerHTML=html;
   });
 }
+function editMember(id){
+  var name=document.getElementById('m_name_'+id).value.trim();
+  var username=document.getElementById('m_uid_'+id).value.trim();
+  var pw=document.getElementById('m_pw_'+id).value.trim();
+  var phone=document.getElementById('m_ph_'+id).value.trim();
+  if(!name){showToast('이름을 입력하세요');return;}
+  fetch('/api/members/'+id+'/update',{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,username:username,password:pw,phone:phone})})
+  .then(function(r){return r.json();}).then(function(){showToast('수정됐습니다');loadMembers();});
+}
+
 function addMember(){
   const data={username:document.getElementById('m-id').value,password:document.getElementById('m-pw').value,name:document.getElementById('m-name').value,phone:document.getElementById('m-phone').value};
   if(!data.username||!data.password||!data.name){alert('아이디, 비밀번호, 이름은 필수입니다');return;}
@@ -601,9 +640,9 @@ def api_remote_save():
 def api_members():
     init_db()
     con=sqlite3.connect(DB)
-    rows=con.execute('SELECT id,username,name,phone,created_at FROM members ORDER BY id DESC').fetchall()
+    rows=con.execute('SELECT id,username,name,phone,plain_pw FROM members ORDER BY id DESC').fetchall()
     con.close()
-    return jsonify([{'id':r[0],'username':r[1],'name':r[2],'phone':r[3],'created_at':r[4]} for r in rows])
+    return jsonify([{'id':r[0],'username':r[1],'name':r[2],'phone':r[3],'password':r[4]or''} for r in rows])
 
 # API: 회원 추가
 @app.route('/api/members/add',methods=['POST'])
@@ -614,14 +653,50 @@ def api_member_add():
     pw=hashlib.sha256(d.get('password','').encode()).hexdigest()
     try:
         con=sqlite3.connect(DB)
-        con.execute('INSERT INTO members(username,password,name,phone) VALUES(?,?,?,?)',
-            (d.get('username',''),pw,d.get('name',''),d.get('phone','')))
+        raw_pw=d.get('password','')
+        pw=hashlib.sha256(raw_pw.encode()).hexdigest()
+        con.execute('INSERT INTO members(username,password,name,phone,plain_pw) VALUES(?,?,?,?,?)',
+            (d.get('username',''),pw,d.get('name',''),d.get('phone',''),raw_pw))
         con.commit();con.close()
         return jsonify({'ok':True})
     except sqlite3.IntegrityError:
         return jsonify({'ok':False,'error':'이미 존재하는 아이디입니다'})
 
 # API: 회원 삭제
+@app.route('/api/members/<int:mid>/update',methods=['PUT'])
+def api_member_update(mid):
+    init_db()
+    d=request.get_json(force=True)
+    con=sqlite3.connect(DB)
+    updates=[];vals=[]
+    if d.get('name') is not None: updates.append('name=?');vals.append(d['name'])
+    if d.get('phone') is not None: updates.append('phone=?');vals.append(d['phone'])
+    if d.get('username'): updates.append('username=?');vals.append(d['username'])
+    if d.get('password'):
+        raw_pw=d['password'];pw=hashlib.sha256(raw_pw.encode()).hexdigest()
+        updates.append('password=?');vals.append(pw)
+        updates.append('plain_pw=?');vals.append(raw_pw)
+    if updates:
+        vals.append(mid)
+        con.execute('UPDATE members SET '+','.join(updates)+' WHERE id=?',vals);con.commit()
+    con.close();return jsonify({'ok':True})
+
+@app.route('/api/inspections/<int:iid>',methods=['PUT'])
+def api_inspection_update(iid):
+    init_db()
+    d=request.get_json(force=True)
+    con=sqlite3.connect(DB)
+    con.execute('UPDATE inspections SET item=?,content=?,status=? WHERE id=?',
+        (d.get('item',''),d.get('content',''),d.get('status','정상'),iid))
+    con.commit();con.close();return jsonify({'ok':True})
+
+@app.route('/api/inspections/<int:iid>',methods=['DELETE'])
+def api_inspection_delete(iid):
+    init_db()
+    con=sqlite3.connect(DB)
+    con.execute('DELETE FROM inspections WHERE id=?',(iid,))
+    con.commit();con.close();return jsonify({'ok':True})
+
 @app.route('/api/members/<int:mid>',methods=['DELETE'])
 @login_required
 def api_member_del(mid):
