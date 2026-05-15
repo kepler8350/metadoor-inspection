@@ -146,8 +146,7 @@ def admin_dash():
     H.append('</style>')
     RTREE_J=json.dumps(REMOTE_TREE,ensure_ascii=False)
     H.append(f'<script>const LOCS={LOCS_J},ITEMS={ITEMS_J},REMOTE_ITEMS={RITEMS_J};let curMenu="{menu}",curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1;</script>')
-    H.append('<script>const REMOTE_TREE='+RTREE_J+';
-    html+='<div style="text-align:right;margin-bottom:12px"><button onclick="printReport()" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(231,76,60,0.3)">🖨️ 보고서 출력 (PDF)</button></div>';</script>')
+    H.append('<script>const REMOTE_TREE='+RTREE_J+';</script>')
     H.append('</head><body>')
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
@@ -662,6 +661,7 @@ function loadReport(){
   const yr=curYear||new Date().getFullYear(),mo=curMonth||(new Date().getMonth()+1);
   const yStr=yr+'년',mStr=mo+'월';
   let html='<div style="padding:8px 0 16px"><h2 style="font-size:18px;color:#1a5276;margin:0 0 4px">'+yStr+' '+mStr+' 점검 보고서</h2>';
+  html+='<div style="text-align:right;margin:8px 0 16px"><button id="rpt-print-btn" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">보고서 출력 (PDF)</button></div>';
   html+='<p style="font-size:12px;color:#999;margin:0">유지보수현황 + 원격점검 통합 현황</p></div>';
 
   // 유지보수 + 원격점검 동시 조회
@@ -757,6 +757,8 @@ function loadReport(){
     html+='</div>';
 
     document.getElementById('content').innerHTML=html;
+  var rptBtn=document.getElementById('rpt-print-btn');
+  if(rptBtn) rptBtn.addEventListener('click',printReport);
   });
 }
 function loadMembers(){
