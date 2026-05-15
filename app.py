@@ -72,7 +72,7 @@ def admin_login():
     H.append('h2{text-align:center;margin-bottom:24px;color:#1a5276;font-size:20px}')
     H.append('input{width:100%;padding:12px;margin-bottom:14px;border:1px solid #ddd;border-radius:6px;font-size:14px}')
     H.append('button{width:100%;padding:12px;background:#1a5276;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:600}')
-    H.append('.err{color:red;font-size:13px;margin-bottom:12px;text-align:center}</style><style>@media print{.sidebar,.top-bar,header,.admin-header,#pp-toolbar{display:none!important}#pp-pages{display:block!important}body{margin:0;padding:0}}</style>
+    H.append('.err{color:red;font-size:13px;margin-bottom:12px;text-align:center}</style>
 </head><body>')
     H.append('<div class="box"><h2>🔐 관리자 로그인</h2>')
     if err:H.append(f'<div class="err">{err}</div>')
