@@ -306,7 +306,7 @@ function openRemoteInput(encodedKey){
   let hist='';
   if(recs&&recs.length>0){
     hist='<div style="margin-bottom:12px;background:#f8f9fa;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">📋 최근 점검이력</div>';
-    recs.slice().reverse().forEach(r=>{
+    recs.slice().reverse().forEach(function(r){
       hist+='<div class="hist-row"><div class="hist-meta">📅 '+(r.check_date||'')+' | 👤 '+(r.inspector||'-')+' | 상태: <b style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+'">'+r.status+'</b></div>';
       if(r.check_item&&r.check_item!==it)hist+='<div style="font-size:11px;color:#1a5276;margin:2px 0">🔹 '+r.check_item+'</div>';
       hist+='<div class="hist-content">'+(r.note||'(내용없음)')+'</div></div>';
@@ -316,7 +316,7 @@ function openRemoteInput(encodedKey){
   window._rKey=key; window._rD=d; window._rL=l; window._rIt=it; window._rSub1=''; window._rSub2='';
   const tree=REMOTE_TREE[it]||{};
   const sub1s=Object.keys(tree);
-  let stepHtml='';
+  var stepHtml='';
   if(sub1s.length>0){
     stepHtml+='<div style="background:#eaf0fb;border-radius:8px;padding:10px;margin-bottom:10px">';
     stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">① 장치 선택</div>';
@@ -327,20 +327,34 @@ function openRemoteInput(encodedKey){
     stepHtml+='<div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:700">② 점검항목 선택</div>';
     stepHtml+='<div id="r-sub2-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>';
   }
-  stepHtml+='<div id="r-action-wrap" style="'+(sub1s.length>0?'display:none':'')+'">';
-  const _n=new Date(),_p=function(x){return String(x).padStart(2,'0');};
-  const dtLocal=_n.getFullYear()+'-'+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+'T'+_p(_n.getHours())+':'+_p(_n.getMinutes());
-  const mOpts=(window._membersList||[]).map(function(m){return '<option value="'+m.name+'">'+m.name+'</option>';}).join('');
+  var actionStyle=sub1s.length>0?'display:none':'';
+  var _n=new Date(),_p=function(x){return String(x).padStart(2,'0');};
+  var dtLocal=_n.getFullYear()+'-'+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+'T'+_p(_n.getHours())+':'+_p(_n.getMinutes());
+  stepHtml+='<div id="r-action-wrap" style="'+actionStyle+'">';
   stepHtml+='<div class="form-row"><label>점검일자</label><input type="datetime-local" id="rc-date" value="'+dtLocal+'"></div>';
   stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
   stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
-  stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">-- 선택 --</option>'+mOpts+'</select></div>';
+  stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">불러오는 중...</option></select></div>';
   stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;font-weight:600"></div>';
   stepHtml+='<button class="btn-primary" onclick="saveRemoteNew()">저장</button>';
   stepHtml+='<button class="btn-sec" style="margin-left:8px" onclick="closeModal('+String.fromCharCode(39)+'remote-modal'+String.fromCharCode(39)+')">취소</button>';
   stepHtml+='</div>';
   document.getElementById('remote-modal-body').innerHTML=hist+stepHtml;
   document.getElementById('remote-modal').classList.add('show');
+  // 회원 목록 실시간 fetch
+  fetch('/api/members').then(function(r){return r.json();}).then(function(members){
+    var sel=document.getElementById('rc-insp');
+    if(!sel)return;
+    sel.innerHTML='<option value="">-- 선택 --</option>';
+    members.forEach(function(m){
+      var opt=document.createElement('option');
+      opt.value=m.name; opt.textContent=m.name;
+      sel.appendChild(opt);
+    });
+  }).catch(function(){
+    var sel=document.getElementById('rc-insp');
+    if(sel)sel.innerHTML='<option value="">-- 직접 입력 --</option>';
+  });
 }
 
 function rSelSub1(btn){
