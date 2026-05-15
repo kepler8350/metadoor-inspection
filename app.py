@@ -315,7 +315,7 @@ function showHist(encodedKey){
     });
     html+='</tbody></table></div>';
   }
-  document.getElementById('hist-modal-body').innerHTML=html;
+  document.getElementById('hist-body').innerHTML=html;
   document.getElementById('hist-modal').classList.add('show');
 }
 function openPhotoPopup(src){
