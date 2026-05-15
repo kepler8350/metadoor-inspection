@@ -733,13 +733,17 @@ def api_user_login():
 
 @app.route('/api/inspection',methods=['POST'])
 def api_save():
-    init_db()
-    d=request.get_json(force=True)
-    con=sqlite3.connect(DB)
-    con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature,manager,images) VALUES(?,?,?,?,?,?,?,?,?)',
-        (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature',''),d.get('manager',''),d.get('images','')))
-    con.commit();con.close()
-    return jsonify({'ok':True})
+    try:
+        init_db()
+        d=request.get_json(force=True)
+        con=sqlite3.connect(DB)
+        con.execute('INSERT INTO inspections(district,location,item,content,status,inspector,signature,manager,images) VALUES(?,?,?,?,?,?,?,?,?)',
+            (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),d.get('status','정상'),d.get('inspector',''),d.get('signature',''),d.get('manager',''),d.get('images','')))
+        con.commit();con.close()
+        return jsonify({'ok':True})
+    except Exception as e:
+        import traceback
+        return jsonify({'ok':False,'error':str(e),'trace':traceback.format_exc()}),500
 
 @app.route('/api/inspections')
 @login_required
