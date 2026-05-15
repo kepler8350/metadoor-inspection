@@ -439,6 +439,12 @@ function loadRemote(){
     });
     html+='</tbody></table></div>';
     document.getElementById('content').innerHTML=html;
+    document.querySelectorAll('.loc-td').forEach(function(td){
+      td.addEventListener('click',function(){
+        var lv=this.getAttribute('data-loc');
+        if(lv) showLocHist(encodeURIComponent(lv));
+      });
+    });
     document.querySelectorAll('[data-key]').forEach(function(td){
       td.addEventListener('click',function(){openRemoteInput(encodeURIComponent(this.dataset.key));});
     });
