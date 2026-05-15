@@ -275,45 +275,42 @@ function delInsp(id,encodedKey){
   });
 }
 function showHist(encodedKey){
-  const key=decodeURIComponent(encodedKey);
-  const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
-  document.getElementById('hist-modal-title').textContent=d+' '+l;
-  const data=window._maintData||{};
-  const recs=(data[key])||[];
-  let html='';
+  var key=decodeURIComponent(encodedKey);
+  var data=window._maintData||{};
+  var recs=(data[key])||[];
+  var html='';
   if(recs.length===0){
-    html='<p style="text-align:center;color:#999;padding:20px">점검 이력이 없습니다</p>';
+    html='<p style="text-align:center;color:#999;padding:20px">이력이 없습니다</p>';
   } else {
-    html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff">';
-    html+='<th style="padding:8px 6px;white-space:nowrap">일자</th>';
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+    html+='<thead><tr style="background:#1a5276;color:#fff">';
+    html+='<th style="padding:8px 6px;white-space:nowrap;width:100px">일자</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap">항목</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap">점검자명</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap">담당자명</th>';
     html+='<th style="padding:8px 6px">조치사항</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th>';
-    html+='<th style="padding:8px 6px;white-space:nowrap">사진</th>';
+    html+='<th style="padding:8px 6px">사진</th>';
     html+='<th style="padding:8px 6px;white-space:nowrap">관리</th>';
     html+='</tr></thead><tbody>';
     recs.forEach(function(r){
-      const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
-      const _imgs=r.images?JSON.parse(r.images||'[]'):[];
-      let imgsHtml='';
-      if(_imgs.length>0){
-        _imgs.forEach(function(src,i){
-          imgsHtml+='<img src="'+src+'" style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:zoom-in;border:1px solid #ddd" onclick="openPhotoPopup(this.src)">';
-        });
-      } else {
-        imgsHtml='-';
-      }
+      var signImg=r.signature ? '<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">' : '-';
+      var imgs=[];
+      try{ if(r.images) imgs=JSON.parse(r.images); } catch(e){}
+      var imgsHtml='';
+      imgs.forEach(function(src){
+        imgsHtml+='<img src="'+src+'" style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:zoom-in" onclick="openPhotoPopup(this.src)">';
+      });
+      if(!imgsHtml) imgsHtml='-';
       html+='<tr id="irow_'+r.id+'" style="border-bottom:1px solid #f0f0f0">';
-      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+(r.created_at||'').replace('T',' ').slice(0,19)+'</td>';
-      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_'+r.id+'" style="font-size:11px;border:1px solid #ddd;border-radius:3px;max-width:70px">'+ITEMS.map(function(ii){return '<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>';}).join('')+'</select></td>';
-      html+='<td style="padding:8px 6px;text-align:center">'+(r.inspector||'-')+'</td>';
-      html+='<td style="padding:8px 6px;text-align:center">'+(r.manager||'-')+'</td>';
-      html+='<td style="padding:8px 6px"><textarea id="icont_'+r.id+'" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">'+(r.content||'')+'</textarea></td>';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+((r.created_at||'').replace('T',' ').slice(0,16))+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+key.split('|')[2]+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+(r.inspector||'-')+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+(r.manager||'-')+'</td>';
+      html+='<td style="padding:8px 6px"><textarea id="icont_'+r.id+'" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">'+((r.content||'').replace(/<[^>]+>/g,''))+'</textarea></td>';
       html+='<td style="padding:8px 6px;text-align:center">'+signImg+'</td>';
       html+='<td style="padding:8px 6px;text-align:center">'+imgsHtml+'</td>';
-      html+='<td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp('+r.id+')">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp('+r.id+',''+key+'')">삭제</button></td>';
+      html+='<td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin:2px;background:#1a5276;color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="editInsp('+r.id+')">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px;margin:2px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer" onclick="delInsp('+r.id+')">삭제</button></td>';
       html+='</tr>';
     });
     html+='</tbody></table></div>';
