@@ -234,47 +234,47 @@ function loadMaintenance(){
   });
 }
 function showLocHist(encodedLoc){
-  var loc=decodeURIComponent(encodedLoc);
-  var parts=loc.split('|');
-  var d=parts[0],l=parts[1];
-  // 원격점검 데이터에서 해당 위치의 모든 기록 수집
-  var recs=[];
+  var locKey=decodeURIComponent(encodedLoc);
+  var locParts=locKey.split('|');
+  var locD=locParts[0],locL=locParts[1];
+  var allRecs=[];
   if(window._rData){
     Object.keys(window._rData).forEach(function(k){
-      var kp=k.split('|');
-      if(kp[0]===d&&kp[1]===l){
-        window._rData[k].forEach(function(r){
-          recs.push(Object.assign({},r,{category:kp[2]}));
+      var kparts=k.split('|');
+      if(kparts[0]===locD&&kparts[1]===locL){
+        window._rData[k].forEach(function(rec){
+          allRecs.push({date:rec.check_date||'',cat:kparts[2],item:rec.check_item||'-',st:rec.status||'정상',note:rec.note||'-'});
         });
       }
     });
   }
-  recs.sort(function(a,b){return (b.check_date||'').localeCompare(a.check_date||'');});
-  var popup=document.getElementById('loc-hist-popup');
-  if(!popup){
-    popup=document.createElement('div');
-    popup.id='loc-hist-popup';
-    popup.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center';
-    popup.onclick=function(e){if(e.target===popup)popup.style.display='none';};
-    document.body.appendChild(popup);
-  }
+  allRecs.sort(function(a,b){return b.date.localeCompare(a.date);});
   var rows='';
-  if(recs.length===0){
+  if(allRecs.length===0){
     rows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">기록이 없습니다</td></tr>';
   } else {
-    recs.forEach(function(r){
-      var stCol=r.status==='이상'?'#e74c3c':'#27ae60';
+    allRecs.forEach(function(rec){
+      var col=rec.st==='이상'?'#e74c3c':'#27ae60';
       rows+='<tr style="border-bottom:1px solid #f0f0f0">';
-      rows+='<td style="padding:8px 6px;font-size:11px;white-space:nowrap">'+((r.check_date||'').replace('T',' ').slice(0,16))+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px">'+r.category+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px">'+(r.check_item||'-')+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px;text-align:center"><span style="color:'+stCol+';font-weight:600">'+(r.status||'정상')+'</span></td>';
-      rows+='<td style="padding:8px 6px;font-size:11px;max-width:180px;white-space:pre-wrap;word-break:break-all">'+(r.note||'-')+'</td>';
+      rows+='<td style="padding:8px 6px;font-size:11px;white-space:nowrap">'+(rec.date.replace('T',' ').slice(0,16))+'</td>';
+      rows+='<td style="padding:8px 6px;font-size:11px">'+rec.cat+'</td>';
+      rows+='<td style="padding:8px 6px;font-size:11px">'+rec.item+'</td>';
+      rows+='<td style="padding:8px 6px;font-size:11px;text-align:center"><span style="color:'+col+';font-weight:600">'+rec.st+'</span></td>';
+      rows+='<td style="padding:8px 6px;font-size:11px;max-width:200px;word-break:break-all">'+rec.note+'</td>';
       rows+='</tr>';
     });
   }
-  popup.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;max-width:720px;width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:14px;color:#1a5276">'+d+' / '+l+' — 원격점검 이력</b><span onclick="document.getElementById('loc-hist-popup').style.display='none'" style="cursor:pointer;font-size:22px;color:#888;line-height:1">×</span></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;font-size:11px">일자</th><th style="padding:8px 6px;font-size:11px">대분류</th><th style="padding:8px 6px;font-size:11px">점검항목</th><th style="padding:8px 6px;font-size:11px">상태</th><th style="padding:8px 6px;font-size:11px">조치내용</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-  popup.style.display='flex';
+  var pop=document.getElementById('loc-hist-pop');
+  if(!pop){
+    pop=document.createElement('div');
+    pop.id='loc-hist-pop';
+    pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9997;display:flex;align-items:center;justify-content:center';
+    pop.addEventListener('click',function(e){if(e.target===pop)pop.style.display='none';});
+    document.body.appendChild(pop);
+  }
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;max-width:760px;width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:14px;color:#1a5276">'+locD+' / '+locL+' 원격점검 이력</b><span class="pop-close" style="cursor:pointer;font-size:22px;color:#888;line-height:1">x</span></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px;font-size:11px">일자</th><th style="padding:8px;font-size:11px">대분류</th><th style="padding:8px;font-size:11px">항목</th><th style="padding:8px;font-size:11px">상태</th><th style="padding:8px;font-size:11px">조치내용</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  pop.querySelector('.pop-close').addEventListener('click',function(){pop.style.display='none';});
+  pop.style.display='flex';
 }
 
 function editInsp(id){
@@ -283,16 +283,19 @@ function editInsp(id){
   var items=['패널','보드','전원','PC','카메라','스피커','마이크','입력장치','하우징','외관데코','기타'];
   var opts=items.map(function(v){return '<option value="'+v+'"'+(r&&r.item==v?' selected':'')+'>'+v+'</option>';}).join('');
   var cont=r?r.content||'':'';
-  var popup=document.getElementById('edit-insp-popup');
-  if(!popup){
-    popup=document.createElement('div');
-    popup.id='edit-insp-popup';
-    popup.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
-    document.body.appendChild(popup);
+  var pop=document.getElementById('edit-insp-pop');
+  if(!pop){
+    pop=document.createElement('div');
+    pop.id='edit-insp-pop';
+    pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+    document.body.appendChild(pop);
   }
-  popup.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2)"><h3 style="margin:0 0 16px;font-size:16px;color:#1a5276">점검 내용 수정</h3><label style="font-size:13px;color:#555;display:block;margin-bottom:4px">점검 항목</label><select id="ep-item" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;margin-bottom:12px">'+opts+'</select><label style="font-size:13px;color:#555;display:block;margin-bottom:4px">조치 사항</label><textarea id="ep-cont" style="width:100%;height:120px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;resize:vertical;box-sizing:border-box">'+cont+'</textarea><div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end"><button onclick="document.getElementById('edit-insp-popup').style.display='none'" style="padding:8px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px">취소</button><button onclick="saveEditInsp('+id+')" style="padding:8px 20px;border:none;border-radius:6px;background:#1a5276;color:#fff;cursor:pointer;font-size:13px;font-weight:600">저장</button></div></div>';
-  popup.style.display='flex';
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2)"><h3 style="margin:0 0 16px;font-size:16px;color:#1a5276">점검 내용 수정</h3><label style="font-size:13px;color:#555;display:block;margin-bottom:4px">점검 항목</label><select id="ep-item" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;margin-bottom:12px">'+opts+'</select><label style="font-size:13px;color:#555;display:block;margin-bottom:4px">조치 사항</label><textarea id="ep-cont" style="width:100%;height:120px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;resize:vertical;box-sizing:border-box">'+cont+'</textarea><div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end"><button class="ep-cancel" style="padding:8px 16px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;font-size:13px">취소</button><button class="ep-save" style="padding:8px 20px;border:none;border-radius:6px;background:#1a5276;color:#fff;cursor:pointer;font-size:13px;font-weight:600">저장</button></div></div>';
+  pop.querySelector('.ep-cancel').addEventListener('click',function(){pop.style.display='none';});
+  pop.querySelector('.ep-save').addEventListener('click',function(){saveEditInsp(id);});
+  pop.style.display='flex';
 }
+
 function saveEditInsp(id){
   var item=document.getElementById('ep-item').value;
   var cont=document.getElementById('ep-cont').value;
@@ -375,17 +378,19 @@ function showHist(encodedKey){
 }
 function showContentPopup(td){
   var full=td.getAttribute('data-full');
-  var ov=document.getElementById('content-popup');
-  if(!ov){
-    ov=document.createElement('div');
-    ov.id='content-popup';
-    ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center';
-    ov.onclick=function(e){if(e.target===ov)ov.style.display='none';};
-    document.body.appendChild(ov);
+  var pop=document.getElementById('content-pop');
+  if(!pop){
+    pop=document.createElement('div');
+    pop.id='content-pop';
+    pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center';
+    pop.addEventListener('click',function(e){if(e.target===pop)pop.style.display='none';});
+    document.body.appendChild(pop);
   }
-  ov.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:15px;color:#1a5276">조치사항 전체</b><span onclick="document.getElementById('content-popup').style.display='none'" style="cursor:pointer;font-size:22px;color:#888;line-height:1">×</span></div><p style="margin:0;font-size:13px;color:#333;white-space:pre-wrap;line-height:1.6">'+full+'</p></div>';
-  ov.style.display='flex';
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:15px;color:#1a5276">조치사항 전체</b><span class="scp-close" style="cursor:pointer;font-size:22px;color:#888;line-height:1">x</span></div><p style="margin:0;font-size:13px;color:#333;white-space:pre-wrap;line-height:1.6">'+full+'</p></div>';
+  pop.querySelector('.scp-close').addEventListener('click',function(){pop.style.display='none';});
+  pop.style.display='flex';
 }
+
 function openPhotoPopup(src){
   var overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
