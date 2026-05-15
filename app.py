@@ -678,7 +678,7 @@ function loadReport(){
       mTotal+=recs.length;
       const parts=k.split('|'); mLocs.add(parts[0]+'|'+parts[1]);
       const it=parts[2]; mItems[it]=(mItems[it]||0)+recs.length;
-    });
+    }).catch(function(e){document.getElementById('content').innerHTML='<p style="color:red;padding:20px">오류: '+e.message+'</p>';});
 
     // ── 원격점검 요약 ──
     var rAbnormal=0, rTotal=0, rLocs=new Set();
