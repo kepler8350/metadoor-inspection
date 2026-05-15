@@ -658,109 +658,89 @@ function printReport(){
 }
 
 function loadReport(){
-  const yr=curYear||new Date().getFullYear(),mo=curMonth||(new Date().getMonth()+1);
-  const yStr=yr+'년',mStr=mo+'월';
-  let html='<div style="padding:8px 0 16px"><h2 style="font-size:18px;color:#1a5276;margin:0 0 4px">'+yStr+' '+mStr+' 점검 보고서</h2>';
-  html+='<div style="text-align:right;margin:8px 0 16px"><button id="rpt-print-btn" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">보고서 출력 (PDF)</button></div>';
-  html+='<p style="font-size:12px;color:#999;margin:0">유지보수현황 + 원격점검 통합 현황</p></div>';
-
-  // 유지보수 + 원격점검 동시 조회
+  var yr=curYear||new Date().getFullYear();
+  var mo=curMonth||(new Date().getMonth()+1);
+  function card(icon,label,val,color){
+    return '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px">'+
+      '<span style="font-size:28px">'+icon+'</span>'+
+      '<div><div style="font-size:22px;font-weight:700;color:'+color+'">'+val+'</div>'+
+      '<div style="font-size:12px;color:#666;margin-top:2px">'+label+'</div></div></div>';
+  }
+  document.getElementById('content').innerHTML='<p style="padding:20px;color:#999">데이터 로딩 중...</p>';
   Promise.all([
     fetch('/api/maintenance?year='+yr+'&month='+mo).then(function(r){return r.json();}),
     fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();})
   ]).then(function(results){
-    const mData=results[0], rData=results[1];
-
-    // ── 유지보수 요약 ──
-    var mTotal=0, mLocs=new Set(), mItems={};
+    var mData=results[0]||{};
+    var rData=results[1]||{};
+    var mTotal=0;
+    var mLocs=new Set();
+    var mItems={};
     Object.keys(mData).forEach(function(k){
-      const recs=mData[k]; if(!recs.length)return;
-      mTotal+=recs.length;
-      const parts=k.split('|'); mLocs.add(parts[0]+'|'+parts[1]);
-      const it=parts[2]; mItems[it]=(mItems[it]||0)+recs.length;
-    }).catch(function(e){document.getElementById('content').innerHTML='<p style="color:red;padding:20px">오류: '+e.message+'</p>';});
-
-    // ── 원격점검 요약 ──
-    var rAbnormal=0, rTotal=0, rLocs=new Set();
-    Object.keys(rData).forEach(function(k){
-      const recs=rData[k]; if(!recs.length)return;
-      rTotal+=recs.length;
-      const parts=k.split('|'); rLocs.add(parts[0]+'|'+parts[1]);
-      recs.forEach(function(r){if(r.status==='이상')rAbnormal++;});
+      var p=k.split('|');
+      mLocs.add(p[0]+'|'+p[1]);
+      mTotal+=(mData[k]||[]).length;
+      if(!mItems[p[2]])mItems[p[2]]=0;
+      mItems[p[2]]+=(mData[k]||[]).length;
     });
-
-    // ── 요약 카드 ──
-    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">';
-    function card(icon,label,val,color){return '<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;text-align:center"><div style="font-size:24px">'+icon+'</div><div style="font-size:12px;color:#666;margin:4px 0">'+label+'</div><div style="font-size:22px;font-weight:700;color:'+color+'">'+val+'</div></div>';}
+    var rTotal=0,rAbnCount=0;
+    var abnormals=[];
+    Object.keys(rData).forEach(function(k){
+      (rData[k]||[]).forEach(function(r){
+        rTotal++;
+        if(r.status==='이상'){
+          rAbnCount++;
+          var p=k.split('|');
+          abnormals.push({d:p[0],l:p[1],it:p[2],note:r.note,check_date:r.check_date,status:r.status});
+        }
+      });
+    });
+    window._reportData={total:mTotal,locs:mLocs.size};
+    window._reportRemote={total:rTotal,abnCount:rAbnCount,abnormals:abnormals};
+    window._maintData=mData;
+    var html='<div style="padding:8px 0 16px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
+    html+='<div><h2 style="font-size:20px;font-weight:700;color:#1a5276;margin:0">'+yr+'년 '+mo+'월 점검 보고서</h2>';
+    html+='<p style="font-size:12px;color:#888;margin:4px 0 0">유지보수현황 + 원격점검 통합 현황</p></div>';
+    html+='<button id="rpt-print-btn" style="background:#e74c3c;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">보고서 출력 (PDF)</button>';
+    html+='</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">';
     html+=card('🔧','유지보수 점검',mTotal+'건','#1a5276');
     html+=card('📍','점검 설치위치',mLocs.size+'곳','#27ae60');
     html+=card('📡','원격점검 건수',rTotal+'건','#8e44ad');
-    html+=card('⚠️','원격 이상 건수',rAbnormal+'건',rAbnormal>0?'#e74c3c':'#27ae60');
+    html+=card('⚠️','원격 이상 건수',rAbnCount+'건','#e74c3c');
     html+='</div>';
-
-    // ── 유지보수 항목별 현황 ──
-    window._reportData={total:mTotal,locs:mLocs};
-    window._reportRemote={total:rTotal,abnCount:rAbnCount,abnormals:abnormals};
     html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:16px">';
     html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">🔧 유지보수 점검항목별 건수</h3>';
-    if(Object.keys(mItems).length===0){
-      html+='<p style="color:#999;text-align:center;padding:12px">이번 달 점검 내역이 없습니다</p>';
-    } else {
-      html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f0f4f8"><th style="padding:8px;text-align:center;border-bottom:2px solid #ddd">건수</th></tr></thead><tbody>';
-      ITEMS.forEach(function(it){
-        if(mItems[it]) html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px">'+it+'</td><td style="padding:8px;text-align:center;font-weight:700;color:#1a5276">'+mItems[it]+'건</td></tr>';
-      });
-      html+='</tbody></table>';
-    }
-    html+='</div>';
-
-    // ── 설치위치별 점검 현황 ──
-    html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:16px">';
-    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">📍 설치위치별 유지보수 점검 현황</h3>';
-    if(mLocs.size===0){
-      html+='<p style="color:#999;text-align:center;padding:12px">점검 내역이 없습니다</p>';
-    } else {
-      html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#f0f4f8"><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">구</th><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">설치위치</th><th style="padding:8px;text-align:center;border-bottom:2px solid #ddd">점검 건수</th><th style="padding:8px;text-align:center;border-bottom:2px solid #ddd">점검 항목수</th></tr></thead><tbody>';
-      var locMap={};
-      Object.keys(mData).forEach(function(k){
-        const recs=mData[k]; if(!recs.length)return;
-        const parts=k.split('|'),locKey=parts[0]+'|'+parts[1];
-        if(!locMap[locKey])locMap[locKey]={cnt:0,items:0};
-        locMap[locKey].cnt+=recs.length; locMap[locKey].items++;
-      });
-      Object.keys(locMap).sort().forEach(function(lk){
-        const p=lk.split('|');
-        html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px">'+p[0]+'</td><td style="padding:8px">'+p[1]+'</td><td style="padding:8px;text-align:center;font-weight:700;color:#1a5276">'+locMap[lk].cnt+'건</td><td style="padding:8px;text-align:center">'+locMap[lk].items+'개 항목</td></tr>';
-      });
-      html+='</tbody></table>';
-    }
-    html+='</div>';
-
-    // ── 원격점검 이상 현황 ──
-    html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px">';
-    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">📡 원격점검 이상 현황</h3>';
-    var abnormals=[];
-    Object.keys(rData).forEach(function(k){
-      rData[k].forEach(function(r){
-        if(r.status==='이상'){const p=k.split('|');abnormals.push({d:p[0],l:p[1],it:p[2],check_item:r.check_item,note:r.note,check_date:r.check_date});}
-      });
+    html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:10px">점검항목</th><th style="padding:10px;text-align:right">건수</th></tr></thead><tbody>';
+    Object.keys(mItems).forEach(function(it){
+      html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px">'+it+'</td><td style="padding:10px;text-align:right;font-weight:700;color:#1a5276">'+mItems[it]+'건</td></tr>';
     });
-    if(abnormals.length===0){
-      html+='<p style="color:#27ae60;text-align:center;padding:12px;font-weight:600">✅ 이번 달 이상 없음</p>';
+    html+='</tbody></table></div>';
+    html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:16px">';
+    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">📡 원격점검 이상 현황</h3>';
+    if(rAbnCount===0){
+      html+='<p style="color:#27ae60;text-align:center;padding:20px">이상 없음 ✓</p>';
     } else {
-      html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fdf2f2"><th style="padding:8px;border-bottom:2px solid #e0e0e0">일자</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">설치위치</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">대분류</th><th style="padding:8px;border-bottom:2px solid #e0e0e0">조치내용</th></tr></thead><tbody>';
+      html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#e74c3c;color:#fff"><th style="padding:9px">일자</th><th style="padding:9px">설치위치</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th></tr></thead><tbody>';
       abnormals.forEach(function(a){
-        html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:7px;white-space:nowrap">'+(a.check_date||'').slice(0,10)+'</td><td style="padding:7px">'+a.d+' '+a.l+'</td><td style="padding:7px">'+a.it+'</td><td style="padding:7px"></td><td style="padding:7px">'+(a.note||'-')+'</td></tr>';
+        html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px;text-align:center">'+((a.check_date||'').slice(0,10))+'</td>';
+        html+='<td style="padding:8px">'+a.d+' '+a.l+'</td>';
+        html+='<td style="padding:8px">'+a.it+'</td>';
+        html+='<td style="padding:8px;text-align:center"><span style="color:#e74c3c;font-weight:700">'+(a.status||'이상')+'</span></td>';
+        html+='<td style="padding:8px">'+(a.note||'-')+'</td></tr>';
       });
       html+='</tbody></table>';
     }
-    html+='</div>';
-
+    html+='</div></div>';
     document.getElementById('content').innerHTML=html;
-  var rptBtn=document.getElementById('rpt-print-btn');
-  if(rptBtn) rptBtn.addEventListener('click',printReport);
+    var btn=document.getElementById('rpt-print-btn');
+    if(btn) btn.addEventListener('click',printReport);
+  }).catch(function(e){
+    document.getElementById('content').innerHTML='<p style="color:red;padding:20px">보고서 오류: '+e.message+'</p>';
   });
 }
+
 function loadMembers(){
   fetch('/api/members').then(function(r){return r.json();}).then(function(members){
     let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
