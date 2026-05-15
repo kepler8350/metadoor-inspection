@@ -719,14 +719,14 @@ def api_maintenance():
     month=request.args.get('month',datetime.now().month)
     con=sqlite3.connect(DB)
     rows=con.execute(
-        "SELECT district,location,item,content,status,inspector,signature,manager,images,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
+        "SELECT id,district,location,item,content,status,inspector,signature,manager,images,created_at FROM inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
         (str(year),str(month).zfill(2))).fetchall()
     con.close()
     data={}
     for r in rows:
-        key=f"{r[0]}|{r[1]}|{r[2]}"
+        key=f"{r[1]}|{r[2]}|{r[3]}"
         if key not in data:data[key]=[]
-        data[key].append({'content':r[3],'status':r[4],'inspector':r[5],'signature':r[6],'manager':r[7],'images':r[8],'created_at':r[9]})
+        data[key].append({'id':r[0],'content':r[4],'status':r[5],'inspector':r[6],'signature':r[7],'manager':r[8],'images':r[9],'created_at':r[10]})
     return jsonify(data)
 
 # API: 원격점검 조회
