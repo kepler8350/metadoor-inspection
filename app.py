@@ -820,40 +820,7 @@ def build_html():
     H.append('c.addEventListener("touchend",()=>drawing=false);};')
     H.append('const fn_clr=()=>{if(ctx){const c=document.getElementById("sig");ctx.clearRect(0,0,c.width,c.height);}};')
     H.append('const showToast=(m)=>{const t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2500);};')
-    H.append('const fn_open_img=()=>{document.getElementById("imgInput").click();};
-const fn_img_add=(input)=>{
-  const files=Array.from(input.files);
-  if(_imgList.length+files.length>5){showToast("최대 5개까지 첨부 가능합니다");input.value="";return;}
-  files.forEach(f=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      _imgList.push({src:e.target.result,name:f.name});
-      fn_render_imgs();
-    };
-    reader.readAsDataURL(f);
-  });
-  input.value="";
-};
-const fn_render_imgs=()=>{
-  const wrap=document.getElementById("img-preview");
-  if(!wrap)return;
-  wrap.innerHTML="";
-  _imgList.forEach((img,i)=>{
-    const div=document.createElement("div");
-    div.style.cssText="position:relative;width:80px;height:80px;display:inline-block;margin:4px";
-    const im=document.createElement("img");
-    im.src=img.src;
-    im.style.cssText="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd";
-    const btn=document.createElement("button");
-    btn.textContent="×";
-    btn.style.cssText="position:absolute;top:-6px;right:-6px;background:#e74c3c;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1";
-    btn.onclick=()=>{_imgList.splice(i,1);fn_render_imgs();};
-    div.appendChild(im);div.appendChild(btn);
-    wrap.appendChild(div);
-  });
-  const openBtn=document.querySelector("#s3 button.bl2:last-of-type");
-  if(openBtn)openBtn.style.display=_imgList.length>=5?"none":"inline-block";
-};
+    H.append('const fn_open_img=()=>{document.getElementById("imgInput").click();};const fn_img_add=(input)=>{const files=Array.from(input.files);if(_imgList.length+files.length>5){showToast("최대 5개까지 첨부 가능합니다");input.value="";return;}files.forEach(f=>{const reader=new FileReader();reader.onload=e=>{_imgList.push({src:e.target.result,name:f.name});fn_render_imgs();};reader.readAsDataURL(f);});input.value="";};const fn_render_imgs=()=>{const wrap=document.getElementById("img-preview");if(!wrap)return;wrap.innerHTML="";_imgList.forEach((img,i)=>{const div=document.createElement("div");div.style.cssText="position:relative;width:80px;height:80px;display:inline-block;margin:4px";const im=document.createElement("img");im.src=img.src;im.style.cssText="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd";const btn=document.createElement("button");btn.textContent="x";btn.style.cssText="position:absolute;top:-6px;right:-6px;background:#e74c3c;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1";btn.onclick=()=>{_imgList.splice(i,1);fn_render_imgs();};div.appendChild(im);div.appendChild(btn);wrap.appendChild(div);});};')
 const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
     H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser,manager:insp,signature:sigData,images:JSON.stringify(_imgList.map(function(i){return i.src;}))};')
     H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
