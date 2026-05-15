@@ -208,6 +208,7 @@ function loadMaintenance(){
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
     let locs=[];
+  window._maintData=data;
     Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
     let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
     ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
