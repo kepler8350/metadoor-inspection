@@ -277,23 +277,67 @@ function delInsp(id,encodedKey){
 function showHist(encodedKey){
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
-  const recs=(window._mData&&window._mData[key])||[];
-  document.getElementById('hist-title').textContent=d+' '+l;
+  document.getElementById('hist-modal-title').textContent=d+' '+l;
+  const data=window._maintData||{};
+  const recs=(data[key])||[];
   let html='';
-  if(!recs||recs.length===0){html='<p style="color:#999;text-align:center;padding:20px">기록 없음</p>';}
-  else{
-    html+='<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px 6px;white-space:nowrap">일자</th><th style="padding:8px 6px;white-space:nowrap">항목</th><th style="padding:8px 6px;white-space:nowrap">점검자명</th><th style="padding:8px 6px;white-space:nowrap">담당자명</th><th style="padding:8px 6px">조치사항</th><th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th><th style="padding:8px 6px">관리</th></tr></thead><tbody>';
-    recs.slice().reverse().forEach(r=>{
+  if(recs.length===0){
+    html='<p style="text-align:center;color:#999;padding:20px">점검 이력이 없습니다</p>';
+  } else {
+    html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#1a5276;color:#fff">';
+    html+='<th style="padding:8px 6px;white-space:nowrap">일자</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">항목</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">점검자명</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">담당자명</th>';
+    html+='<th style="padding:8px 6px">조치사항</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap;width:80px">사인</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">사진</th>';
+    html+='<th style="padding:8px 6px;white-space:nowrap">수정/삭제</th>';
+    html+='</tr></thead><tbody>';
+    recs.forEach(function(r){
       const signImg=r.signature?'<img src="'+r.signature+'" style="max-height:48px;max-width:80px;object-fit:contain">':'-';
       const _imgs=r.images?JSON.parse(r.images||'[]'):[];
-      const imgsHtml=_imgs.map(function(s){return '<img src="'+s+'" style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:pointer" onclick="window.open(this.src)">';}).join('');
-      html+=`<tr id="irow_${r.id}" style="border-bottom:1px solid #f0f0f0"><td style="padding:8px 6px;text-align:center;white-space:nowrap">${(r.created_at||'').replace('T',' ').slice(0,19)}</td><td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_${r.id}" style="font-size:11px;border:1px solid #ddd;border-radius:3px">${ITEMS.map(ii=>'<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>').join('')}</select></td><td style="padding:8px 6px;text-align:center">${r.inspector||'-'}</td><td style="padding:8px 6px;text-align:center">${r.manager||'-'}</td><td style="padding:8px 6px"><textarea id="icont_${r.id}" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">${r.content||''}</textarea></td><td style="padding:8px 6px;text-align:center">${signImg}</td><td style="padding:8px 6px;text-align:center">${imgsHtml||'-'}</td><td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp(${r.id})">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp(${r.id},\''+key+'\')">삭제</button></td></tr>`;
+      let imgsHtml='';
+      if(_imgs.length>0){
+        _imgs.forEach(function(src,i){
+          imgsHtml+='<img src="'+src+'" data-src="'+src+'" style="max-height:56px;max-width:56px;object-fit:cover;border-radius:4px;margin:2px;cursor:zoom-in;border:1px solid #ddd" onclick="openPhotoPopup(this.getAttribute('data-src'))">';
+        });
+      } else {
+        imgsHtml='-';
+      }
+      html+='<tr id="irow_'+r.id+'" style="border-bottom:1px solid #f0f0f0">';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap">'+(r.created_at||'').replace('T',' ').slice(0,19)+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center;white-space:nowrap"><select id="iitem_'+r.id+'" style="font-size:11px;border:1px solid #ddd;border-radius:3px;max-width:70px">'+ITEMS.map(function(ii){return '<option value="'+ii+'"'+(ii===it?' selected':'')+'>'+ii+'</option>';}).join('')+'</select></td>';
+      html+='<td style="padding:8px 6px;text-align:center">'+(r.inspector||'-')+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center">'+(r.manager||'-')+'</td>';
+      html+='<td style="padding:8px 6px"><textarea id="icont_'+r.id+'" style="width:100%;font-size:11px;border:1px solid #ddd;border-radius:3px;resize:vertical;min-height:36px">'+(r.content||'')+'</textarea></td>';
+      html+='<td style="padding:8px 6px;text-align:center">'+signImg+'</td>';
+      html+='<td style="padding:8px 6px;text-align:center">'+imgsHtml+'</td>';
+      html+='<td style="padding:6px;text-align:center;white-space:nowrap"><button class="cat-btn" style="font-size:10px;padding:3px 8px;margin-bottom:3px" onclick="editInsp('+r.id+')">수정</button><br><button class="btn-del" style="font-size:10px;padding:3px 8px" onclick="delInsp('+r.id+',''+key+'')">삭제</button></td>';
+      html+='</tr>';
     });
-    html+='</tbody></table>';
+    html+='</tbody></table></div>';
   }
-  document.getElementById('hist-body').innerHTML=html;
+  document.getElementById('hist-modal-body').innerHTML=html;
   document.getElementById('hist-modal').classList.add('show');
 }
+function openPhotoPopup(src){
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  var img=document.createElement('img');
+  img.src=src;
+  img.style.cssText='max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 4px 32px rgba(0,0,0,0.5)';
+  var closeBtn=document.createElement('button');
+  closeBtn.textContent='✕';
+  closeBtn.style.cssText='position:absolute;top:20px;right:28px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;line-height:1;z-index:100000';
+  closeBtn.onclick=function(e){e.stopPropagation();document.body.removeChild(overlay);};
+  overlay.onclick=function(){document.body.removeChild(overlay);};
+  img.onclick=function(e){e.stopPropagation();};
+  overlay.appendChild(img);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+}
+
 function loadRemote(){
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
