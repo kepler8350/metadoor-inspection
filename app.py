@@ -233,50 +233,151 @@ function loadMaintenance(){
     document.getElementById('content').innerHTML=html;
   });
 }
+function showRemoteAbn(encodedKey){
+  var k=decodeURIComponent(encodedKey);
+  var p=k.split('|');
+  var dist=p[0]||'',location=p[1]||'',item=p[2]||'';
+  var recs=[];
+  if(window._remoteData && window._remoteData[k]){
+    window._remoteData[k].forEach(function(r){
+      if(r.status==='이상') recs.push(r);
+    });
+  }
+  recs.sort(function(a,b){return (b.check_date||'').localeCompare(a.check_date||'');});
+  var rows='';
+  if(recs.length===0){
+    rows='<tr><td colspan="4" style="text-align:center;padding:20px;color:#999">이상 기록 없음</td></tr>';
+  } else {
+    recs.forEach(function(r){
+      rows+='<tr style="border-bottom:1px solid #eee">';
+      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
+      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:#e74c3c;font-weight:700">이상</span></td>';
+      rows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
+      rows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
+      rows+='<button class="sra-edit-btn" data-id="'+r.id+'" data-key="'+encodedKey+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
+      rows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
+      rows+='</td></tr>';
+    });
+  }
+  var pop=document.getElementById('rmt-abn-pop');
+  if(!pop){pop=document.createElement('div');pop.id='rmt-abn-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:5000;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:620px;max-width:95vw;max-height:75vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<h3 style="font-size:15px;color:#e74c3c;margin:0">⚠️ '+dist+' '+location+' > '+item+' 이상 ('+recs.length+'건)</h3>'
+    +'<button class="close-rmt-abn" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">×</button>'
+    +'</div>'
+    +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#e74c3c;color:#fff">'
+    +'<th style="padding:9px">점검일</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  pop.style.display='flex';
+  pop.querySelector('.close-rmt-abn').addEventListener('click',function(){pop.style.display='none';});
+  pop.querySelectorAll('.sra-edit-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){editRemoteRec(this.dataset.id,this.dataset.key);});
+  });
+  pop.querySelectorAll('.sra-del-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){delRemoteRec(this.dataset.id,null);});
+  });
+}
+
+function editRemoteRec(id,encodedKey){
+  var k=encodedKey?decodeURIComponent(encodedKey):'';
+  var rec=null;
+  if(window._remoteData && k && window._remoteData[k]){
+    rec=window._remoteData[k].find(function(r){return String(r.id)===String(id);});
+  }
+  var ep=document.getElementById('rmt-edit-pop');
+  if(!ep){ep=document.createElement('div');ep.id='rmt-edit-pop';ep.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:6000;display:flex;align-items:center;justify-content:center';document.body.appendChild(ep);}
+  ep.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+    +'<h3 style="font-size:15px;color:#1a5276;margin:0 0 16px">원격점검 기록 수정</h3>'
+    +'<div style="margin-bottom:12px"><label style="font-size:12px;color:#555;font-weight:600">상태</label>'
+    +'<select id="re-status" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;font-size:13px">'
+    +'<option value="정상"'+(rec&&rec.status==='정상'?' selected':'')+'>정상</option>'
+    +'<option value="이상"'+(rec&&rec.status==='이상'?' selected':'')+'>이상</option>'
+    +'</select></div>'
+    +'<div style="margin-bottom:18px"><label style="font-size:12px;color:#555;font-weight:600">조치내용</label>'
+    +'<textarea id="re-note" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;height:80px;resize:vertical;box-sizing:border-box;font-size:13px">'+(rec&&rec.note?rec.note:'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+    +'<button id="re-cancel" style="background:#eee;border:none;border-radius:6px;padding:9px 18px;cursor:pointer;font-size:13px">취소</button>'
+    +'<button id="re-save" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:9px 18px;cursor:pointer;font-weight:700;font-size:13px">저장</button>'
+    +'</div></div>';
+  ep.style.display='flex';
+  ep.querySelector('#re-cancel').addEventListener('click',function(){ep.style.display='none';});
+  ep.querySelector('#re-save').addEventListener('click',function(){
+    var status=ep.querySelector('#re-status').value;
+    var note=ep.querySelector('#re-note').value.trim();
+    fetch('/api/remote/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status,note:note})})
+      .then(function(r){return r.json();})
+      .then(function(){ep.style.display='none';loadRemote();})
+      .catch(function(e){alert('저장 실패: '+e.message);});
+  });
+}
+
+function delRemoteRec(id,encodedLoc){
+  if(!confirm('이 기록을 삭제하시게습니까?')) return;
+  fetch('/api/remote/'+id,{method:'DELETE'})
+    .then(function(r){return r.json();})
+    .then(function(){
+      var p=document.getElementById('rmt-abn-pop');
+      var p2=document.getElementById('loc-hist-pop');
+      if(p) p.style.display='none';
+      if(p2) p2.style.display='none';
+      loadRemote();
+    })
+    .catch(function(e){alert('삭제 실패: '+e.message);});
+}
+
 function showLocHist(encodedLoc){
-  var locKey=decodeURIComponent(encodedLoc);
-  var locParts=locKey.split('|');
-  var locD=locParts[0],locL=locParts[1];
-  var allRecs=[];
-  if(window._rData){
-    Object.keys(window._rData).forEach(function(k){
-      var kparts=k.split('|');
-      if(kparts[0]===locD&&kparts[1]===locL){
-        window._rData[k].forEach(function(rec){
-          allRecs.push({date:rec.check_date||'',cat:kparts[2],item:rec.check_item||'-',st:rec.status||'정상',note:rec.note||'-'});
+  var loc=decodeURIComponent(encodedLoc);
+  var parts=loc.split('|');
+  var dist=parts[0]||'',location=parts[1]||'';
+  var allAbn=[];
+  if(window._remoteData){
+    Object.entries(window._remoteData).forEach(function(kv){
+      var k=kv[0],arr=kv[1];
+      var p=k.split('|');
+      if(p[0]===dist && p[1]===location){
+        arr.forEach(function(r){
+          if(r.status==='이상') allAbn.push(Object.assign({},r,{itemKey:k,item:p[2]}));
         });
       }
     });
   }
-  allRecs.sort(function(a,b){return b.date.localeCompare(a.date);});
+  allAbn.sort(function(a,b){return (b.check_date||'').localeCompare(a.check_date||'');});
   var rows='';
-  if(allRecs.length===0){
-    rows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">기록이 없습니다</td></tr>';
+  if(allAbn.length===0){
+    rows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">이상 기록 없음</td></tr>';
   } else {
-    allRecs.forEach(function(rec){
-      var col=rec.st==='이상'?'#e74c3c':'#27ae60';
-      rows+='<tr style="border-bottom:1px solid #f0f0f0">';
-      rows+='<td style="padding:8px 6px;font-size:11px;white-space:nowrap">'+(rec.date.replace('T',' ').slice(0,16))+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px">'+rec.cat+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px">'+rec.item+'</td>';
-      rows+='<td style="padding:8px 6px;font-size:11px;text-align:center"><span style="color:'+col+';font-weight:600">'+rec.st+'</span></td>';
-      rows+='<td style="padding:8px 6px;font-size:11px;max-width:200px;word-break:break-all">'+rec.note+'</td>';
-      rows+='</tr>';
+    allAbn.forEach(function(r){
+      rows+='<tr style="border-bottom:1px solid #eee">';
+      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
+      rows+='<td style="padding:8px 10px;font-size:12px">'+(r.item||'-')+'</td>';
+      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:#e74c3c;font-weight:700">이상</span></td>';
+      rows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
+      rows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
+      rows+='<button class="slh-edit-btn" data-id="'+r.id+'" data-key="'+encodeURIComponent(r.itemKey)+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
+      rows+='<button class="slh-del-btn" data-id="'+r.id+'" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
+      rows+='</td></tr>';
     });
   }
   var pop=document.getElementById('loc-hist-pop');
-  if(!pop){
-    pop=document.createElement('div');
-    pop.id='loc-hist-pop';
-    pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9997;display:flex;align-items:center;justify-content:center';
-    pop.addEventListener('click',function(e){if(e.target===pop)pop.style.display='none';});
-    document.body.appendChild(pop);
-  }
-  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:20px;max-width:760px;width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:14px;color:#1a5276">'+locD+' / '+locL+' 원격점검 이력</b><span class="pop-close" style="cursor:pointer;font-size:22px;color:#888;line-height:1">x</span></div><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px;font-size:11px">일자</th><th style="padding:8px;font-size:11px">대분류</th><th style="padding:8px;font-size:11px">항목</th><th style="padding:8px;font-size:11px">상태</th><th style="padding:8px;font-size:11px">조치내용</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-  pop.querySelector('.pop-close').addEventListener('click',function(){pop.style.display='none';});
+  if(!pop){pop=document.createElement('div');pop.id='loc-hist-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:5000;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:720px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<h3 style="font-size:16px;color:#1a5276;margin:0">📍 '+dist+' '+location+' 전체 이상 현황 ('+allAbn.length+'건)</h3>'
+    +'<button class="close-loc-pop" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">×</button>'
+    +'</div>'
+    +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff">'
+    +'<th style="padding:9px">점검일</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   pop.style.display='flex';
+  pop.querySelector('.close-loc-pop').addEventListener('click',function(){pop.style.display='none';});
+  pop.querySelectorAll('.slh-edit-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){editRemoteRec(this.dataset.id,this.dataset.key);});
+  });
+  pop.querySelectorAll('.slh-del-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){delRemoteRec(this.dataset.id,encodedLoc);});
+  });
 }
-
 function editInsp(id){
   var r=null;
   if(window._maintData){Object.values(window._maintData).forEach(function(arr){arr.forEach(function(x){if(x.id==id)r=x;});});}
@@ -425,7 +526,7 @@ function openPhotoPopup(src){
 function loadRemote(){
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
-    window._rData={};
+    window._rData={};window._remoteData=data;
     Object.keys(data).forEach(function(k){
       var pts=k.split('|');if(pts.length<3)return;
       var mk=pts[0]+'|'+pts[1]+'|'+pts[2].split('>')[0];
@@ -446,7 +547,7 @@ function loadRemote(){
           var ab=recs.filter(function(r){return r.status==='이상';}).length;
           var col=recs.length===0?'#27ae60':(ab>0?'#e74c3c':'#27ae60');
           var lbl=recs.length===0?'정상':(ab>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'');
-          html+='<td data-key="'+key+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
+          html+='<td data-key="'+key+'" data-abn="'+ab+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
         });
         html+='</tr>';
       });
@@ -460,7 +561,7 @@ function loadRemote(){
       });
     });
     document.querySelectorAll('[data-key]').forEach(function(td){
-      td.addEventListener('click',function(){openRemoteInput(encodeURIComponent(this.dataset.key));});
+      td.addEventListener('click',function(){var ab=parseInt(this.dataset.abn||0);if(ab>0){showRemoteAbn(encodeURIComponent(this.dataset.key));}else{openRemoteInput(encodeURIComponent(this.dataset.key));}});
     });
   });
 }
@@ -852,6 +953,23 @@ def api_remote_save():
     return jsonify({'ok':True})
 
 # API: 회원 목록
+@app.route('/api/remote/<int:rid>',methods=['PUT'])
+def update_remote(rid):
+    if 'user' not in session: return jsonify({'error':'unauthorized'}),401
+    b=request.json or {}
+    con=sqlite3.connect(DB); cur=con.cursor()
+    cur.execute('UPDATE remote_checks SET status=?,note=? WHERE id=?',(b.get('status','정상'),b.get('note',''),rid))
+    con.commit(); con.close()
+    return jsonify({'ok':True})
+
+@app.route('/api/remote/<int:rid>',methods=['DELETE'])
+def delete_remote(rid):
+    if 'user' not in session: return jsonify({'error':'unauthorized'}),401
+    con=sqlite3.connect(DB); cur=con.cursor()
+    cur.execute('DELETE FROM remote_checks WHERE id=?',(rid,))
+    con.commit(); con.close()
+    return jsonify({'ok':True})
+
 @app.route('/api/members')
 @login_required
 def api_members():
