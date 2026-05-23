@@ -307,25 +307,48 @@ function editRemoteRec(id,encodedKey){
     var note=ep.querySelector('#re-note').value.trim();
     fetch('/api/remote/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status,note:note})})
       .then(function(r){return r.json();})
-      .then(function(){ep.style.display='none';loadRemote();})
+      .then(function(){ep.style.display='none';if(window._rData&&k&&window._rData[k]){var ri=window._rData[k].find(function(r){return String(r.id)===String(id);});if(ri){ri.status=status;ri.note=note;}}var ap=document.getElementById('rmt-abn-pop');var lp=document.getElementById('loc-hist-pop');if(ap&&ap.style.display==='flex'){showRemoteAbn(encodeURIComponent(k));}else if(lp&&lp.style.display==='flex'){var p=k.split('|');showLocHist(encodeURIComponent(p[0]+'|'+p[1]));}loadRemote();})
       .catch(function(e){alert('저장 실패: '+e.message);});
   });
 }
 
-function delRemoteRec(id,encodedLoc){
+function delRemoteRec(id,encodedKey){
   if(!confirm('이 기록을 삭제하시게습니까?')) return;
   fetch('/api/remote/'+id,{method:'DELETE'})
     .then(function(r){return r.json();})
     .then(function(){
-      var p=document.getElementById('rmt-abn-pop');
-      var p2=document.getElementById('loc-hist-pop');
-      if(p) p.style.display='none';
-      if(p2) p2.style.display='none';
+      var deletedKey=null;
+      if(window._rData){
+        Object.keys(window._rData).forEach(function(k){
+          var arr=window._rData[k];
+          var idx=arr.findIndex(function(r){return String(r.id)===String(id);});
+          if(idx>=0){arr.splice(idx,1);deletedKey=k;}
+        });
+      }
+      var ap=document.getElementById('rmt-abn-pop');
+      var lp=document.getElementById('loc-hist-pop');
+      if(ap&&ap.style.display==='flex'&&deletedKey){
+        var remaining=(window._rData[deletedKey]||[]).filter(function(r){return r.status==='이상';}).length;
+        if(remaining>0){showRemoteAbn(encodeURIComponent(deletedKey));}
+        else{ap.style.display='none';}
+      } else if(lp&&lp.style.display==='flex'&&deletedKey){
+        var p=deletedKey.split('|');
+        if(p.length>=2){
+          var locRem=Object.keys(window._rData||{}).some(function(k2){
+            var kp=k2.split('|');
+            return kp[0]===p[0]&&kp[1]===p[1]&&(window._rData[k2]||[]).some(function(r){return r.status==='이상';});
+          });
+          if(locRem){showLocHist(encodeURIComponent(p[0]+'|'+p[1]));}
+          else{lp.style.display='none';}
+        }
+      } else {
+        if(ap)ap.style.display='none';
+        if(lp)lp.style.display='none';
+      }
       loadRemote();
     })
     .catch(function(e){alert('삭제 실패: '+e.message);});
 }
-
 function showLocHist(encodedLoc){
   var loc=decodeURIComponent(encodedLoc);
   var parts=loc.split('|');
