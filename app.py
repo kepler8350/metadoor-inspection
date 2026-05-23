@@ -955,7 +955,7 @@ def api_remote_save():
 # API: 회원 목록
 @app.route('/api/remote/<int:rid>',methods=['PUT'])
 def update_remote(rid):
-    if 'user' not in session: return jsonify({'error':'unauthorized'}),401
+    if not session.get('admin'): return jsonify({'error':'unauthorized'}),401
     b=request.json or {}
     con=sqlite3.connect(DB); cur=con.cursor()
     cur.execute('UPDATE remote_inspections SET status=?,note=? WHERE id=?',(b.get('status','정상'),b.get('note',''),rid))
@@ -964,7 +964,7 @@ def update_remote(rid):
 
 @app.route('/api/remote/<int:rid>',methods=['DELETE'])
 def delete_remote(rid):
-    if 'user' not in session: return jsonify({'error':'unauthorized'}),401
+    if not session.get('admin'): return jsonify({'error':'unauthorized'}),401
     con=sqlite3.connect(DB); cur=con.cursor()
     cur.execute('DELETE FROM remote_inspections WHERE id=?',(rid,))
     con.commit(); con.close()
