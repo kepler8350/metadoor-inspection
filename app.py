@@ -561,12 +561,12 @@ function loadRemote(){
       });
     });
     document.querySelectorAll('[data-key]').forEach(function(td){
-      td.addEventListener('click',function(){var ab=parseInt(this.dataset.abn||0);if(ab>0){showRemoteAbn(encodeURIComponent(this.dataset.key));}else{openRemoteInput(encodeURIComponent(this.dataset.key));}});
+      td.addEventListener('click',function(){var ab=parseInt(this.dataset.abn||0);var pp=document.getElementById('rmt-abn-pop');if(pp&&pp.style.display==='flex')return;if(ab>0){showRemoteAbn(encodeURIComponent(this.dataset.key));}else{openRemoteInput(encodeURIComponent(this.dataset.key));}});
     });
   });
 }
 
-function openRemoteInput(encodedKey){
+function openRemoteInput(encodedKey){var pp=document.getElementById("rmt-abn-pop");var pp2=document.getElementById("loc-hist-pop");if((pp&&pp.style.display==="flex")||(pp2&&pp2.style.display==="flex"))return;
   const key=decodeURIComponent(encodedKey);
   const parts=key.split('|'),d=parts[0],l=parts[1],it=parts[2];
   document.getElementById('remote-modal-title').textContent=d+' '+l+' - '+it;
