@@ -238,8 +238,8 @@ function showRemoteAbn(encodedKey){
   var p=k.split('|');
   var dist=p[0]||'',location=p[1]||'',item=p[2]||'';
   var recs=[];
-  if(window._remoteData && window._remoteData[k]){
-    window._remoteData[k].forEach(function(r){
+  if(window._rData && window._rData[k]){
+    window._rData[k].forEach(function(r){
       if(r.status==='이상') recs.push(r);
     });
   }
@@ -282,8 +282,8 @@ function showRemoteAbn(encodedKey){
 function editRemoteRec(id,encodedKey){
   var k=encodedKey?decodeURIComponent(encodedKey):'';
   var rec=null;
-  if(window._remoteData && k && window._remoteData[k]){
-    rec=window._remoteData[k].find(function(r){return String(r.id)===String(id);});
+  if(window._rData && k && window._rData[k]){
+    rec=window._rData[k].find(function(r){return String(r.id)===String(id);});
   }
   var ep=document.getElementById('rmt-edit-pop');
   if(!ep){ep=document.createElement('div');ep.id='rmt-edit-pop';ep.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:6000;display:flex;align-items:center;justify-content:center';document.body.appendChild(ep);}
@@ -332,7 +332,7 @@ function showLocHist(encodedLoc){
   var dist=parts[0]||'',location=parts[1]||'';
   var allAbn=[];
   if(window._remoteData){
-    Object.entries(window._remoteData).forEach(function(kv){
+    Object.entries(window._rData).forEach(function(kv){
       var k=kv[0],arr=kv[1];
       var p=k.split('|');
       if(p[0]===dist && p[1]===location){
@@ -930,14 +930,14 @@ def api_remote():
     month=request.args.get('month',datetime.now().month)
     con=sqlite3.connect(DB)
     rows=con.execute(
-        "SELECT district,location,check_item,status,note,inspector,check_date,created_at FROM remote_inspections WHERE strftime('%Y',check_date)=? AND strftime('%m',check_date)=?",
+        "SELECT id,district,location,check_item,status,note,inspector,check_date,created_at FROM remote_inspections WHERE strftime('%Y',check_date)=? AND strftime('%m',check_date)=?",
         (str(year),str(month).zfill(2))).fetchall()
     con.close()
     data={}
     for r in rows:
-        key=f"{r[0]}|{r[1]}|{r[2]}"
+        key=f"{r[1]}|{r[2]}|{r[3]}"
         if key not in data:data[key]=[]
-        data[key].append({'status':r[3],'note':r[4],'inspector':r[5],'check_date':r[6],'created_at':r[7]})
+        data[key].append({'id':r[0],'status':r[4],'note':r[5],'inspector':r[6],'check_date':r[7],'created_at':r[8]})
     return jsonify(data)
 
 # API: 원격점검 저장
@@ -958,7 +958,7 @@ def update_remote(rid):
     if 'user' not in session: return jsonify({'error':'unauthorized'}),401
     b=request.json or {}
     con=sqlite3.connect(DB); cur=con.cursor()
-    cur.execute('UPDATE remote_checks SET status=?,note=? WHERE id=?',(b.get('status','정상'),b.get('note',''),rid))
+    cur.execute('UPDATE remote_inspections SET status=?,note=? WHERE id=?',(b.get('status','정상'),b.get('note',''),rid))
     con.commit(); con.close()
     return jsonify({'ok':True})
 
@@ -966,7 +966,7 @@ def update_remote(rid):
 def delete_remote(rid):
     if 'user' not in session: return jsonify({'error':'unauthorized'}),401
     con=sqlite3.connect(DB); cur=con.cursor()
-    cur.execute('DELETE FROM remote_checks WHERE id=?',(rid,))
+    cur.execute('DELETE FROM remote_inspections WHERE id=?',(rid,))
     con.commit(); con.close()
     return jsonify({'ok':True})
 
