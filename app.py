@@ -570,7 +570,7 @@ function loadRemote(){
           var ab=recs.filter(function(r){return r.status==='이상';}).length;
           var col=recs.length===0?'#27ae60':(ab>0?'#e74c3c':'#27ae60');
           var lbl=recs.length===0?'정상':(ab>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'');
-          html+='<td data-key="'+key+'" data-abn="'+ab+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
+          html+='<td data-key="'+key+'" data-abn="'+ab+'" data-recs="'+recs.length+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
         });
         html+='</tr>';
       });
@@ -584,7 +584,7 @@ function loadRemote(){
       });
     });
     document.querySelectorAll('[data-key]').forEach(function(td){
-      td.addEventListener('click',function(){var ab=parseInt(this.dataset.abn||0);var pp=document.getElementById('rmt-abn-pop');if(pp&&pp.style.display==='flex')return;if(ab>0){showRemoteAbn(encodeURIComponent(this.dataset.key));}else{openRemoteInput(encodeURIComponent(this.dataset.key));}});
+      td.addEventListener('click',function(){var recs2=parseInt(this.dataset.recs||0);var pp=document.getElementById('rmt-abn-pop');if(pp&&pp.style.display==='flex')return;if(recs2>0){showRemoteAbn(encodeURIComponent(this.dataset.key));}else{openRemoteInput(encodeURIComponent(this.dataset.key));}});
     });
   });
 }
