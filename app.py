@@ -240,7 +240,7 @@ function showRemoteAbn(encodedKey){
   var recs=[];
   if(window._rData && window._rData[k]){
     window._rData[k].forEach(function(r){
-      if(r.status==='이상') recs.push(r);
+      recs.push(r);
     });
   }
   recs.sort(function(a,b){return (b.check_date||'').localeCompare(a.check_date||'');});
@@ -251,11 +251,11 @@ function showRemoteAbn(encodedKey){
     recs.forEach(function(r){
       rows+='<tr style="border-bottom:1px solid #eee">';
       rows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
-      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:#e74c3c;font-weight:700">이상</span></td>';
+      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+';font-weight:700">'+(r.status)+'</span></td>';
       rows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
       rows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
       rows+='<button class="sra-edit-btn" data-id="'+r.id+'" data-key="'+encodedKey+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
-      rows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
+      rows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#1a5276;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
       rows+='</td></tr>';
     });
   }
@@ -263,10 +263,10 @@ function showRemoteAbn(encodedKey){
   if(!pop){pop=document.createElement('div');pop.id='rmt-abn-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:5000;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
   pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:620px;max-width:95vw;max-height:75vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<h3 style="font-size:15px;color:#e74c3c;margin:0">⚠️ '+dist+' '+location+' > '+item+' 이상 ('+recs.length+'건)</h3>'
+    +'<h3 style="font-size:15px;color:#1a5276;margin:0">📋 '+dist+' '+location+' > '+item+' (전체 '+recs.length+'건)</h3>'
     +'<button class="close-rmt-abn" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">×</button>'
     +'</div>'
-    +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#e74c3c;color:#fff">'
+    +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff">'
     +'<th style="padding:9px">점검일</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   pop.style.display='flex';
