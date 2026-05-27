@@ -238,39 +238,49 @@ function showRemoteAbn(encodedKey){
   var p=k.split('|');
   var dist=p[0]||'',location=p[1]||'',item=p[2]||'';
   var recs=[];
-  if(window._rData && window._rData[k]){
-    window._rData[k].forEach(function(r){
-      recs.push(r);
-    });
-  }
+  if(window._rData&&window._rData[k]) recs=window._rData[k].slice();
   recs.sort(function(a,b){return (b.check_date||'').localeCompare(a.check_date||'');});
-  var rows='';
-  if(recs.length===0){
-    rows='<tr><td colspan="4" style="text-align:center;padding:20px;color:#999">이상 기록 없음</td></tr>';
-  } else {
-    recs.forEach(function(r){
-      rows+='<tr style="border-bottom:1px solid #eee">';
-      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
-      rows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+';font-weight:700">'+(r.status)+'</span></td>';
-      rows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
-      rows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
-      rows+='<button class="sra-edit-btn" data-id="'+r.id+'" data-key="'+encodedKey+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
-      rows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#1a5276;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
-      rows+='</td></tr>';
-    });
-  }
+  var abn=recs.filter(function(r){return r.status==='이상';});
   var pop=document.getElementById('rmt-abn-pop');
   if(!pop){pop=document.createElement('div');pop.id='rmt-abn-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:5000;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
-  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:620px;max-width:95vw;max-height:75vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+  var abnColor=abn.length>0?'#e74c3c':'#27ae60';
+  var abnTxt=abn.length>0?'이상 '+abn.length+'건':'전체 정상';
+  var detailRows='';
+  recs.forEach(function(r){
+    detailRows+='<tr style="border-bottom:1px solid #eee">';
+    detailRows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
+    detailRows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+';font-weight:700">'+(r.status)+'</span></td>';
+    detailRows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
+    detailRows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
+    detailRows+='<button class="sra-edit-btn" data-id="'+r.id+'" data-key="'+encodedKey+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
+    detailRows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
+    detailRows+='</td></tr>';
+  });
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:520px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<h3 style="font-size:15px;color:#1a5276;margin:0">📋 '+dist+' '+location+' > '+item+' (전체 '+recs.length+'건)</h3>'
-    +'<button class="close-rmt-abn" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">×</button>'
+    +'<div>'
+    +'<div style="font-size:13px;color:#666;margin-bottom:4px">'+dist+' '+location+' &gt; '+item+'</div>'
+    +'<div style="font-size:22px;font-weight:900;color:'+abnColor+'">'+recs.length+'건</div>'
+    +'<div style="font-size:12px;color:'+abnColor+';margin-top:2px">'+abnTxt+'</div>'
     +'</div>'
+    +'<div style="display:flex;gap:8px;align-items:flex-start">'
+    +'<button class="sra-detail-btn" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">상세보기</button>'
+    +'<button class="close-rmt-abn" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">&times;</button>'
+    +'</div>'
+    +'</div>'
+    +'<div class="sra-detail-panel" style="display:none">'
     +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff">'
     +'<th style="padding:9px">점검일</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
-    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    +'</tr></thead><tbody>'+detailRows+'</tbody></table>'
+    +'</div></div>';
   pop.style.display='flex';
   pop.querySelector('.close-rmt-abn').addEventListener('click',function(){pop.style.display='none';});
+  pop.querySelector('.sra-detail-btn').addEventListener('click',function(){
+    var dp=pop.querySelector('.sra-detail-panel');
+    var isOpen=dp.style.display!=='none';
+    dp.style.display=isOpen?'none':'block';
+    this.textContent=isOpen?'상세보기':'닫기';
+  });
   pop.querySelectorAll('.sra-edit-btn').forEach(function(btn){
     btn.addEventListener('click',function(){editRemoteRec(this.dataset.id,this.dataset.key);});
   });
@@ -278,7 +288,6 @@ function showRemoteAbn(encodedKey){
     btn.addEventListener('click',function(){delRemoteRec(this.dataset.id,null);});
   });
 }
-
 function editRemoteRec(id,encodedKey){
   var k=encodedKey?decodeURIComponent(encodedKey):'';
   var rec=null;
@@ -569,7 +578,7 @@ function loadRemote(){
           var recs=(window._rData[key])||[];
           var ab=recs.filter(function(r){return r.status==='이상';}).length;
           var col=recs.length===0?'#27ae60':(ab>0?'#e74c3c':'#27ae60');
-          var lbl=recs.length===0?'정상':(ab>0?'이상':'정상')+(recs.length>0?' ('+recs.length+')':'');
+          var lbl=recs.length===0?'정상':recs.length+'건';
           html+='<td data-key="'+key+'" data-abn="'+ab+'" data-recs="'+recs.length+'" style="text-align:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer"><span style="color:'+col+';font-weight:600;font-size:12px">'+lbl+'</span></td>';
         });
         html+='</tr>';
@@ -623,7 +632,6 @@ function openRemoteInput(encodedKey){var pp=document.getElementById("rmt-abn-pop
   var dtLocal=_n.getFullYear()+'-'+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+'T'+_p(_n.getHours())+':'+_p(_n.getMinutes());
   stepHtml+='<div id="r-action-wrap" style="'+actionStyle+'">';
   stepHtml+='<div class="form-row"><label>점검일자</label><input type="datetime-local" id="rc-date" value="'+dtLocal+'"></div>';
-  stepHtml+='<div class="form-row"><label>상태</label><select id="rc-status"><option value="정상">정상</option><option value="이상" selected>이상</option></select></div>';
   stepHtml+='<div class="form-row"><label>조치사항</label><textarea id="rc-note" placeholder="조치 내용을 입력하세요..."></textarea></div>';
   stepHtml+='<div class="form-row"><label>점검자</label><select id="rc-insp"><option value="">불러오는 중...</option></select></div>';
   stepHtml+='<div id="r-sel-path" style="font-size:12px;color:#1a5276;padding:6px 0;font-weight:600"></div>';
@@ -680,7 +688,7 @@ function rSelSub2(btn){
 function saveRemoteNew(){
   const checkItem=window._rIt+(window._rSub1?'>'+window._rSub1:'')+(window._rSub2?'>'+window._rSub2:'');
   const data={district:window._rD,location:window._rL,check_item:checkItem,
-    status:document.getElementById('rc-status').value,
+    status:'이상',
     note:document.getElementById('rc-note').value,
     inspector:document.getElementById('rc-insp').value,
     check_date:document.getElementById('rc-date').value};
