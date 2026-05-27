@@ -648,7 +648,7 @@ function openRemoteInput(encodedKey){var pp=document.getElementById("rmt-abn-pop
   if(recs&&recs.length>0){
     hist='<div style="margin-bottom:12px;background:#f8f9fa;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">📋 최근 점검이력</div>';
     recs.slice().reverse().forEach(function(r){
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
+    hist+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
       if(r.check_item&&r.check_item!==it)hist+='<div style="font-size:11px;color:#1a5276;margin:2px 0">🔹 '+r.check_item+'</div>';
       hist+='<div class="hist-content">'+(r.note||'(내용없음)')+'</div></div>';
     });
