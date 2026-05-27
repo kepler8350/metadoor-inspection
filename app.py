@@ -249,30 +249,26 @@ function showRemoteAbn(encodedKey){
   recs.forEach(function(r){
     detailRows+='<tr style="border-bottom:1px solid #eee">';
     detailRows+='<td style="padding:8px 10px;font-size:12px;text-align:center">'+((r.check_date||'').slice(0,10))+'</td>';
-    detailRows+='<td style="padding:8px 10px;font-size:12px;text-align:center"><span style="color:'+(r.status==='이상'?'#e74c3c':'#27ae60')+';font-weight:700">'+(r.status)+'</span></td>';
     detailRows+='<td style="padding:8px 10px;font-size:12px">'+(r.note||'-')+'</td>';
     detailRows+='<td style="padding:8px;text-align:center;white-space:nowrap">';
     detailRows+='<button class="sra-edit-btn" data-id="'+r.id+'" data-key="'+encodedKey+'" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;margin-right:3px">수정</button>';
     detailRows+='<button class="sra-del-btn" data-id="'+r.id+'" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer">삭제</button>';
     detailRows+='</td></tr>';
   });
-  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:520px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<div>'
-    +'<div style="font-size:13px;color:#666;margin-bottom:4px">'+dist+' '+location+' &gt; '+item+'</div>'
-    +'<div style="font-size:22px;font-weight:900;color:'+abnColor+'">'+recs.length+'건</div>'
-    +'<div style="font-size:12px;color:'+abnColor+';margin-top:2px">'+abnTxt+'</div>'
-    +'</div>'
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:540px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'
+    +'<div><div style="font-size:13px;color:#666;margin-bottom:4px">'+dist+' '+location+' &gt; '+item+'</div>'
+    +'<div style="font-size:26px;font-weight:900;color:'+abnColor+'">'+recs.length+'건</div>'
+    +'<div style="font-size:12px;color:'+abnColor+';margin-top:2px">'+abnTxt+'</div></div>'
     +'<div style="display:flex;gap:8px;align-items:flex-start">'
+    +'<button class="sra-add-btn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">+ 추가</button>'
     +'<button class="sra-detail-btn" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">상세보기</button>'
     +'<button class="close-rmt-abn" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">&times;</button>'
-    +'</div>'
-    +'</div>'
+    +'</div></div>'
     +'<div class="sra-detail-panel" style="display:none">'
     +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff">'
-    +'<th style="padding:9px">점검일</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
-    +'</tr></thead><tbody>'+detailRows+'</tbody></table>'
-    +'</div></div>';
+    +'<th style="padding:9px">점검일</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
+    +'</tr></thead><tbody>'+detailRows+'</tbody></table></div></div>';
   pop.style.display='flex';
   pop.querySelector('.close-rmt-abn').addEventListener('click',function(){pop.style.display='none';});
   pop.querySelector('.sra-detail-btn').addEventListener('click',function(){
@@ -281,6 +277,7 @@ function showRemoteAbn(encodedKey){
     dp.style.display=isOpen?'none':'block';
     this.textContent=isOpen?'상세보기':'닫기';
   });
+  pop.querySelector('.sra-add-btn').addEventListener('click',function(){addRemoteRec(encodedKey);});
   pop.querySelectorAll('.sra-edit-btn').forEach(function(btn){
     btn.addEventListener('click',function(){editRemoteRec(this.dataset.id,this.dataset.key);});
   });
@@ -291,18 +288,16 @@ function showRemoteAbn(encodedKey){
 function editRemoteRec(id,encodedKey){
   var k=encodedKey?decodeURIComponent(encodedKey):'';
   var rec=null;
-  if(window._rData && k && window._rData[k]){
+  if(window._rData&&k&&window._rData[k]){
     rec=window._rData[k].find(function(r){return String(r.id)===String(id);});
   }
   var ep=document.getElementById('rmt-edit-pop');
   if(!ep){ep=document.createElement('div');ep.id='rmt-edit-pop';ep.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:6000;display:flex;align-items:center;justify-content:center';document.body.appendChild(ep);}
+  var dateVal=(rec&&rec.check_date?rec.check_date.slice(0,10):'');
   ep.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
     +'<h3 style="font-size:15px;color:#1a5276;margin:0 0 16px">원격점검 기록 수정</h3>'
-    +'<div style="margin-bottom:12px"><label style="font-size:12px;color:#555;font-weight:600">상태</label>'
-    +'<select id="re-status" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;font-size:13px">'
-    +'<option value="정상"'+(rec&&rec.status==='정상'?' selected':'')+'>정상</option>'
-    +'<option value="이상"'+(rec&&rec.status==='이상'?' selected':'')+'>이상</option>'
-    +'</select></div>'
+    +'<div style="margin-bottom:12px"><label style="font-size:12px;color:#555;font-weight:600">점검일</label>'
+    +'<input id="re-date" type="date" value="'+dateVal+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;font-size:13px;box-sizing:border-box"></div>'
     +'<div style="margin-bottom:18px"><label style="font-size:12px;color:#555;font-weight:600">조치내용</label>'
     +'<textarea id="re-note" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;height:80px;resize:vertical;box-sizing:border-box;font-size:13px">'+(rec&&rec.note?rec.note:'')+'</textarea></div>'
     +'<div style="display:flex;gap:8px;justify-content:flex-end">'
@@ -312,15 +307,26 @@ function editRemoteRec(id,encodedKey){
   ep.style.display='flex';
   ep.querySelector('#re-cancel').addEventListener('click',function(){ep.style.display='none';});
   ep.querySelector('#re-save').addEventListener('click',function(){
-    var status=ep.querySelector('#re-status').value;
     var note=ep.querySelector('#re-note').value.trim();
-    fetch('/api/remote/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status,note:note})})
+    var dateVal=ep.querySelector('#re-date').value;
+    var status=rec?rec.status:'이상';
+    fetch('/api/remote/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:status,note:note,check_date:dateVal})})
       .then(function(r){return r.json();})
-      .then(function(){ep.style.display='none';if(window._rData&&k&&window._rData[k]){var ri=window._rData[k].find(function(r){return String(r.id)===String(id);});if(ri){ri.status=status;ri.note=note;}}var ap=document.getElementById('rmt-abn-pop');var lp=document.getElementById('loc-hist-pop');if(ap&&ap.style.display==='flex'){showRemoteAbn(encodeURIComponent(k));}else if(lp&&lp.style.display==='flex'){var p=k.split('|');showLocHist(encodeURIComponent(p[0]+'|'+p[1]));}loadRemote();})
+      .then(function(){
+        ep.style.display='none';
+        if(window._rData&&k&&window._rData[k]){
+          var ri=window._rData[k].find(function(r){return String(r.id)===String(id);});
+          if(ri){ri.note=note;if(dateVal)ri.check_date=dateVal+'T00:00';}
+        }
+        var ap=document.getElementById('rmt-abn-pop');
+        var lp=document.getElementById('loc-hist-pop');
+        if(ap&&ap.style.display==='flex'){showRemoteAbn(encodeURIComponent(k));}
+        else if(lp&&lp.style.display==='flex'){var p=k.split('|');showLocHist(encodeURIComponent(p[0]+'|'+p[1]));}
+        loadRemote();
+      })
       .catch(function(e){alert('저장 실패: '+e.message);});
   });
 }
-
 function delRemoteRec(id,encodedKey){
   if(!confirm('이 기록을 삭제하시게습니까?')) return;
   fetch('/api/remote/'+id,{method:'DELETE'})
@@ -357,6 +363,41 @@ function delRemoteRec(id,encodedKey){
       loadRemote();
     })
     .catch(function(e){alert('삭제 실패: '+e.message);});
+}
+function addRemoteRec(encodedKey){
+  var k=decodeURIComponent(encodedKey);
+  var p=k.split('|');
+  var dist=p[0]||'',location=p[1]||'',item=p[2]||'';
+  var ap2=document.getElementById('rmt-add-pop');
+  if(!ap2){ap2=document.createElement('div');ap2.id='rmt-add-pop';ap2.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:6000;display:flex;align-items:center;justify-content:center';document.body.appendChild(ap2);}
+  var today=new Date().toISOString().slice(0,10);
+  ap2.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'
+    +'<h3 style="font-size:15px;color:#27ae60;margin:0 0 4px">원격점검 추가</h3>'
+    +'<div style="font-size:12px;color:#666;margin-bottom:16px">'+dist+' '+location+' &gt; '+item+'</div>'
+    +'<div style="margin-bottom:12px"><label style="font-size:12px;color:#555;font-weight:600">점검일</label>'
+    +'<input id="add-date" type="date" value="'+today+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;font-size:13px;box-sizing:border-box"></div>'
+    +'<div style="margin-bottom:18px"><label style="font-size:12px;color:#555;font-weight:600">조치내용</label>'
+    +'<textarea id="add-note" placeholder="조치 내용을 입력하세요..." style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:4px;height:80px;resize:vertical;box-sizing:border-box;font-size:13px"></textarea></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+    +'<button id="add-cancel" style="background:#eee;border:none;border-radius:6px;padding:9px 18px;cursor:pointer;font-size:13px">취소</button>'
+    +'<button id="add-save" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:9px 18px;cursor:pointer;font-weight:700;font-size:13px">저장</button>'
+    +'</div></div>';
+  ap2.style.display='flex';
+  ap2.querySelector('#add-cancel').addEventListener('click',function(){ap2.style.display='none';});
+  ap2.querySelector('#add-save').addEventListener('click',function(){
+    var note=ap2.querySelector('#add-note').value.trim();
+    var dateVal=ap2.querySelector('#add-date').value;
+    if(!dateVal){alert('점검일을 입력하세요.');return;}
+    fetch('/api/remote/save',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key:k,check_date:dateVal+'T00:00',note:note,status:'이상',inspector:''})})
+      .then(function(r){return r.json();})
+      .then(function(){
+        ap2.style.display='none';
+        loadRemote();
+        setTimeout(function(){showRemoteAbn(encodedKey);},300);
+      })
+      .catch(function(e){alert('저장 실패: '+e.message);});
+  });
 }
 function showLocHist(encodedLoc){
   var loc=decodeURIComponent(encodedLoc);
@@ -399,7 +440,7 @@ function showLocHist(encodedLoc){
     +'<button class="close-loc-pop" style="background:#ddd;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;font-weight:700">×</button>'
     +'</div>'
     +'<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a5276;color:#fff">'
-    +'<th style="padding:9px">점검일</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
+    +'<th style="padding:9px">점검일</th><th style="padding:9px">대분류</th><th style="padding:9px">조치내용</th><th style="padding:9px">관리</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   pop.style.display='flex';
   pop.querySelector('.close-loc-pop').addEventListener('click',function(){pop.style.display='none';});
@@ -989,7 +1030,7 @@ def update_remote(rid):
     if not session.get('admin'): return jsonify({'error':'unauthorized'}),401
     b=request.json or {}
     con=sqlite3.connect(DB); cur=con.cursor()
-    cur.execute('UPDATE remote_inspections SET status=?,note=? WHERE id=?',(b.get('status','정상'),b.get('note',''),rid))
+    cd=b.get('check_date','');cur.execute('UPDATE remote_inspections SET status=?,note=?,check_date=COALESCE(NULLIF(?,\'\'),check_date) WHERE id=?',(b.get('status','이상'),b.get('note',''),cd,rid))
     con.commit(); con.close()
     return jsonify({'ok':True})
 
