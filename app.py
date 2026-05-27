@@ -244,7 +244,7 @@ function showRemoteAbn(encodedKey){
   var pop=document.getElementById('rmt-abn-pop');
   if(!pop){pop=document.createElement('div');pop.id='rmt-abn-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:5000;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
   var abnColor=abn.length>0?'#e74c3c':'#27ae60';
-  var abnTxt=abn.length>0?'이상 '+abn.length+'건':'전체 정상';
+  var abnTxt=abn.length>0?'조치 '+abn.length+'건':'조치 없음';
   var detailRows='';
   recs.forEach(function(r){
     detailRows+='<tr style="border-bottom:1px solid #eee">';
@@ -277,7 +277,7 @@ function showRemoteAbn(encodedKey){
     dp.style.display=isOpen?'none':'block';
     this.textContent=isOpen?'상세보기':'닫기';
   });
-  pop.querySelector('.sra-add-btn').addEventListener('click',function(){addRemoteRec(encodedKey);});
+  pop.querySelector('.sra-add-btn').addEventListener('click',function(){pop.style.display='none';openRemoteInput(encodedKey);});
   pop.querySelectorAll('.sra-edit-btn').forEach(function(btn){
     btn.addEventListener('click',function(){editRemoteRec(this.dataset.id,this.dataset.key);});
   });
