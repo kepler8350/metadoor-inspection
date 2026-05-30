@@ -802,7 +802,7 @@ function printReport(){
     '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
     '<div style="background:#fff0f0;border:1px solid #f5c0c0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">'+(rmt.abnCount||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격 이상</div></div>'+
     '</div>'+
-    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (총 '+maintRecs.length+'건)</h2>'+
+    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">방문점검 이력 (총 '+maintRecs.length+'건)</h2>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
     '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">점검일</th><th style="padding:8px">설치위치</th><th style="padding:8px">대분류</th><th style="padding:8px">조치내용</th></tr></thead>'+
     '<tbody>'+maintRows+'</tbody></table>'+
@@ -884,7 +884,7 @@ function loadReport(){
     html+=card('⚠️','원격 이상 건수',rAbnCount+'건','#e74c3c');
     html+='</div>';
     html+='<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:16px">';
-    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">🔧 유지보수 점검항목별 건수</h3>';
+    html+='<h3 style="font-size:14px;color:#1a5276;margin:0 0 12px">🔧 방문점검 항목별 건수</h3>';
     html+='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#1a5276;color:#fff"><th style="padding:10px">점검항목</th><th style="padding:10px;text-align:right">건수</th></tr></thead><tbody>';
     Object.keys(mItems).forEach(function(it){
       html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px">'+it+'</td><td style="padding:10px;text-align:right;font-weight:700;color:#1a5276">'+mItems[it]+'건</td></tr>';
