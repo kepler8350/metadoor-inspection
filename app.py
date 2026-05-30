@@ -272,7 +272,7 @@ function showRegularHist(encodedKey){
   var d=parts[0],l=parts[1];
   var recs=[];
   Object.keys(window._regularData||{}).forEach(function(k2){var arr=(window._regularData||{})[k2]||[];
-    var p=k.split('|');
+    var p=k2.split('|');
     if(p[0]===d&&p[1]===l) recs=recs.concat(arr);
   });
   if(!recs.length)return;
@@ -286,14 +286,14 @@ function showRegularHist(encodedKey){
   pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:380px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'+
     '<h3 style="margin:0;font-size:16px;color:#1a5276">정기점검 상세</h3>'+
-    '<button onclick="document.getElementById('reg-hist-pop').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer">×</button></div>'+
+    '\'<button onclick="closeRegHistPop()" style="background:none;border:none;font-size:20px;cursor:pointer">&times;</button></div>\'+'
     '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>설치위치:</b> '+d+' '+l+'</div>'+
     '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>점검일:</b> '+((r.created_at||'').slice(0,10))+'</div>'+
     '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>담당자:</b> '+(r.manager||r.inspector||'-')+'</div>'+
     '<div style="margin-bottom:12px"><b style="font-size:13px;color:#555">서명:</b><br>'+sigHtml+'</div>'+
     '<div style="margin-bottom:16px"><b style="font-size:13px;color:#555">사진:</b><br><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+imgHtml+'</div></div>'+
     '<div style="display:flex;gap:8px;justify-content:flex-end">'+
-    '<button onclick="delRegular('+r.id+',''+encodedKey+'')" style="background:#e74c3c;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">삭제</button>'+
+    '\'<button data-id="\'+r.id+\'" data-key="\'+encodedKey+\'" onclick="delRegular(parseInt(this.dataset.id),this.dataset.key)" style="background:#e74c3c;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">삭제</button></div></div>\'+'
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #27ae60;padding-bottom:12px;margin-bottom:28px">'+
     '<h1 style="font-size:24px;color:#27ae60;margin:0 0 6px">정기점검 현황</h1>'+
@@ -307,6 +307,7 @@ function showRegularHist(encodedKey){
   pop.style.display='flex';
   pop.onclick=function(e){if(e.target===pop)pop.style.display='none';};
 }
+function closeRegHistPop(){var p=document.getElementById("reg-hist-pop");if(p)p.style.display="none";}
 function delRegular(id,encodedKey){
   if(!confirm('이 점검 기록을 삭제하시갪니까?'))return;
   var apiBase2=curMenu==='inspection'?'/api/regular':'/api/inspections';
