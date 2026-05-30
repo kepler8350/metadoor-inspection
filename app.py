@@ -758,7 +758,7 @@ function printReport(){
     abRows+='<td style="padding:7px 10px;font-size:12px;text-align:center">'+((a.check_date||'').slice(0,10))+'</td>';
     abRows+='<td style="padding:7px 10px;font-size:12px">'+a.d+' '+a.l+'</td>';
     abRows+='<td style="padding:7px 10px;font-size:12px">'+a.it+'</td>';
-    abRows+='<td style="padding:7px 10px;font-size:12px;word-break:break-all;max-width:180px">'+(a.note||'-')+'</td>';
+    abRows+='<td style="padding:7px 10px;font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;max-width:200px">'+(a.note||'-')+'</td>';
     abRows+='</tr>';
   });
   if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">조치 없음</td></tr>';
