@@ -755,10 +755,10 @@ function printReport(){
   var abRows='';
   (rmt.abnormals||[]).forEach(function(a){
     abRows+='<tr style="border-bottom:1px solid #eee">';
-    abRows+='<td style="padding:5px 4px;font-size:11px;text-align:center;word-break:break-all">'+((a.check_date||'').slice(0,10))+'</td>';
+    abRows+='<td style="padding:5px 3px;font-size:10px;text-align:center;word-break:break-all">'+((a.check_date||'').slice(0,10))+'</td>';
     abRows+='<td style="padding:5px 4px;font-size:11px;word-break:break-all">'+a.d+' '+a.l+'</td>';
     abRows+='<td style="padding:5px 4px;font-size:11px;word-break:break-all">'+a.it+'</td>';
-    abRows+='<td style="padding:7px 10px;font-size:11px;word-break:break-all;white-space:normal;max-width:200px">'+(a.note||'-')+'</td>';
+    abRows+='<td style="padding:5px 3px;font-size:10px;word-break:break-all;white-space:normal">'+(a.note||'-')+'</td>';
     abRows+='</tr>';
   });
   if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">조치 없음</td></tr>';
@@ -812,7 +812,7 @@ function printReport(){
     '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 조치 현황</h1>'+
     '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">'+
-    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:8%">점검일</th><th style="padding:6px 4px;width:17%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:18%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:57%">조치내용</th></tr></thead>'+    '<tbody>'+abRows+'</tbody></table>'+
+    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:13%;word-break:break-all">점검일</th><th style="padding:6px 4px;width:20%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:20%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:47%">조치내용</th></tr></thead>'+    '<tbody>'+abRows+'</tbody></table>'+
     '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
     '</div>'+
     '</div>';
