@@ -758,11 +758,10 @@ function printReport(){
     abRows+='<td style="padding:7px 10px;font-size:12px;text-align:center">'+((a.check_date||'').slice(0,10))+'</td>';
     abRows+='<td style="padding:7px 10px;font-size:12px">'+a.d+' '+a.l+'</td>';
     abRows+='<td style="padding:7px 10px;font-size:12px">'+a.it+'</td>';
-    abRows+='<td style="padding:7px 10px;font-size:12px;text-align:center"><span style="color:#e74c3c;font-weight:700">'+(a.status||'이상')+'</span></td>';
-    abRows+='<td style="padding:7px 10px;font-size:12px">'+(a.note||'-')+'</td>';
+    abRows+='<td style="padding:7px 10px;font-size:12px;word-break:break-all;max-width:180px">'+(a.note||'-')+'</td>';
     abRows+='</tr>';
   });
-  if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">이상 없음</td></tr>';
+  if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">조치 없음</td></tr>';
   var maintRows='';
   var maintRecs=[];
   if(window._maintData){Object.entries(window._maintData).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:p[2],content:r.content});});});}
@@ -803,17 +802,17 @@ function printReport(){
     '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
     '<div style="background:#fff0f0;border:1px solid #f5c0c0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">'+(rmt.abnCount||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격 이상</div></div>'+
     '</div>'+
-    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (촜 '+maintRecs.length+'건)</h2>'+
+    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (총 '+maintRecs.length+'건)</h2>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
     '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">일자</th><th style="padding:8px">설치위치</th><th style="padding:8px">점검항목</th><th style="padding:8px;width:40%">점검내용</th></tr></thead>'+
     '<tbody>'+maintRows+'</tbody></table>'+
     '</div>'+
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #e74c3c;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 이상 현황</h1>'+
+    '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 조치 현황</h1>'+
     '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#e74c3c;color:#fff"><th style="padding:9px">점검일</th><th style="padding:9px">설치위치</th><th style="padding:9px">대분류</th><th style="padding:9px">상태</th><th style="padding:9px">조치내용</th></tr></thead>'+
+    '<thead><tr style="background:#e74c3c;color:#fff"><th style="padding:9px">점검일</th><th style="padding:9px">설치위치</th><th style="padding:9px">대분류</th><th style="padding:9px">조치내용</th></tr></thead>'+
     '<tbody>'+abRows+'</tbody></table>'+
     '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
     '</div>'+
@@ -902,7 +901,6 @@ function loadReport(){
         html+='<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:8px;text-align:center">'+((a.check_date||'').slice(0,10))+'</td>';
         html+='<td style="padding:8px">'+a.d+' '+a.l+'</td>';
         html+='<td style="padding:8px">'+a.it+'</td>';
-        html+='<td style="padding:8px;text-align:center"><span style="color:#e74c3c;font-weight:700">'+(a.status||'이상')+'</span></td>';
         html+='<td style="padding:8px">'+(a.note||'-')+'</td></tr>';
       });
       html+='</tbody></table>';
