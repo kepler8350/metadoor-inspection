@@ -242,29 +242,24 @@ function loadMaintenance(){
   });
 }
 function loadInspection(){
-  window._mData={};
+  window._regularData={};
   fetch(`/api/regular?year=${curYear}&month=${curMonth}`)
-  .then(r=>r.json()).then(data=>{
-    let locs=[];
-  window._maintData=data;
-    Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
-    let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
-    html+='</tr></thead><tbody>';
-    locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
-      ITEMS.forEach(it=>{
-        const key=d+'|'+l+'|'+it;
-        const recs=data[key]||[];
-        window._mData[key]=recs;
-        if(recs.length===0){html+=`<td class="ok">정상</td>`;}
-        else{
-          const last=recs[recs.length-1];
-          const cls=last.content?'has-data':'ok';
-          const mkey=encodeURIComponent(key);
-          html+=`<td class="${cls}" onclick="showHist('${mkey}')">${recs.length}건</td>`;
-        }
-      });
+  .then(r=>r.json()).then(function(data){
+    window._regularData=data;
+    var locs=[];
+    Object.entries(LOCS).forEach(function(e){var d=e[0],ls=e[1];ls.forEach(function(l){locs.push({d:d,l:l});});});
+    var html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th><th style="text-align:center;width:100px">점검</th></tr></thead><tbody>';
+    locs.forEach(function(item){
+      var d=item.d,l=item.l;
+      var recs=[];
+      Object.entries(data).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');if(p[0]===d&&p[1]===l)recs=recs.concat(arr);});
+      html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span></td>';
+      if(recs.length>0){
+        var mkey=encodeURIComponent(d+'|'+l);
+        html+='<td style="text-align:center;cursor:pointer" onclick="showRegularHist(''+mkey+'')"><span style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px">점검</span></td>';
+      } else {
+        html+='<td></td>';
+      }
       html+='</tr>';
     });
     html+='</tbody></table></div>';
