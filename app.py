@@ -901,6 +901,7 @@ function printReport(){
     '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">'+
     '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:13%;word-break:break-all">점검일</th><th style="padding:6px 4px;width:20%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:20%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:47%">조치내용</th></tr></thead>'+    '<tbody>'+abRows+'</tbody></table>'+
     '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
+    '</div>'+
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #27ae60;padding-bottom:12px;margin-bottom:28px">'+
     '<h1 style="font-size:24px;color:#27ae60;margin:0 0 6px">정기점검 현황</h1>'+
