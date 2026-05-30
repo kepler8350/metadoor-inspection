@@ -151,7 +151,7 @@ def admin_dash():
     H.append('<div class="sidebar">')
     H.append('<div class="sb-logo">📊 MetaDoor 관리</div>')
     H.append('<div class="sb-menu">')
-    for m,label,icon in [('maintenance','유지보수현황','🔧'),('remote','원격점검','📡'),('report','보고서','📋'),('members','회원관리','👥')]:
+    for m,label,icon in [('maintenance','방문점검현황','🔧'),('remote','원격점검','📡'),('inspection','정기점검현황','📊'),('report','보고서','📋'),('members','회원관리','👥')]:
         active=' active' if menu==m else ''
         H.append(f'<button class="sb-item{active}" onclick="goMenu(\'{m}\')">{icon} {label}</button>')
     H.append('</div>')
@@ -177,7 +177,7 @@ def admin_dash():
     H.append('''
 function goMenu(m){
   curMenu=m;
-  const titles={maintenance:"유지보수현황",remote:"원격점검",report:"보고서",members:"회원관리"};
+  const titles={maintenance:"방문점검현황",remote:"원격점검",inspection:"정기점검현황",report:"보고서",members:"회원관리"};
   document.getElementById('page-title').textContent=titles[m]||m;
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b=>{if(b.textContent.includes(titles[m]))b.classList.add('active');});
@@ -200,10 +200,41 @@ function loadData(){
   curMonth=parseInt(document.getElementById('sel-month').value||new Date().getMonth()+1);
   if(curMenu==='maintenance')loadMaintenance();
   else if(curMenu==='remote')loadRemote();
+  else if(curMenu==='inspection')loadInspection();
   else if(curMenu==='report')loadReport();
   else loadMembers();
 }
 function loadMaintenance(){
+  window._mData={};
+  fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
+  .then(r=>r.json()).then(data=>{
+    let locs=[];
+  window._maintData=data;
+    Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
+    let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
+    ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
+    html+='</tr></thead><tbody>';
+    locs.forEach(({d,l})=>{
+      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
+      ITEMS.forEach(it=>{
+        const key=d+'|'+l+'|'+it;
+        const recs=data[key]||[];
+        window._mData[key]=recs;
+        if(recs.length===0){html+=`<td class="ok">정상</td>`;}
+        else{
+          const last=recs[recs.length-1];
+          const cls=last.content?'has-data':'ok';
+          const mkey=encodeURIComponent(key);
+          html+=`<td class="${cls}" onclick="showHist('${mkey}')">${recs.length}건</td>`;
+        }
+      });
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+    document.getElementById('content').innerHTML=html;
+  });
+}
+function loadInspection(){
   window._mData={};
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
