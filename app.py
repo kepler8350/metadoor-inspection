@@ -248,7 +248,7 @@ function loadInspection(){
     window._regularData=data;
     var locs=[];
     Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
-    var html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th><th style="text-align:center;width:100px">점검</th></tr></thead><tbody>';
+    var html='<div class="tbl-wrap"><table style="width:auto;min-width:320px"><thead><tr><th class="loc-th" style="width:220px">설치위치</th><th style="text-align:center;width:80px">점검</th></tr></thead><tbody>';
     locs.forEach(function(item){
       var d=item.d,l=item.l;
       var recs=[];
