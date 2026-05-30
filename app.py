@@ -847,8 +847,8 @@ function printReport(){
     regRows+='<tr style="border-bottom:1px solid #eee">';
     regRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
     regRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
-    regRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">점검</td>';
-    regRows+='<td style="padding:6px 8px;font-size:11px">'+(r.manager||'-')+'</td>';
+    regRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+(r.manager||r.inspector||'-')+'</td>';
+    regRows+='<td style="padding:6px 8px;text-align:center">'+(r.signature?'<img src="'+r.signature+'" style="max-height:40px;max-width:100px">':'-')+'</td>';
     regRows+='</tr>';
   });
   if(!regRows)regRows='<tr><td colspan="4" style="text-align:center;padding:20px;color:#999">점검 데이터 없음</td></tr>';
