@@ -268,46 +268,33 @@ function loadInspection(){
 }
 function showRegularHist(encodedKey){
   var key=decodeURIComponent(encodedKey);
-  var parts=key.split('|');
-  var d=parts[0],l=parts[1];
+  var parts=key.split('|');var d=parts[0],l=parts[1];
   var recs=[];
-  Object.keys(window._regularData||{}).forEach(function(k2){var arr=(window._regularData||{})[k2]||[];
-    var p=k2.split('|');
-    if(p[0]===d&&p[1]===l) recs=recs.concat(arr);
-  });
+  Object.keys(window._regularData||{}).forEach(function(k2){var arr=(window._regularData||{})[k2]||[];var p=k2.split('|');if(p[0]===d&&p[1]===l)recs=recs.concat(arr);});
   if(!recs.length)return;
   var r=recs[recs.length-1];
-  var imgs=[];
-  try{imgs=JSON.parse(r.images||'[]');}catch(e){}
-  var imgHtml=imgs.length?imgs.map(function(src){return '<img src="'+src+'" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:6px;cursor:pointer" onclick="openPhotoPopup(this.src)">';}).join(''):'<span style="color:#aaa;font-size:12px">없음</span>';
-  var sigHtml=r.signature?'<img src="'+r.signature+'" style="max-width:200px;max-height:80px;border:1px solid #ddd;border-radius:4px">':'<span style="color:#aaa;font-size:12px">없음</span>';
+  var imgs=[];try{imgs=JSON.parse(r.images||'[]');}catch(e){}
+  var imgHtml=imgs.length?imgs.map(function(src){return '<img src="'+src+'" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:6px;cursor:pointer" onclick="openPhotoPopup(this.src)">';}).join(''):'없음';
+  var sigHtml=r.signature?'<img src="'+r.signature+'" style="max-width:200px;max-height:80px;border:1px solid #ddd;border-radius:4px">':'없음';
   var pop=document.getElementById('reg-hist-pop');
   if(!pop){pop=document.createElement('div');pop.id='reg-hist-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';document.body.appendChild(pop);}
-  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;width:380px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'+
-    '<h3 style="margin:0;font-size:16px;color:#1a5276">정기점검 상세</h3>'+
-    '\'<button onclick="closeRegHistPop()" style="background:none;border:none;font-size:20px;cursor:pointer">&times;</button></div>\'+'
-    '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>설치위치:</b> '+d+' '+l+'</div>'+
-    '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>점검일:</b> '+((r.created_at||'').slice(0,10))+'</div>'+
-    '<div style="font-size:13px;color:#555;margin-bottom:8px"><b>담당자:</b> '+(r.manager||r.inspector||'-')+'</div>'+
-    '<div style="margin-bottom:12px"><b style="font-size:13px;color:#555">서명:</b><br>'+sigHtml+'</div>'+
-    '<div style="margin-bottom:16px"><b style="font-size:13px;color:#555">사진:</b><br><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+imgHtml+'</div></div>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end">'+
-    '\'<button data-id="\'+r.id+\'" data-key="\'+encodedKey+\'" onclick="delRegular(parseInt(this.dataset.id),this.dataset.key)" style="background:#e74c3c;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">삭제</button></div></div>\'+'
-    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
-    '<div style="border-bottom:3px solid #27ae60;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#27ae60;margin:0 0 6px">정기점검 현황</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 정기방문점검 현황</p></div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#27ae60;color:#fff"><th style="padding:8px">점검일</th><th style="padding:8px">설치위치</th><th style="padding:8px">점검</th><th style="padding:8px">담당자</th></tr></thead>'+
-    '<tbody>'+regRows+'</tbody></table>'+
-    '</div>'+
-    '</div>'+
-    '</div>';
+  var html='<div style="background:#fff;border-radius:12px;padding:24px;width:380px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3)">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
+  html+='<h3 style="margin:0;font-size:16px;color:#1a5276">정기점검 상세</h3>';
+  html+='<button id="reg-close-btn" style="background:none;border:none;font-size:20px;cursor:pointer">&times;</button></div>';
+  html+='<p style="font-size:13px;color:#555;margin:6px 0"><b>설치위치:</b> '+d+' '+l+'</p>';
+  html+='<p style="font-size:13px;color:#555;margin:6px 0"><b>점검일:</b> '+((r.created_at||'').slice(0,10))+'</p>';
+  html+='<p style="font-size:13px;color:#555;margin:6px 0"><b>담당자:</b> '+(r.manager||r.inspector||'-')+'</p>';
+  html+='<div style="margin:10px 0"><b style="font-size:13px;color:#555">서명:</b><br>'+sigHtml+'</div>';
+  html+='<div style="margin:10px 0"><b style="font-size:13px;color:#555">사진:</b><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+imgHtml+'</div></div>';
+  html+='<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">';
+  html+='<button id="reg-del-btn" data-rid="'+r.id+'" data-rkey="'+encodedKey+'" style="background:#e74c3c;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">삭제</button></div></div>';
+  pop.innerHTML=html;
   pop.style.display='flex';
+  document.getElementById('reg-close-btn').onclick=function(){pop.style.display='none';};
+  document.getElementById('reg-del-btn').onclick=function(){delRegular(parseInt(this.dataset.rid),this.dataset.rkey);};
   pop.onclick=function(e){if(e.target===pop)pop.style.display='none';};
 }
-function closeRegHistPop(){var p=document.getElementById("reg-hist-pop");if(p)p.style.display="none";}
 function delRegular(id,encodedKey){
   if(!confirm('이 점검 기록을 삭제하시갪니까?'))return;
   var apiBase2=curMenu==='inspection'?'/api/regular':'/api/inspections';
