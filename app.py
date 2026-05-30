@@ -29,6 +29,13 @@ def init_db():
         content TEXT,status TEXT,inspector TEXT,
         signature TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    con.execute('''CREATE TABLE IF NOT EXISTS regular_inspections(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        district TEXT,location TEXT,item TEXT,
+        content TEXT,status TEXT,inspector TEXT,
+        signature TEXT,manager TEXT DEFAULT '',
+        images TEXT DEFAULT '',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     con.execute('''CREATE TABLE IF NOT EXISTS remote_inspections(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         district TEXT,location TEXT,check_item TEXT,
@@ -236,7 +243,7 @@ function loadMaintenance(){
 }
 function loadInspection(){
   window._mData={};
-  fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
+  fetch(`/api/regular?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
     let locs=[];
   window._maintData=data;
@@ -507,7 +514,8 @@ function saveEditInsp(id){
   if(!itemEl||!contEl){alert('수정 오류: 입력 필드 없음');return;}
   var item=itemEl.value;
   var cont=contEl.value;
-  fetch('/api/inspections/'+id,{
+  var apiBase=curMenu==='inspection'?'/api/regular':'/api/inspections';
+  fetch(apiBase+'/'+id,{
     method:'PUT',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({item:item,content:cont,status:'정상'})
@@ -539,7 +547,8 @@ function saveEditInsp(id){
 
 function delInsp(id,encodedKey){
   if(!confirm('이 점검 기록을 삭제하시겠습니까?'))return;
-  fetch('/api/inspections/'+id,{method:'DELETE'})
+  var apiBase2=curMenu==='inspection'?'/api/regular':'/api/inspections';
+  fetch(apiBase2+'/'+id,{method:'DELETE'})
   .then(function(r){return r.json();}).then(function(){
     var row=document.getElementById('irow_'+id);
     if(row)row.remove();
@@ -1316,7 +1325,7 @@ def build_html():
     H.append('const fn_open_img=()=>{document.getElementById("imgInput").click();};const fn_img_add=(inp)=>{const files=Array.from(inp.files);if(_imgList.length+files.length>5){showToast("최대 5개 첨부 가능");inp.value="";return;}files.forEach(function(f){const r=new FileReader();r.onload=function(e){_imgList.push({src:e.target.result});fn_render_imgs();};r.readAsDataURL(f);});inp.value="";};const fn_render_imgs=()=>{const w=document.getElementById("img-preview");if(!w)return;w.innerHTML="";_imgList.forEach(function(img,i){const d=document.createElement("div");d.style.cssText="position:relative;display:inline-block;margin:4px";const im=document.createElement("img");im.src=img.src;im.style.cssText="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd";const b=document.createElement("button");b.textContent="x";b.style.cssText="position:absolute;top:-6px;right:-6px;background:#e74c3c;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer";b.onclick=function(){_imgList.splice(i,1);fn_render_imgs();};d.appendChild(im);d.appendChild(b);w.appendChild(d);});const ab=document.getElementById("imgAddBtn");if(ab)ab.style.display=_imgList.length>=5?"none":"inline-block";};')
     H.append('const fn_save=()=>{const itm=document.getElementById("sitm").value;if(!itm){showToast("점검 항목을 선택하세요");return;}const insp=document.getElementById("sinsp").value;if(!insp.trim()){showToast("담당자 이름을 입력하세요");return;}')
     H.append('const sigEl=document.getElementById("sig");const sigData=(sigEl&&sigEl.width>0)?sigEl.toDataURL("image/png"):"";const data={district:selD,location:selL,item:itm,content:document.getElementById("scont").value,status:"정상",inspector:selUser,manager:insp,signature:sigData,images:JSON.stringify(_imgList.map(function(x){return x.src;}))};')
-    H.append('fetch("/api/inspection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
+    H.append('fetch((window._inspMode==="regular"?"/api/regular":"/api/inspection"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})')
     H.append('.then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(function(d){if(!d||!d.ok){showToast("저장실패");return;}showToast("\u2705 \uc810\uac80 \uc644\ub8cc!");document.getElementById("sitm").value="";document.getElementById("scont").value="";document.getElementById("sinsp").value="";if(typeof _imgList!=="undefined")_imgList=[];if(typeof fn_render_imgs==="function")fn_render_imgs();fn_clr();}).catch(function(){showToast("\uc800\uc7a5\uc2e4\ud328. \ub2e4\uc2dc \uc2dc\ub3c4\ud558\uc138\uc694.");});};')
     H.append('window.onload=()=>{const c=document.getElementById("cl");const tick=()=>{const n=new Date();c.textContent=n.getHours()+":"+(n.getMinutes()<10?"0":"")+n.getMinutes();};tick();setInterval(tick,60000);};')
     H.append('</script></body></html>')
