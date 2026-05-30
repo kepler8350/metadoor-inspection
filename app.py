@@ -1108,7 +1108,7 @@ def api_regular():
     for r in rows:
         key=f"{r[1]}|{r[2]}|{r[3]}"
         if key not in data:data[key]=[]
-        data[key].append({'id':r[0],'content':r[4],'status':r[5],'inspector':r[6],'created_at':r[10]})
+        data[key].append({'id':r[0],'content':r[4],'status':r[5],'inspector':r[6],'signature':r[7],'manager':r[8],'images':r[9],'created_at':r[10]})
     return jsonify(data)
 
 @app.route('/api/remote')
