@@ -1207,23 +1207,8 @@ def build_html():
     H.append('<button class="sbtn" onclick="fn_save()">💾 점검 저장</button></div></div>')
     H.append('<div class="toast" id="toast"></div></div>')
     H.append('<script>')
-    H.append(f'const LOCS={LC},ITEMS={IT}
-const fn_select_regular=()=>{
-  window._inspMode='regular';
-  document.getElementById('s-select').style.display='none';
-  const ra=document.getElementById('row-action');
-  if(ra)ra.style.display='none';
-  document.getElementById('s2').style.display='flex';
-  fn_ld();
-};
-const fn_select_field=()=>{
-  window._inspMode='field';
-  document.getElementById('s-select').style.display='none';
-  const ra=document.getElementById('row-action');
-  if(ra)ra.style.display='';
-  document.getElementById('s2').style.display='flex';
-  fn_ld();
-};;')
+    H.append(f'const LOCS={LC},ITEMS={IT};')
+    H.append('const fn_select_regular=()=>{window._inspMode="regular";document.getElementById("s-select").style.display="none";const ra=document.getElementById("row-action");if(ra)ra.style.display="none";document.getElementById("s2").style.display="flex";fn_ld();};const fn_select_field=()=>{window._inspMode="field";document.getElementById("s-select").style.display="none";const ra=document.getElementById("row-action");if(ra)ra.style.display="";document.getElementById("s2").style.display="flex";fn_ld();};')
     H.append('let selD="",selL="",selUser="",curSt="정상";')
     H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s-select").style.display="flex";}else showToast(res.error||"로그인 실패");});};')
     H.append('const fn_ld=()=>{const d=document.getElementById("dlist");d.innerHTML="";Object.keys(LOCS).forEach(k=>{const b=document.createElement("button");b.className="dbtn";b.textContent=k;b.onclick=()=>fn_sel(k,b);d.appendChild(b);});};')
