@@ -1196,7 +1196,7 @@ def build_html():
     H.append(f'<select id="sitm"><option value="">-- 항목 선택 --</option>')
     for it in ITEMS:H.append(f'<option value="{it}">{it}</option>')
     H.append('</select></div>')
-    H.append('<div class="row"><label>조치 내용</label><textarea id="scont" rows="3" placeholder="조치 내용을 입력하세요..."></textarea></div>')
+    H.append('<div class="row" id="row-action"><label>조치 내용</label><textarea id="scont" rows="3" placeholder="조치 내용을 입력하세요..."></textarea></div>')
     H.append('<div class="row"><label>담당자</label><input type="text" id="sinsp" placeholder="담당자 이름" style="margin-bottom:0"></div>')
     H.append('<div class="row"><label>서명</label><canvas id="sig" height="100"></canvas>')
     H.append('<button onclick="fn_clr()" style="margin-top:4px;padding:6px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:12px;cursor:pointer;width:100%">서명 지우기</button></div>')
@@ -1207,9 +1207,25 @@ def build_html():
     H.append('<button class="sbtn" onclick="fn_save()">💾 점검 저장</button></div></div>')
     H.append('<div class="toast" id="toast"></div></div>')
     H.append('<script>')
-    H.append(f'const LOCS={LC},ITEMS={IT};')
+    H.append(f'const LOCS={LC},ITEMS={IT}
+const fn_select_regular=()=>{
+  window._inspMode='regular';
+  document.getElementById('s-select').style.display='none';
+  const ra=document.getElementById('row-action');
+  if(ra)ra.style.display='none';
+  document.getElementById('s2').style.display='flex';
+  fn_ld();
+};
+const fn_select_field=()=>{
+  window._inspMode='field';
+  document.getElementById('s-select').style.display='none';
+  const ra=document.getElementById('row-action');
+  if(ra)ra.style.display='';
+  document.getElementById('s2').style.display='flex';
+  fn_ld();
+};;')
     H.append('let selD="",selL="",selUser="",curSt="정상";')
-    H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s2").style.display="flex";fn_ld();}else showToast(res.error||"로그인 실패");});};')
+    H.append('const fn_login=()=>{const u=document.getElementById("uid").value,p=document.getElementById("upw").value;fetch("/api/user/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(r=>r.json()).then(res=>{if(res.ok){selUser=res.name||res.username;document.getElementById("s1").style.display="none";document.getElementById("s-select").style.display="flex";}else showToast(res.error||"로그인 실패");});};')
     H.append('const fn_ld=()=>{const d=document.getElementById("dlist");d.innerHTML="";Object.keys(LOCS).forEach(k=>{const b=document.createElement("button");b.className="dbtn";b.textContent=k;b.onclick=()=>fn_sel(k,b);d.appendChild(b);});};')
     H.append('const fn_sel=(d,btn)=>{selD=d;document.querySelectorAll(".dbtn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");const r=document.getElementById("llist");r.innerHTML="";LOCS[d].forEach(l=>{const b=document.createElement("button");b.className="lbtn";b.textContent=l;b.onclick=()=>fn_go(l);r.appendChild(b);});};')
     H.append('const fn_go=(l)=>{selL=l;_imgList=[];document.getElementById("stitle").textContent=selD+" / "+selL;document.getElementById("s2").style.display="none";document.getElementById("s3").style.display="flex";document.getElementById("sinsp").value="";requestAnimationFrame(()=>requestAnimationFrame(fn_ini_canvas));};')
