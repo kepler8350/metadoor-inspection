@@ -909,9 +909,9 @@ function printReport(){
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
     '<thead><tr style="background:#27ae60;color:#fff">'+
     '<th style="padding:8px;text-align:center;width:15%">점검일</th>'+
-    '<th style="padding:8px;text-align:left;width:40%">설치위치</th>'+
-    '<th style="padding:8px;text-align:center;width:15%">점검</th>'+
-    '<th style="padding:8px;text-align:left;width:30%">담당자</th></tr></thead>'+
+    '<th style="padding:8px;text-align:center;width:35%">설치위치</th>'+
+    '<th style="padding:8px;text-align:center;width:20%">담당자</th>'+
+    '<th style="padding:8px;text-align:center;width:30%">서명</th></tr></thead>'+
     '<tbody>'+regRows+'</tbody></table>'+
     '</div>'+
     '</div>';
