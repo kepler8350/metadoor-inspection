@@ -256,7 +256,7 @@ function loadInspection(){
       html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span></td>';
       if(recs.length>0){
         var mkey=encodeURIComponent(d+'|'+l);
-        html+='<td style="text-align:center;cursor:pointer" onclick="showRegularHist(''+mkey+'')"><span style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px">점검</span></td>';
+        html+='<td style="text-align:center"><span data-rkey="'+mkey+'" style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;cursor:pointer" onclick="showRegularHist(this.dataset.rkey)">점검</span></td>';
       } else {
         html+='<td></td>';
       }
