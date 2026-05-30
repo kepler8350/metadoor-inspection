@@ -1219,7 +1219,7 @@ def build_html():
     H.append('<span class="lbl">비밀번호</span><input type="password" id="upw" value="admin123">')
     H.append('<button class="bl" onclick="fn_login()">로그인</button>')
     H.append('</div></div></div>')
-        H.append('<div class="pg" id="s-select" style="display:none">')
+    H.append('<div class="pg" id="s-select" style="display:none">')
     H.append('<div class="s"><span style="color:#fff;font-size:13px;font-weight:600">점검 유형 선택</span></div>')
     H.append('<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:24px;padding:40px 30px">')
     H.append('<div style="text-align:center"><span style="font-size:48px">🚧</span><div style="font-size:18px;font-weight:700;color:#1a5276;margin-top:10px">MetaDoor 점검</div><div style="font-size:12px;color:#777;margin-top:4px">점검 유형을 선택하세요</div></div>')
