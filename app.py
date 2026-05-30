@@ -804,16 +804,15 @@ function printReport(){
     '</div>'+
     '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">유지보수 점검 이력 (총 '+maintRecs.length+'건)</h2>'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:10%;word-break:break-all">점검일</th><th style="padding:6px 4px;width:17%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:18%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:55%">조치내용</th></tr></thead>'+
+    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">점검일</th><th style="padding:8px">설치위치</th><th style="padding:8px">대분류</th><th style="padding:8px">조치내용</th></tr></thead>'+
     '<tbody>'+maintRows+'</tbody></table>'+
     '</div>'+
     '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
     '<div style="border-bottom:3px solid #e74c3c;padding-bottom:12px;margin-bottom:28px">'+
     '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 조치 현황</h1>'+
     '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
     '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">'+
-    '<tbody>'+abRows+'</tbody></table>'+
+    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:8%">점검일</th><th style="padding:6px 4px;width:17%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:18%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:57%">조치내용</th></tr></thead>'+    '<tbody>'+abRows+'</tbody></table>'+
     '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
     '</div>'+
     '</div>';
