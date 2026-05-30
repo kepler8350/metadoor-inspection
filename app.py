@@ -1,15 +1,3 @@
-    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
-    '<div style="border-bottom:3px solid #27ae60;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#27ae60;margin:0 0 6px">정기점검 현황</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 정기방문점검 현황</p></div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#27ae60;color:#fff">'+
-    '<th style="padding:8px;text-align:center;width:15%">점검일</th>'+
-    '<th style="padding:8px;text-align:left;width:40%">설치위치</th>'+
-    '<th style="padding:8px;text-align:center;width:15%">점검</th>'+
-    '<th style="padding:8px;text-align:left;width:30%">담당자</th></tr></thead>'+
-    '<tbody>'+regRows+'</tbody></table>'+
-    '</div>'+
 import os,json,sqlite3,hashlib
 import os,json,sqlite3,hashlib
 from flask import Flask,Response,request,session,redirect,jsonify
