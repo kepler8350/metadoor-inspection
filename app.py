@@ -860,8 +860,8 @@ function loadReport(){
     var abnormals=[];
     Object.keys(rData).forEach(function(k){
       (rData[k]||[]).forEach(function(r){
-        rTotal++;
         if(r.status==='이상'){
+        rTotal++;
           rAbnCount++;
           var p=k.split('|');
           abnormals.push({d:p[0],l:p[1],it:p[2],note:r.note,check_date:r.check_date,status:r.status});
