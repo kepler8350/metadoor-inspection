@@ -247,12 +247,12 @@ function loadInspection(){
   .then(r=>r.json()).then(function(data){
     window._regularData=data;
     var locs=[];
-    Object.entries(LOCS).forEach(function(e){var d=e[0],ls=e[1];ls.forEach(function(l){locs.push({d:d,l:l});});});
+    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
     var html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th><th style="text-align:center;width:100px">점검</th></tr></thead><tbody>';
     locs.forEach(function(item){
       var d=item.d,l=item.l;
       var recs=[];
-      Object.entries(data).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');if(p[0]===d&&p[1]===l)recs=recs.concat(arr);});
+      Object.keys(data).forEach(function(k){var p=k.split('|');if(p[0]===d&&p[1]===l){(data[k]||[]).forEach(function(r){recs.push(r);});}});
       html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span></td>';
       if(recs.length>0){
         var mkey=encodeURIComponent(d+'|'+l);
@@ -271,7 +271,7 @@ function showRegularHist(encodedKey){
   var parts=key.split('|');
   var d=parts[0],l=parts[1];
   var recs=[];
-  Object.entries(window._regularData||{}).forEach(function([k,arr]){
+  Object.keys(window._regularData||{}).forEach(function(k2){var arr=(window._regularData||{})[k2]||[];
     var p=k.split('|');
     if(p[0]===d&&p[1]===l) recs=recs.concat(arr);
   });
