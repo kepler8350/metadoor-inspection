@@ -1022,6 +1022,24 @@ def api_maintenance():
     return jsonify(data)
 
 # API: 원격점검 조회
+@app.route('/api/regular')
+@login_required
+def api_regular():
+    init_db()
+    year=request.args.get('year',datetime.now().year)
+    month=request.args.get('month',datetime.now().month)
+    con=sqlite3.connect(DB)
+    rows=con.execute(
+        "SELECT id,district,location,item,content,status,inspector,signature,manager,images,created_at FROM regular_inspections WHERE strftime('%Y',created_at)=? AND strftime('%m',created_at)=?",
+        (str(year),str(month).zfill(2))).fetchall()
+    con.close()
+    data={}
+    for r in rows:
+        key=f"{r[1]}|{r[2]}|{r[3]}"
+        if key not in data:data[key]=[]
+        data[key].append({'id':r[0],'content':r[4],'status':r[5],'inspector':r[6],'created_at':r[10]})
+    return jsonify(data)
+
 @app.route('/api/remote')
 @login_required
 def api_remote():
@@ -1132,6 +1150,23 @@ def api_inspection_delete(iid):
     con.execute('DELETE FROM inspections WHERE id=?',(iid,))
     con.commit();con.close();return jsonify({'ok':True})
 
+@app.route('/api/regular/<int:rid>',methods=['PUT'])
+def api_regular_update(rid):
+    init_db()
+    d=request.get_json(force=True)
+    con=sqlite3.connect(DB)
+    con.execute('UPDATE regular_inspections SET item=?,content=?,status=? WHERE id=?',
+        (d.get('item',''),d.get('content',''),d.get('status','정상'),rid))
+    con.commit();con.close()
+    return jsonify({'ok':True})
+@app.route('/api/regular/<int:rid>',methods=['DELETE'])
+def api_regular_delete(rid):
+    init_db()
+    con=sqlite3.connect(DB)
+    con.execute('DELETE FROM regular_inspections WHERE id=?',(rid,))
+    con.commit();con.close()
+    return jsonify({'ok':True})
+
 @app.route('/api/members/<int:mid>',methods=['DELETE'])
 @login_required
 def api_member_del(mid):
@@ -1167,6 +1202,21 @@ def api_save():
     except Exception as e:
         import traceback
         return jsonify({'ok':False,'error':str(e),'trace':traceback.format_exc()}),500
+
+@app.route('/api/regular',methods=['POST'])
+def api_regular_save():
+    try:
+        init_db()
+        d=request.get_json(force=True)
+        con=sqlite3.connect(DB)
+        con.execute('INSERT INTO regular_inspections(district,location,item,content,status,inspector,signature,manager,images) VALUES(?,?,?,?,?,?,?,?,?)',
+            (d.get('district',''),d.get('location',''),d.get('item',''),d.get('content',''),
+             d.get('status','정상'),d.get('inspector',''),d.get('signature',''),
+             d.get('manager',''),d.get('images','[]')))
+        con.commit();con.close()
+        return jsonify({'ok':True})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}),500
 
 @app.route('/api/inspections')
 @login_required
