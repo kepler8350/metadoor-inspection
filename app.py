@@ -235,9 +235,9 @@ function loadMaintenance(){
       // 해당 위치 총건수
       let rowTotal=0;
       ITEMS.forEach(it=>{rowTotal+=(data[d+'|'+l+'|'+it]||[]).length;});
-      const rowBadge=rowTotal>0?'<br><span style="font-size:10px;color:#e74c3c;font-weight:600">열건 '+rowTotal+'건</span>':'';
+      const rowBadge=rowTotal>0?' <span style="font-size:10px;color:#e74c3c;font-weight:600">('+rowTotal+'건)</span>':'';
 
-      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span>${rowBadge}</td>`;
+      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}${rowBadge}</span></td>`;
       ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
