@@ -272,8 +272,10 @@ function printAllMaintReports(){
   function sc(name,img){
     var h='';
     if(name)h+=name+'&nbsp;&nbsp;';
-    if(img)h+='<img src="'+img+'" style="height:26px;vertical-align:middle">&nbsp;';
-    h+='(서명)';
+    h+='<span style="position:relative;display:inline-block;min-width:50px">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:34px;z-index:1">';
+    h+='<span style="position:relative;z-index:2">(서명)</span>';
+    h+='</span>';
     return h;
   }
   locs.forEach(function(item){
@@ -324,21 +326,22 @@ function printAllMaintReports(){
   });
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
   var css='*{margin:0;padding:0;box-sizing:border-box}';
+  css+='@page{margin:5mm;size:A4}';
   css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:9.5pt}';
-  css+='.pg{width:210mm;padding:8mm 10mm;page-break-after:always}';
+  css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}';
   css+='.main{width:100%;border-collapse:collapse}';
-  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:5px 4px;word-break:keep-all;height:40px}';
-  css+='.title{font-size:14pt;font-weight:bold;text-align:center;padding:16px 4px;border:none;background:#e0e0e0;height:auto}';
+  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:28px}';
+  css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}';
   css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
   css+='.hdr{background:#f0f0f0;font-weight:bold}';
   css+='.cat{font-weight:bold;background:#f7f7f7}';
   css+='.sub{font-weight:bold;background:#f7f7f7;width:12%}';
   css+='.qty{font-weight:bold}';
   css+='.cont{text-align:left;padding:5px 6px;vertical-align:top}';
-  css+='.cms{min-height:60px}';
-  css+='.opinion{min-height:80px;text-align:left;vertical-align:top;padding:5px}';
-  css+='.sign{text-align:left;padding:5px 8px;vertical-align:middle}';
-  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:10%}';
+  css+='.cms{min-height:30px}';
+  css+='.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
+  css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;height:44px}';
+  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:5%}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
