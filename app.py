@@ -258,65 +258,90 @@ function loadMaintenance(){
     var rb=document.getElementById('btn-maint-report');if(rb)rb.style.display='';
   });
 }
+
 function printAllMaintReports(){
   var YSIGN="data:image/png;base64,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";
   var mo=String(curMonth).padStart(2,'0'),yr=curYear;
   var pages='';
   var locs=[];
   Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
+  function cv(v){return (v&&v!=='정상')?v:'';}
   locs.forEach(function(item){
     var d=item.d,l=item.l;
-    var hasData=false,cm={},ops=[],manager='',userSign='',inspDate='';
+    var hasData=false,cm={},manager='',userSign='',inspDate='';
     ITEMS.forEach(function(it){
       var k=d+'|'+l+'|'+it;
       var arr=window._mData[k]||[];
       var last=arr.length>0?arr[arr.length-1]:null;
-      cm[it]=last?(last.content||'정상'):'정상';
+      cm[it]=last?cv(last.content||''):'';
       if(arr.length>0){hasData=true;
-        if(!manager&&last){manager=last.manager||last.inspector||'';userSign=last.signature||'';inspDate=(last.created_at||'').slice(0,10);}
-        if(last&&last.content)ops.push(it+': '+last.content);}
+        if(!manager&&last){manager=last.manager||last.inspector||'';userSign=last.signature||'';inspDate=(last.created_at||'').slice(0,10);}}
     });
     if(!hasData)return;
     var dp=inspDate.split('-');var m2=dp[1]||mo,dy=dp[2]||'';
-    var nl=String.fromCharCode(10);var op=ops.join(nl);
+    // PC 6개 점검내용 병합
+    var pcContent=cm['보드']||'';
+    // 체험형 점검내용 병합
+    var expContent=cm['기타']||'';
+    // CMS 점검내용 병합 (통신관리 내용)
+    var cmsContent=cm['하우징']||'';
+    // 확인자 서명 HTML: 이미지 위, (서명) 아래
+    var uSignHtml=userSign?'<img src="'+userSign+'" style="height:30px;display:block;margin:0 auto"><br>':'';
+    // 점검자 서명 HTML
+    var ySignHtml='<img src="'+YSIGN+'" style="height:30px;display:block;margin:0 auto"><br>';
     pages+='<div class="pg">';
-    pages+='<p style="font-weight:bold;margin-bottom:4px;font-size:11px">방문점검 조치보고서</p>';
+    pages+='<p style="font-weight:bold;margin-bottom:4px">방문점검 조치보고서</p>';
     pages+='<div class="tb">디지털 사이니지 유지관리 ('+m2+'월) 조치보고서</div>';
     pages+='<div class="lc">○ 들락날락명 : '+d+' '+l+'</div>';
     pages+='<table>';
-    pages+='<tr><th class="lb">점검 항목</th><th colspan="2">장비명</th><th>수량</th><th>점검내용</th></tr>';
-    pages+='<tr><td class="lb" rowspan="9">디지털<br>사이니지</td><td rowspan="3">86인치<br>패널</td><td>액정</td><td>1</td><td>'+(cm['패널']||'정상')+'</td></tr>';
-    pages+='<tr><td>번인</td><td></td><td></td></tr><tr><td>터치</td><td></td><td></td></tr>';
-    pages+='<tr><td rowspan="6">PC</td><td>OS</td><td>1</td><td>'+(cm['보드']||'정상')+'</td></tr>';
-    pages+='<tr><td>CPU</td><td></td><td></td></tr><tr><td>MEM</td><td></td><td></td></tr>';
-    pages+='<tr><td>파일시스템</td><td></td><td></td></tr><tr><td>시스템로그</td><td></td><td></td></tr><tr><td>악성코드</td><td></td><td></td></tr>';
-    pages+='<tr><td class="lb" rowspan="4">주변장비</td><td colspan="2">카메라</td><td>1</td><td>'+(cm['카메라']||'정상')+'</td></tr>';
+    pages+='<colgroup><col style="width:70px"><col style="width:80px"><col style="width:80px"><col style="width:30px"><col></colgroup>';
+    pages+='<tr><th class="lb">점검항목</th><th colspan="2">장비명</th><th>수량</th><th>점검내용</th></tr>';
+    // ── 디지털 사이니지 ──
+    pages+='<tr><td class="lb" rowspan="15">디지털<br>사이니지</td><td rowspan="3">86인치<br>패널</td><td>액정</td><td>1</td><td rowspan="3">'+cm['패널']+'</td></tr>';
+    pages+='<tr><td>번인</td><td>1</td></tr>';
+    pages+='<tr><td>터치</td><td>1</td></tr>';
+    pages+='<tr><td rowspan="6">PC</td><td>OS</td><td>1</td><td rowspan="6">'+pcContent+'</td></tr>';
+    pages+='<tr><td>CPU</td><td>1</td></tr>';
+    pages+='<tr><td>MEM</td><td>1</td></tr>';
+    pages+='<tr><td>파일시스템</td><td>1</td></tr>';
+    pages+='<tr><td>시스템로그</td><td>1</td></tr>';
+    pages+='<tr><td>악성코드</td><td>1</td></tr>';
+    pages+='<tr><td colspan="2">카메라</td><td>1</td><td>'+cm['카메라']+'</td></tr>';
     pages+='<tr><td colspan="2">모션캐캘카메라</td><td>1</td><td></td></tr>';
-    pages+='<tr><td colspan="2">스피커</td><td>1</td><td>'+(cm['스피커']||'정상')+'</td></tr>';
-    pages+='<tr><td colspan="2">마이크</td><td>1</td><td>'+(cm['마이크']||'정상')+'</td></tr>';
-    pages+='<tr><td class="lb" rowspan="2">체험형<br>콘텐츠</td><td colspan="2">교육,영상,게임</td><td>1</td><td>'+(cm['기타']||'정상')+'</td></tr>';
-    pages+='<tr><td colspan="2">화상통화,AI영어회화</td><td></td><td></td></tr>';
-    pages+='<tr><td class="lb">통신관리</td><td colspan="2">연결상태</td><td>1</td><td>'+(cm['하우징']||'정상')+'</td></tr>';
-    pages+='<tr><td class="lb">전원관리</td><td colspan="2">공급상태</td><td>1</td><td>'+(cm['전원']||'정상')+'</td></tr>';
-    pages+='<tr><td class="lb">안전관리</td><td colspan="2">분리/탈락 안전</td><td>1</td><td>'+(cm['외관데코']||'정상')+'</td></tr>';
-    pages+='<tr><td class="lb" rowspan="3">CMS</td><td colspan="2">CMS시스템</td><td>1</td><td></td></tr>';
-    pages+='<tr><td colspan="2">장비운영현황</td><td></td><td></td></tr>';
-    pages+='<tr><td colspan="2">콘텐츠운영현황</td><td></td><td></td></tr>';
-    pages+='<tr><td class="lb">점검의견</td><td colspan="4" class="op">'+op+'</td></tr>';
-    pages+='<tr><td class="lb" rowspan="2">점검자</td><td class="lb">소속</td><td colspan="2">㎏프라임텍</td>';
-    pages+='<td rowspan="4" style="vertical-align:middle;text-align:center">점검일자<br>'+yr+'.'+m2+'.'+dy+'</td></tr>';
-    pages+='<tr><td class="lb">이름</td><td colspan="2">이&nbsp;순&nbsp;규&nbsp;<img src="'+YSIGN+'" style="height:26px;vertical-align:middle">(서명)</td></tr>';
+    pages+='<tr><td colspan="2">스피커</td><td>1</td><td>'+cm['스피커']+'</td></tr>';
+    pages+='<tr><td colspan="2">마이크</td><td>1</td><td>'+cm['마이크']+'</td></tr>';
+    // ── 체험형콘텐츠 ──
+    pages+='<tr><td class="lb" rowspan="2">체험형<br>콘텐츠</td><td colspan="2">교육, 영상, 게임</td><td>1</td><td rowspan="2">'+expContent+'</td></tr>';
+    pages+='<tr><td colspan="2">화상통화, AI영어회화</td><td>1</td></tr>';
+    // ── 통신/전원/안전 ──
+    pages+='<tr><td class="lb">통신관리</td><td colspan="2">연결상태</td><td>1</td><td>'+cm['하우징']+'</td></tr>';
+    pages+='<tr><td class="lb">전원관리</td><td colspan="2">공급상태</td><td>1</td><td>'+cm['전원']+'</td></tr>';
+    pages+='<tr><td class="lb">안전관리</td><td colspan="2">분리/탈락 안전</td><td>1</td><td>'+cm['외관데코']+'</td></tr>';
+    // ── 통합관리CMS ──
+    pages+='<tr><td class="lb" rowspan="3">통합관리<br>CMS</td><td colspan="2">CMS 시스템</td><td>1</td><td rowspan="3" class="cms-cell">'+cmsContent+'</td></tr>';
+    pages+='<tr><td colspan="2">장비 운영현황</td><td>1</td></tr>';
+    pages+='<tr><td colspan="2">콘텐츠 운영현황</td><td>1</td></tr>';
+    // ── 점검의견 ──
+    pages+='<tr><td class="lb">점검의견</td><td colspan="4" class="opinion-cell"></td></tr>';
+    // ── 점검자/확인자 ──
+    pages+='<tr><td class="lb" rowspan="2">점검자</td><td class="lb">소속</td><td colspan="2">주식회사 프라임텍</td>';
+    pages+='<td rowspan="4" style="vertical-align:middle;text-align:center;font-size:10px">점검일자<br>'+yr+'.'+m2+'.'+dy+'</td></tr>';
+    pages+='<tr><td class="lb">이름</td><td colspan="2" style="text-align:center">이&nbsp;순&nbsp;규<br>'+ySignHtml+'(서명)</td></tr>';
     pages+='<tr><td class="lb" rowspan="2">확인자</td><td class="lb">소속</td><td colspan="2">'+d+'</td></tr>';
-    pages+='<tr><td class="lb">이름</td><td colspan="2">'+manager+(userSign?'&nbsp;<img src="'+userSign+'" style="height:26px;vertical-align:middle">':'')+'(서명)</td></tr>';
+    pages+='<tr><td class="lb">이름</td><td colspan="2" style="text-align:center">'+manager+'<br>'+uSignHtml+'(서명)</td></tr>';
     pages+='</table></div>';
   });
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
-  var css='*{margin:0;padding:0;box-sizing:border-box}body{font-family:"\ub9de\uc740 \uace0\ub515",sans-serif;font-size:10px}';
+  var css='*{margin:0;padding:0;box-sizing:border-box}';
+  css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:10px}';
   css+='.pg{width:210mm;min-height:297mm;padding:12mm 12mm 8mm;page-break-after:always}';
   css+='.tb{text-align:center;font-size:14px;font-weight:bold;padding:8px;border:1px solid #000;border-bottom:none}';
   css+='.lc{padding:5px 4px;border:1px solid #000;border-bottom:none;font-size:11px}';
-  css+='table{width:100%;border-collapse:collapse}td,th{border:1px solid #000;padding:3px 5px;text-align:center;font-size:10px}';
-  css+='.lb{background:#f0f0f0;font-weight:bold;width:65px}.op{min-height:50px;text-align:left;vertical-align:top;padding:5px}';
+  css+='table{width:100%;border-collapse:collapse}';
+  css+='td,th{border:1px solid #000;padding:4px 5px;text-align:center;font-size:10px;height:22px}';
+  css+='.lb{background:#f0f0f0;font-weight:bold}';
+  css+='.cms-cell{height:66px;vertical-align:top;padding:4px}';
+  css+='.opinion-cell{height:66px;vertical-align:top;padding:4px}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
