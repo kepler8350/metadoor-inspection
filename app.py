@@ -216,13 +216,28 @@ function loadMaintenance(){
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
     let locs=[];
-  window._maintData=data;
+    window._maintData=data;
     Object.entries(LOCS).forEach(([d,ls])=>ls.forEach(l=>locs.push({d,l})));
+
+    // 항목별 전체 건수 합계
+    let itemTotals={};
+    ITEMS.forEach(it=>{itemTotals[it]=0;});
+    Object.entries(data).forEach(([k,recs])=>{const p=k.split('|');const it=p[2];if(it!==undefined)itemTotals[it]=(itemTotals[it]||0)+recs.length;});
+
     let html='<div class="tbl-wrap"><table><thead><tr><th class="loc-th">설치위치</th>';
-    ITEMS.forEach(it=>{html+=`<th>${it}</th>`;});
+    ITEMS.forEach(it=>{
+      const cnt=itemTotals[it]||0;
+      html+=`<th>${it}${cnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+cnt+'건</span>':''}</th>`;
+    });
     html+='</tr></thead><tbody>';
+
     locs.forEach(({d,l})=>{
-      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span></td>`;
+      // 해당 위치 총건수
+      let rowTotal=0;
+      ITEMS.forEach(it=>{rowTotal+=(data[d+'|'+l+'|'+it]||[]).length;});
+      const rowBadge=rowTotal>0?'<br><span style="font-size:10px;color:#e74c3c;font-weight:600">열건 '+rowTotal+'건</span>':'';
+
+      html+=`<tr><td class="loc-td" style="cursor:pointer" onclick="showLocHist('${encodeURIComponent(d+'|'+l)}')" title="클릭: 전체 이력">${d}<br><span style="font-weight:400;color:#666">${l}</span>${rowBadge}</td>`;
       ITEMS.forEach(it=>{
         const key=d+'|'+l+'|'+it;
         const recs=data[key]||[];
@@ -248,12 +263,22 @@ function loadInspection(){
     window._regularData=data;
     var locs=[];
     Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
-    var html='<div class="tbl-wrap"><table style="width:auto;min-width:320px"><thead><tr><th class="loc-th" style="width:220px">설치위치</th><th style="text-align:center;width:80px">점검</th></tr></thead><tbody>';
+
+    // 전체 총 점검 건수
+    var totalCnt=0;
+    Object.keys(data).forEach(function(k){totalCnt+=(data[k]||[]).length;});
+    var totalBadge=totalCnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+totalCnt+'건</span>':'';
+
+    var html='<div class="tbl-wrap"><table style="width:auto;min-width:320px"><thead><tr>'+
+      '<th class="loc-th" style="width:220px">설치위치</th>'+
+      '<th style="text-align:center;width:80px">점검'+totalBadge+'</th></tr></thead><tbody>';
+
     locs.forEach(function(item){
       var d=item.d,l=item.l;
       var recs=[];
       Object.keys(data).forEach(function(k){var p=k.split('|');if(p[0]===d&&p[1]===l){(data[k]||[]).forEach(function(r){recs.push(r);});}});
-      html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span></td>';
+      var cntBadge=recs.length>0?'<br><span style="font-size:10px;color:#1a5276;font-weight:600">'+recs.length+'건</span>':'';
+      html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span>'+cntBadge+'</td>';
       if(recs.length>0){
         var mkey=encodeURIComponent(d+'|'+l);
         html+='<td style="text-align:center"><span data-rkey="'+mkey+'" style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;cursor:pointer" onclick="showRegularHist(this.dataset.rkey)">점검</span></td>';
