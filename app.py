@@ -294,7 +294,7 @@ function printAllMaintReports(){
     pages+='<div class="tb">디지털 사이니지 유지관리 ('+m2+'월) 조치보고서</div>';
     pages+='<div class="lc">○ 들락날락명 : '+d+' '+l+'</div>';
     pages+='<table>';
-    pages+='<colgroup><col style="width:70px"><col style="width:80px"><col style="width:80px"><col style="width:30px"><col></colgroup>';
+    pages+='<colgroup><col style="width:14%"><col style="width:14%"><col style="width:16%"><col style="width:8%"><col></colgroup>';
     pages+='<tr><th class="lb">점검항목</th><th colspan="2">장비명</th><th>수량</th><th>점검내용</th></tr>';
     // ── 디지털 사이니지 ──
     pages+='<tr><td class="lb" rowspan="15">디지털<br>사이니지</td><td rowspan="3">86인치<br>패널</td><td>액정</td><td>1</td><td rowspan="3">'+cm['패널']+'</td></tr>';
@@ -334,14 +334,14 @@ function printAllMaintReports(){
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
   var css='*{margin:0;padding:0;box-sizing:border-box}';
   css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:10px}';
-  css+='.pg{width:210mm;min-height:297mm;padding:12mm 12mm 8mm;page-break-after:always}';
+  css+='.pg{width:210mm;min-height:297mm;padding:10mm 12mm 8mm;page-break-after:always}';
   css+='.tb{text-align:center;font-size:14px;font-weight:bold;padding:8px;border:1px solid #000;border-bottom:none}';
   css+='.lc{padding:5px 4px;border:1px solid #000;border-bottom:none;font-size:11px}';
   css+='table{width:100%;border-collapse:collapse}';
-  css+='td,th{border:1px solid #000;padding:4px 5px;text-align:center;font-size:10px;height:22px}';
+  css+='td,th{border:1px solid #000;padding:2px 4px;text-align:center;font-size:10px;height:18px}';css+='td{line-height:1.2}';
   css+='.lb{background:#f0f0f0;font-weight:bold}';
-  css+='.cms-cell{height:66px;vertical-align:top;padding:4px}';
-  css+='.opinion-cell{height:66px;vertical-align:top;padding:4px}';
+  css+='.cms-cell{height:56px;vertical-align:top;padding:4px}';
+  css+='.opinion-cell{height:56px;vertical-align:top;padding:4px}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
