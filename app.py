@@ -275,7 +275,7 @@ function printAllMaintReports(){
     var h='';
     if(name)h+=name+'&nbsp;&nbsp;';
     h+='<span style="position:relative;display:inline-block;min-width:60px">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:5">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:5">';
     h+='(서명)';
     h+='</span>';
     return h;
