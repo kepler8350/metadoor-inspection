@@ -272,8 +272,8 @@ function printAllMaintReports(){
   function sc(name,img){
     var h='';
     if(name)h+=name+'&nbsp;&nbsp;';
-    h+='<span style="position:relative;display:inline-block;min-width:50px">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:34px;z-index:1">';
+    h+='<span style="position:relative;display:inline-block;min-width:80px">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:68px;z-index:1">';
     h+='<span style="position:relative;z-index:2">(서명)</span>';
     h+='</span>';
     return h;
@@ -292,7 +292,7 @@ function printAllMaintReports(){
     if(!hasData)return;
     var dp=inspDate.split('-');var m2=dp[1]||mo,dy=dp[2]||'';
     pages+='<div class="pg"><table class="main">';
-    pages+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:38%"></colgroup>';
+    pages+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:19%"></colgroup>';
     pages+='<tr><td colspan="5" class="title">디지털 사이니지 유지관리 ( '+m2+'월 )&nbsp; 점검조치보고서</td></tr>';
     pages+='<tr><td colspan="5" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
     pages+='<tr class="hdr"><td>점검 항목</td><td colspan="2">장비명</td><td>수량</td><td>점검내용(결과)</td></tr>';
@@ -341,7 +341,7 @@ function printAllMaintReports(){
   css+='.cms{min-height:30px}';
   css+='.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
   css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;height:44px}';
-  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:5%}';
+  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:19%}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
