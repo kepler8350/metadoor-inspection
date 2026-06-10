@@ -331,7 +331,7 @@ function printAllMaintReports(){
     // 점검자/확인자 - col5(점검내용)과 col6(점검일자) 분리
     pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN,136,-10)+'</td></tr>';
-    pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:left;padding-left:8px">'+d+' '+l+'</td></tr>';
+    pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">'+d+' '+l+'</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc(manager,userSign,34)+'</td></tr>';
     pages+='</table></div>';
   });
