@@ -270,12 +270,13 @@ function printAllMaintReports(){
   var locs=[];
   Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
   function cv(v){return (v&&v!=='정상')?v:'';}
-  function sc(name,img,ih){
+  function sc(name,img,ih,off){
     var sz=ih||68;
+    var bt=(-10+(off||0))+'px';
     var h='';
     if(name)h+=name+'&nbsp;&nbsp;';
     h+='<span style="position:relative;display:inline-block;min-width:60px">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:5">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:'+bt+';left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:5">';
     h+='(서명)';
     h+='</span>';
     return h;
@@ -329,7 +330,7 @@ function printAllMaintReports(){
     pages+='<tr><td class="cat">점검의곬</td><td colspan="5" class="opinion"></td></tr>';
     // 점검자/확인자 - col5(점검내용)과 col6(점검일자) 분리
     pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
-    pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN,136)+'</td></tr>';
+    pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN,136,-10)+'</td></tr>';
     pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:left;padding-left:8px">'+d+' '+l+'</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc(manager,userSign,34)+'</td></tr>';
     pages+='</table></div>';
