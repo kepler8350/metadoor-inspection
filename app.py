@@ -269,11 +269,11 @@ function printAllMaintReports(){
   var locs=[];
   Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
   function cv(v){return (v&&v!=='정상')?v:'';}
-  function sc(name,img){
-    var h='';
+  function sc(name,img,ih){
+    var h='';var sz=ih||68;
     if(name)h+=name+'&nbsp;&nbsp;';
-    h+='<span style="position:relative;display:inline-block;min-width:80px">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:68px;z-index:1">';
+    h+='<span style="position:relative;display:inline-block;min-width:'+(sz*1.5)+'px">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:'+sz+'px;z-index:1">';
     h+='<span style="position:relative;z-index:2">(서명)</span>';
     h+='</span>';
     return h;
@@ -319,9 +319,9 @@ function printAllMaintReports(){
     pages+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
     pages+='<tr><td class="cat">점검의견</td><td colspan="4" class="opinion"></td></tr>';
     pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
-    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN)+'</td></tr>';
+    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN,136)+'</td></tr>';
     pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:left;padding-left:8px">'+d+' '+l+'</td></tr>';
-    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+sc(manager,userSign)+'</td></tr>';
+    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+sc(manager,userSign,34)+'</td></tr>';
     pages+='</table></div>';
   });
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
@@ -340,7 +340,7 @@ function printAllMaintReports(){
   css+='.cont{text-align:left;padding:5px 6px;vertical-align:top}';
   css+='.cms{min-height:30px}';
   css+='.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
-  css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;height:44px}';
+  css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;height:44px;overflow:visible}';
   css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:19%}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
