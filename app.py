@@ -298,7 +298,7 @@ function printAllMaintReports(){
     pages+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:38%"></colgroup>';
     // 제목
     pages+='<tr><td colspan="5" class="title">디지털 사이니지 유지관리 ( '+m2+'월 )&nbsp; 점검조치보고서</td></tr>';
-    pages+='<tr><td colspan="5" class="loc">① 들락날락명 : '+d+' '+l+'</td></tr>';
+    pages+='<tr><td colspan="5" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
     pages+='<tr class="hdr"><td>점검 항목</td><td colspan="2">장비명</td><td>수량</td><td>점검내용(결과)</td></tr>';
     // 디지털 사이니지
     pages+='<tr><td class="cat" rowspan="13">디지털<br>사이니지</td><td rowspan="3">86인치 패널</td><td>액정</td><td class="qty">1</td><td rowspan="3" class="cont">'+panelC+'</td></tr>';
@@ -329,10 +329,10 @@ function printAllMaintReports(){
     pages+='<tr><td class="cat">점검의견</td><td colspan="4" class="opinion"></td></tr>';
     // ── 점검자/확인자: xlsx 구조 ──
     // colgroup 추가 (점검자 구역 전용 5열)
-    pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:left;padding-left:8px">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
+    pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">이&nbsp;&nbsp;순&nbsp;&nbsp;규<br>'+signCell('',YSIGN)+'</td></tr>';
     pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:left;padding-left:8px">'+d+'</td></tr>';
-    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+manager+'<br>'+signCell('',userSign)+'</td></tr>';
+    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+signCell(manager,userSign)+'</td></tr>';
     pages+='</table></div>';
   });
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
@@ -341,7 +341,7 @@ function printAllMaintReports(){
   css+='.pg{width:210mm;padding:8mm 10mm;page-break-after:always}';
   css+='.main{width:100%;border-collapse:collapse}';
   css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:5px 4px;word-break:keep-all;height:40px}';
-  css+='.title{font-size:14pt;font-weight:bold;text-align:center;padding:10px 4px;border:none;background:#e0e0e0;height:auto}';
+  css+='.title{font-size:14pt;font-weight:bold;text-align:center;padding:16px 4px;border:none;background:#e0e0e0;height:auto}';
   css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
   css+='.hdr{background:#f0f0f0;font-weight:bold}';
   css+='.cat{font-weight:bold;background:#f7f7f7}';
@@ -351,7 +351,7 @@ function printAllMaintReports(){
   css+='.cms{min-height:60px}';
   css+='.opinion{min-height:80px;text-align:left;vertical-align:top;padding:5px}';
   css+='.sign{text-align:center;vertical-align:middle;padding:4px;height:60px}';
-  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:20%}';
+  css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:10%}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
