@@ -274,10 +274,10 @@ function printAllMaintReports(){
     var sz=ih||68;
     var h='';
     if(name)h+=name+'&nbsp;&nbsp;';
-    h+='<span style="position:relative;display:inline-block;width:0;height:0">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:0;left:4px;height:'+sz+'px;z-index:5">';
+    h+='<span style="position:relative;display:inline-block;min-width:60px">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:5;margin-bottom:2px">';
+    h+='(서명)';
     h+='</span>';
-    h+='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(서명)';
     return h;
   }
   locs.forEach(function(item){
@@ -340,7 +340,7 @@ function printAllMaintReports(){
   css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:8.5pt}';
   css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}';
   css+='.main{width:100%;border-collapse:collapse;table-layout:fixed}';
-  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:3px 3px;word-break:keep-all;height:42px}';
+  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:40px}';
   css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}';
   css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
   css+='.hdr{background:#f0f0f0;font-weight:bold}';
