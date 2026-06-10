@@ -269,11 +269,10 @@ function printAllMaintReports(){
   Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
   function cv(v){return (v&&v!=='정상')?v:'';}
   function signCell(name,imgSrc){
-    var html='<div style="position:relative;display:inline-block;min-width:80px;min-height:44px;vertical-align:middle">';
-    if(imgSrc) html+='<img src="'+imgSrc+'" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);height:28px;z-index:1">';
-    html+='<span style="position:relative;z-index:2;font-size:9.5pt">';
-    if(name) html+=name+'<br>';
-    html+='(서명)</span></div>';
+    var html='';
+    if(name) html+=name+'&nbsp;&nbsp;';
+    if(imgSrc) html+='<img src="'+imgSrc+'" style="height:26px;vertical-align:middle">';
+    html+='&nbsp;(서명)';
     return html;
   }
   locs.forEach(function(item){
@@ -331,8 +330,8 @@ function printAllMaintReports(){
     // colgroup 추가 (점검자 구역 전용 5열)
     pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">이&nbsp;&nbsp;순&nbsp;&nbsp;규<br>'+signCell('',YSIGN)+'</td></tr>';
-    pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:left;padding-left:8px">'+d+'</td></tr>';
-    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign">'+signCell(manager,userSign)+'</td></tr>';
+    pages+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:left;padding-left:8px">'+d+' '+l+'</td>'</tr>';
+    pages+='<tr><td class="sub">이름</td><td colspan="2" class="sign" style="text-align:left;padding-left:8px">'+signCell(manager,userSign)+'</td></tr>';
     pages+='</table></div>';
   });
   if(!pages){alert('조회된 점검 데이터가 없습니다');return;}
