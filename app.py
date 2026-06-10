@@ -270,11 +270,12 @@ function printAllMaintReports(){
   Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
   function cv(v){return (v&&v!=='정상')?v:'';}
   function sc(name,img,ih){
-    var h='';var sz=ih||68;
-    if(name)h+=name+'&nbsp;&nbsp;';
-    h+='<span style="position:relative;display:inline-block;min-width:'+(sz*1.5)+'px">';
-    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:2px;left:0;height:'+sz+'px;z-index:1">';
-    h+='<span style="position:relative;z-index:2">(서명)</span>';
+    var sz=ih||68;
+    var h='';
+    if(name)h+=name;
+    h+='<span style="display:inline-block;position:relative;text-align:center;min-width:'+(sz*1.3)+'px;height:'+(sz+22)+'px;vertical-align:middle">';
+    if(img)h+='<img src="'+img+'" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);height:'+sz+'px;z-index:1">';
+    h+='<span style="position:absolute;bottom:0;left:0;right:0;text-align:center;z-index:2">(서명)</span>';
     h+='</span>';
     return h;
   }
@@ -292,7 +293,7 @@ function printAllMaintReports(){
     if(!hasData)return;
     var dp=inspDate.split('-');var m2=dp[1]||mo,dy=dp[2]||'';
     pages+='<div class="pg"><table class="main">';
-    pages+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:19%"></colgroup>';
+    pages+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:29%"></colgroup>';
     pages+='<tr><td colspan="5" class="title">디지털 사이니지 유지관리 ( '+m2+'월 )&nbsp; 점검조치보고서</td></tr>';
     pages+='<tr><td colspan="5" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
     pages+='<tr class="hdr"><td>점검 항목</td><td colspan="2">장비명</td><td>수량</td><td>점검내용(결과)</td></tr>';
@@ -330,7 +331,7 @@ function printAllMaintReports(){
   css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:9.5pt}';
   css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}';
   css+='.main{width:100%;border-collapse:collapse}';
-  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:28px}';
+  css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:3px 3px;word-break:keep-all;height:42px}';
   css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}';
   css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
   css+='.hdr{background:#f0f0f0;font-weight:bold}';
@@ -340,7 +341,7 @@ function printAllMaintReports(){
   css+='.cont{text-align:left;padding:5px 6px;vertical-align:top}';
   css+='.cms{min-height:30px}';
   css+='.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
-  css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;height:44px;overflow:visible}';
+  css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;overflow:visible}';
   css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7;width:19%}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
