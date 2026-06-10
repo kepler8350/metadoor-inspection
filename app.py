@@ -278,7 +278,7 @@ function printAllMaintReports(){
     });
     if(!hasData)return;
     var dp=inspDate.split('-');var m2=dp[1]||mo,dy=dp[2]||'';
-    var op=ops.join('\n');
+    var nl=String.fromCharCode(10);var op=ops.join(nl);
     pages+='<div class="pg">';
     pages+='<p style="font-weight:bold;margin-bottom:4px;font-size:11px">방문점검 조치보고서</p>';
     pages+='<div class="tb">디지털 사이니지 유지관리 ('+m2+'월) 조치보고서</div>';
@@ -316,7 +316,7 @@ function printAllMaintReports(){
   css+='.tb{text-align:center;font-size:14px;font-weight:bold;padding:8px;border:1px solid #000;border-bottom:none}';
   css+='.lc{padding:5px 4px;border:1px solid #000;border-bottom:none;font-size:11px}';
   css+='table{width:100%;border-collapse:collapse}td,th{border:1px solid #000;padding:3px 5px;text-align:center;font-size:10px}';
-  css+='.lb{background:#f0f0f0;font-weight:bold;width:65px}.op{min-height:50px;text-align:left;white-space:pre-wrap;vertical-align:top;padding:5px}';
+  css+='.lb{background:#f0f0f0;font-weight:bold;width:65px}.op{min-height:50px;text-align:left;vertical-align:top;padding:5px}';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
   var win=window.open('','_blank','width=900,height=1100');
   win.document.write(html);win.document.close();
@@ -738,7 +738,7 @@ function showContentPopup(td){
     pop.addEventListener('click',function(e){if(e.target===pop)pop.style.display='none';});
     document.body.appendChild(pop);
   }
-  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:15px;color:#1a5276">조치사항 전체</b><span class="scp-close" style="cursor:pointer;font-size:22px;color:#888;line-height:1">x</span></div><p style="margin:0;font-size:13px;color:#333;white-space:pre-wrap;line-height:1.6">'+full+'</p></div>';
+  pop.innerHTML='<div style="background:#fff;border-radius:12px;padding:24px;max-width:480px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><b style="font-size:15px;color:#1a5276">조치사항 전체</b><span class="scp-close" style="cursor:pointer;font-size:22px;color:#888;line-height:1">x</span></div><p style="margin:0;font-size:13px;color:#333;line-height:1.6">'+full+'</p></div>';
   pop.querySelector('.scp-close').addEventListener('click',function(){pop.style.display='none';});
   pop.style.display='flex';
 }
