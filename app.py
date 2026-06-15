@@ -1,4 +1,28 @@
-import os,json,sqlite3,hashlib
+
+
+
+@app.route('/api/metrics', methods=['GET','POST'])
+def api_metrics():
+    init_db()
+    if request.method=='GET':
+        year=request.args.get('year',datetime.now().year)
+        month=request.args.get('month',datetime.now().month)
+        con=sqlite3.connect(DB)
+        rows=con.execute(
+            "SELECT district,location,cpu_usage,mem_usage,fs_usage FROM loc_metrics WHERE year=? AND month=?",
+            (str(year),str(month).zfill(2))).fetchall()
+        con.close()
+        data={}
+        for r in rows:
+            data[f"{r[0]}|{r[1]}"]={"cpu":r[2],"mem":r[3],"fs":r[4]}
+        return jsonify(data)
+    d=request.json
+    con=sqlite3.connect(DB)
+    con.execute(
+        "INSERT INTO loc_metrics(district,location,year,month,cpu_usage,mem_usage,fs_usage) VALUES(?,?,?,?,?,?,?) ON CONFLICT(district,location,year,month) DO UPDATE SET cpu_usage=excluded.cpu_usage,mem_usage=excluded.mem_usage,fs_usage=excluded.fs_usage",
+        (d.get('district',''),d.get('location',''),str(d.get('year',datetime.now().year)),str(d.get('month',datetime.now().month)).zfill(2),d.get('cpu',''),d.get('mem',''),d.get('fs','')))
+    con.commit(); con.close()
+    return jsonify({'ok':True})import os,json,sqlite3,hashlib
 import os,json,sqlite3,hashlib
 from flask import Flask,Response,request,session,redirect,jsonify
 from functools import wraps
@@ -54,6 +78,7 @@ def init_db():
     except:pass
     try:con.execute('ALTER TABLE inspections ADD COLUMN images TEXT DEFAULT ""')
     except:pass
+    con.execute("CREATE TABLE IF NOT EXISTS loc_metrics(id INTEGER PRIMARY KEY AUTOINCREMENT,district TEXT,location TEXT,year TEXT,month TEXT,cpu_usage TEXT DEFAULT '',mem_usage TEXT DEFAULT '',fs_usage TEXT DEFAULT '',UNIQUE(district,location,year,month))")
     con.commit();con.close()
 
 def login_required(f):
@@ -360,30 +385,39 @@ function printAllMaintReports(){
 }
 function loadInspection(){
   window._regularData={};
-  fetch(`/api/regular?year=${curYear}&month=${curMonth}`)
-  .then(r=>r.json()).then(function(data){
+  Promise.all([
+    fetch(`/api/regular?year=${curYear}&month=${curMonth}`).then(r=>r.json()),
+    fetch(`/api/metrics?year=${curYear}&month=${curMonth}`).then(r=>r.json())
+  ]).then(function(results){
+    var data=results[0],metrics=results[1];
     window._regularData=data;
     var locs=[];
     Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
-
-    // 전체 총 점검 건수
     var totalCnt=0;
     Object.keys(data).forEach(function(k){totalCnt+=(data[k]||[]).length;});
-    var totalBadge=totalCnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+totalCnt+'건</span>':'';
-
-    var html='<div class="tbl-wrap"><table style="width:auto;min-width:320px"><thead><tr>'+
-      '<th class="loc-th" style="width:220px">설치위치</th>'+
-      '<th style="text-align:center;width:80px">점검'+totalBadge+'</th></tr></thead><tbody>';
-
+    var tB=totalCnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+totalCnt+'건</span>':'';
+    var is='style="width:64px;text-align:center;border:1px solid #ddd;border-radius:3px;padding:2px 4px;font-size:12px"';
+    var html='<div class="tbl-wrap"><table style="width:auto;min-width:720px"><thead><tr>'
+      +'<th class="loc-th" style="width:220px">설치위치</th>'
+      +'<th style="width:88px;text-align:center">CPU<br><small>(사용률 %)</small></th>'
+      +'<th style="width:88px;text-align:center">MEM<br><small>(사용률 %)</small></th>'
+      +'<th style="width:100px;text-align:center">파일시스템<br><small>(사용률 %)</small></th>'
+      +'<th style="text-align:center;width:80px">점검'+tB+'</th></tr></thead><tbody>';
     locs.forEach(function(item){
       var d=item.d,l=item.l;
       var recs=[];
       Object.keys(data).forEach(function(k){var p=k.split('|');if(p[0]===d&&p[1]===l){(data[k]||[]).forEach(function(r){recs.push(r);});}});
-      var cntBadge=recs.length>0?'<br><span style="font-size:10px;color:#1a5276;font-weight:600">'+recs.length+'건</span>':'';
-      html+='<tr><td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span>'+cntBadge+'</td>';
+      var cB=recs.length>0?'<br><span style="font-size:10px;color:#1a5276;font-weight:600">'+recs.length+'건</span>':'';
+      var mk=d+'|'+l;
+      var mt=metrics[mk]||{cpu:'',mem:'',fs:''};
+      var ek=encodeURIComponent(mk);
+      html+='<tr>';
+      html+='<td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span>'+cB+'</td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.cpu+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="cpu" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.mem+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="mem" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.fs+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="fs" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
       if(recs.length>0){
-        var mkey=encodeURIComponent(d+'|'+l);
-        html+='<td style="text-align:center"><span data-rkey="'+mkey+'" style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;cursor:pointer" onclick="showRegularHist(this.dataset.rkey)">점검</span></td>';
+        html+='<td style="text-align:center"><span data-rkey="'+ek+'" style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;cursor:pointer" onclick="showRegularHist(this.dataset.rkey)">점검</span></td>';
       } else {
         html+='<td></td>';
       }
@@ -391,6 +425,18 @@ function loadInspection(){
     });
     html+='</tbody></table></div>';
     document.getElementById('content').innerHTML=html;
+  });
+}
+
+function saveMetric(el){
+  var d=el.dataset.d,l=el.dataset.l;
+  var row=el.closest('tr');
+  var vals={cpu:'',mem:'',fs:''};
+  row.querySelectorAll('input[data-f]').forEach(function(inp){vals[inp.dataset.f]=inp.value.trim();});
+  fetch('/api/metrics',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({district:d,location:l,year:curYear,month:curMonth,cpu:vals.cpu,mem:vals.mem,fs:vals.fs})})
+  .then(r=>r.json()).then(function(res){
+    if(res.ok){el.style.background='#e8f5e9';setTimeout(function(){el.style.background='';},800);}
   });
 }
 function showRegularHist(encodedKey){
