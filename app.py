@@ -389,9 +389,9 @@ function loadInspection(){
       var ek=encodeURIComponent(mk);
       html+='<tr>';
       html+='<td class="loc-td">'+d+'<br><span style="font-weight:400;color:#666">'+l+'</span>'+cB+'</td>';
-      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.cpu+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="cpu" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
-      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.mem+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="mem" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
-      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.fs+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="fs" '+is+' onchange="saveMetric(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.cpu+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="cpu" '+is+' onchange="saveMetric(this)"></td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.mem+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="mem" '+is+' onchange="saveMetric(this)"></td>';
+      html+='<td style="text-align:center;padding:2px"><input type="number" min="0" max="100" value="'+mt.fs+'" placeholder="-" data-d="'+d+'" data-l="'+l+'" data-f="fs" '+is+' onchange="saveMetric(this)"></td>';
       if(recs.length>0){
         html+='<td style="text-align:center"><span data-rkey="'+ek+'" style="background:#1a5276;color:#fff;padding:3px 12px;border-radius:4px;font-size:12px;cursor:pointer" onclick="showRegularHist(this.dataset.rkey)">점검</span></td>';
       } else {
