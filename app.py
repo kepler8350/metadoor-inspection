@@ -1,28 +1,4 @@
-
-
-
-@app.route('/api/metrics', methods=['GET','POST'])
-def api_metrics():
-    init_db()
-    if request.method=='GET':
-        year=request.args.get('year',datetime.now().year)
-        month=request.args.get('month',datetime.now().month)
-        con=sqlite3.connect(DB)
-        rows=con.execute(
-            "SELECT district,location,cpu_usage,mem_usage,fs_usage FROM loc_metrics WHERE year=? AND month=?",
-            (str(year),str(month).zfill(2))).fetchall()
-        con.close()
-        data={}
-        for r in rows:
-            data[f"{r[0]}|{r[1]}"]={"cpu":r[2],"mem":r[3],"fs":r[4]}
-        return jsonify(data)
-    d=request.json
-    con=sqlite3.connect(DB)
-    con.execute(
-        "INSERT INTO loc_metrics(district,location,year,month,cpu_usage,mem_usage,fs_usage) VALUES(?,?,?,?,?,?,?) ON CONFLICT(district,location,year,month) DO UPDATE SET cpu_usage=excluded.cpu_usage,mem_usage=excluded.mem_usage,fs_usage=excluded.fs_usage",
-        (d.get('district',''),d.get('location',''),str(d.get('year',datetime.now().year)),str(d.get('month',datetime.now().month)).zfill(2),d.get('cpu',''),d.get('mem',''),d.get('fs','')))
-    con.commit(); con.close()
-    return jsonify({'ok':True})import os,json,sqlite3,hashlib
+import os,json,sqlite3,hashlib
 import os,json,sqlite3,hashlib
 from flask import Flask,Response,request,session,redirect,jsonify
 from functools import wraps
@@ -1283,6 +1259,31 @@ def api_regular():
         if key not in data:data[key]=[]
         data[key].append({'id':r[0],'content':r[4],'status':r[5],'inspector':r[6],'signature':r[7],'manager':r[8],'images':r[9],'created_at':r[10]})
     return jsonify(data)
+
+
+@app.route('/api/metrics', methods=['GET','POST'])
+def api_metrics():
+    init_db()
+    if request.method=='GET':
+        year=request.args.get('year',datetime.now().year)
+        month=request.args.get('month',datetime.now().month)
+        con=sqlite3.connect(DB)
+        rows=con.execute(
+            "SELECT district,location,cpu_usage,mem_usage,fs_usage FROM loc_metrics WHERE year=? AND month=?",
+            (str(year),str(month).zfill(2))).fetchall()
+        con.close()
+        data={}
+        for r in rows:
+            data[f"{r[0]}|{r[1]}"]={"cpu":r[2],"mem":r[3],"fs":r[4]}
+        return jsonify(data)
+    d=request.json
+    con=sqlite3.connect(DB)
+    con.execute(
+        "INSERT INTO loc_metrics(district,location,year,month,cpu_usage,mem_usage,fs_usage) VALUES(?,?,?,?,?,?,?) ON CONFLICT(district,location,year,month) DO UPDATE SET cpu_usage=excluded.cpu_usage,mem_usage=excluded.mem_usage,fs_usage=excluded.fs_usage",
+        (d.get('district',''),d.get('location',''),str(d.get('year',datetime.now().year)),str(d.get('month',datetime.now().month)).zfill(2),d.get('cpu',''),d.get('mem',''),d.get('fs','')))
+    con.commit(); con.close()
+    return jsonify({'ok':True})
+
 
 @app.route('/api/remote')
 @login_required
