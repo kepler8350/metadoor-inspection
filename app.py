@@ -1325,9 +1325,11 @@ def export_regular():
     met={}
     for m in metrics:
         met[f"{m[0]}|{m[1]}"]={"cpu":m[2],"mem":m[3],"fs":m[4]}
-    tmpl=os.path.join(os.path.dirname(os.path.abspath(__file__)),'\uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c.xlsx')
-    if not os.path.exists(tmpl):
-        return jsonify({'error':'template not found'}),404
+    tmpl=None
+    for _b in [os.path.dirname(os.path.abspath(__file__)),'/app',os.getcwd()]:
+        _tp=os.path.join(_b,'점검조치보고서.xlsx')
+        if os.path.exists(_tp):tmpl=_tp;break
+    if not tmpl:return jsonify({'error':'template not found','paths':[os.path.join(b,'점검조치보고서.xlsx') for b in [os.path.dirname(os.path.abspath(__file__)),'/app',os.getcwd()]]}),404
     all_keys=list(set(list(data.keys())+list(met.keys())))
     zip_buf=io.BytesIO()
     with zipfile.ZipFile(zip_buf,'w',zipfile.ZIP_DEFLATED) as zf:
