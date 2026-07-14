@@ -3,7 +3,9 @@ import os,json,sqlite3,hashlib,io,zipfile
 try:
     import openpyxl
 except ImportError:
-    openpyxl=None
+    import subprocess,sys
+    subprocess.check_call([sys.executable,'-m','pip','install','openpyxl','--break-system-packages','-q'])
+    import openpyxl
 from flask import Flask,Response,request,session,redirect,jsonify
 from functools import wraps
 from datetime import datetime
