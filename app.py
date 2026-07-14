@@ -389,7 +389,7 @@ function loadInspection(){
     Object.keys(data).forEach(function(k){totalCnt+=(data[k]||[]).length;});
     var tB=totalCnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+totalCnt+'건</span>':'';
     var is='style="width:64px;text-align:center;border:1px solid #ddd;border-radius:3px;padding:2px 4px;font-size:12px"';
-    var dlBtn='<div style="margin-bottom:8px"><button onclick="downloadRegularReport()" style="background:#1a5276;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">📅 엑셌로 다운로드</button></div>';
+    var dlBtn='<div style="margin-bottom:8px">' +'<button onclick="printRegularReports()" style="background:#27ae60;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-right:8px">📋 리포트 출력(PDF)</button>' +'<button onclick="downloadRegularReport()" style="background:#1a5276;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">📅 엑셌로 다운로드</button></div>';
     var html=dlBtn+'<div class="tbl-wrap"><table style="width:auto;min-width:720px"><thead><tr>'
       +'<th class="loc-th" style="width:220px">설치위치</th>'
       +'<th style="width:88px;text-align:center">CPU<br><small>(사용률 %)</small></th>'
@@ -440,6 +440,83 @@ function downloadRegularReport(){
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+function printRegularReports(){
+  Promise.all([
+    fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
+    fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
+  ]).then(function(results){
+    var data=results[0],metrics=results[1];
+    var mo=String(curMonth).padStart(2,'0');
+    var pages='';
+    var locs=[];
+    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
+    locs.forEach(function(item){
+      var d=item.d,l=item.l;
+      var key=d+'|'+l;
+      var mt=metrics[key]||{cpu:'',mem:'',fs:''};
+      var recs=data[key]||[];
+      if(!recs.length&&!mt.cpu&&!mt.mem&&!mt.fs)return;
+      var cm={};
+      recs.forEach(function(r){if(!cm[r.item])cm[r.item]=r;});
+      var dy='';
+      Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
+      var mgr='';
+      Object.keys(cm).forEach(function(k){if(cm[k].manager&&!mgr)mgr=cm[k].manager;});
+      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='정상')?r.content:'';}
+      var dpArr=dy?dy.split('-'):[];
+      var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
+      var p='<div class="pg"><table class="main">';
+      p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
+      p+='<tr><td colspan="6" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 점검조치보고서</td></tr>';
+      p+='<tr><td colspan="6" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
+      p+='<tr class="hdr"><td>점검 항목</td><td colspan="2">장비명</td><td>수량</td><td colspan="2">점검내용(결과)</td></tr>';
+      p+='<tr><td class="cat" rowspan="13">디지털<br>사이니지</td><td rowspan="3">86인치 패널</td><td>액정</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('패널')+'</td></tr>';
+      p+='<tr><td>번인</td><td class="qty">1</td></tr>';
+      p+='<tr><td>터치</td><td class="qty">1</td></tr>';
+      p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">'+(cv('보드')||cv('PC'))+'</td></tr>';
+      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.cpu?mt.cpu+'%':'')+'</td></tr>';
+      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.mem?mt.mem+'%':'')+'</td></tr>';
+      p+='<tr><td>파일시스템</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.fs?mt.fs+'%':'')+'</td></tr>';
+      p+='<tr><td>시스템로그</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td>악성코드</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td colspan="2">카메라</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('카메라')+'</td></tr>';
+      p+='<tr><td colspan="2">모션캐캘 카메라</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td colspan="2">스피커</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('스피커')+'</td></tr>';
+      p+='<tr><td colspan="2">마이크</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('마이크')+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">체험형콘텐츠</td><td colspan="2">교육, 영상, 게임</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('기타')+'</td></tr>';
+      p+='<tr><td colspan="2">화상통화, AI영어회화</td><td class="qty">1</td></tr>';
+      p+='<tr><td class="cat">통신관리</td><td colspan="2">연결상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('하우징')+'</td></tr>';
+      p+='<tr><td class="cat">전원관리</td><td colspan="2">공급상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('전원')+'</td></tr>';
+      p+='<tr><td class="cat">안전관리</td><td colspan="2">분리/탈락 등 안전상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('외관데코')+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="3">통합관리 CMS</td><td colspan="2">CMS 시스템</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2"></td></tr>';
+      p+='<tr><td colspan="2">장비 운영현황</td><td class="qty">1</td></tr>';
+      p+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
+      p+='<tr><td class="cat">점검의곬</td><td colspan="5" class="opinion"></td></tr>';
+      p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td>';
+      p+='<td rowspan="4" class="date">점검일자<br><br>'+dateStr+'</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign">이&nbsp;순&nbsp;규&nbsp;&nbsp;&nbsp;(서명)</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">'+d+' '+l+'</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+(mgr?mgr+' (서명)':'(서명)')+'</td></tr>';
+      p+='</table></div>';
+      pages+=p;
+    });
+    if(!pages){alert('조회된 데이터가 없습니다');return;}
+    var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}';
+    css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:8.5pt}';
+    css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}.main{width:100%;border-collapse:collapse;table-layout:fixed}';
+    css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:38px}';
+    css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}';
+    css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
+    css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}.qty{font-weight:bold}';
+    css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.cms{min-height:30px}.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
+    css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle}.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7}';
+    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
+    var win=window.open('','_blank','width=900,height=1100');
+    win.document.write(html);win.document.close();
+    setTimeout(function(){win.print();},800);
+  });
 }
 function showRegularHist(encodedKey){
   var key=decodeURIComponent(encodedKey);
