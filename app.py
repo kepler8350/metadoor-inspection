@@ -9,6 +9,16 @@ from functools import wraps
 from datetime import datetime
 
 app=Flask(__name__)
+
+# 템플릿 파일 자동 다운로드
+_TMPL_URL='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%A0%90%EA%B2%80%EC%A1%B0%EC%B9%98%EB%B3%B4%EA%B3%A0%EC%84%9C.xlsx'
+_TMPL_PATH=os.path.join(os.path.dirname(os.path.abspath(__file__)),'점검조치보고서.xlsx')
+if not os.path.exists(_TMPL_PATH):
+    try:
+        import urllib.request as _ur
+        _ur.urlretrieve(_TMPL_URL,_TMPL_PATH)
+    except:pass
+
 app.secret_key='metadoor2024secret'
 ITEMS=['패널','보드','전원','PC','카메라','스피커','마이크','입력장치','하우징','외관데코','기타']
 REMOTE_ITEMS=['전원 켜짐','화면 정상','소프트웨어 실행','네트워크 연결','카메라 동작','마이크 동작','스피커 동작','모션캡처 동작','외관 청결','주변환경 정상']
@@ -1325,11 +1335,14 @@ def export_regular():
     met={}
     for m in metrics:
         met[f"{m[0]}|{m[1]}"]={"cpu":m[2],"mem":m[3],"fs":m[4]}
-    tmpl=None
-    for _b in [os.path.dirname(os.path.abspath(__file__)),'/app',os.getcwd()]:
-        _tp=os.path.join(_b,'점검조치보고서.xlsx')
-        if os.path.exists(_tp):tmpl=_tp;break
-    if not tmpl:return jsonify({'error':'template not found','paths':[os.path.join(b,'점검조치보고서.xlsx') for b in [os.path.dirname(os.path.abspath(__file__)),'/app',os.getcwd()]]}),404
+    # 템플릿 없으면 재다운로드
+    if not os.path.exists(_TMPL_PATH):
+        try:
+            import urllib.request as _ur2
+            _ur2.urlretrieve(_TMPL_URL,_TMPL_PATH)
+        except:pass
+    if not os.path.exists(_TMPL_PATH):return jsonify({'error':'template not found'}),404
+    tmpl=_TMPL_PATH
     all_keys=list(set(list(data.keys())+list(met.keys())))
     zip_buf=io.BytesIO()
     with zipfile.ZipFile(zip_buf,'w',zipfile.ZIP_DEFLATED) as zf:
