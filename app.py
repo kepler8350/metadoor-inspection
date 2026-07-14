@@ -1329,65 +1329,57 @@ def export_regular():
     mgr_map={}
     date_map={}
     for r in rows:
-        key=f"{r[0]}|{r[1]}"
+        key=r[0]+'|'+r[1]
         if key not in data:data[key]={}
         data[key][r[2]]=r[3]
-        if r[4] and not mgr_map.get(key):mgr_map[key]=r[4]
-        if r[5] and not date_map.get(key):date_map[key]=r[5][:10]
+        if r[4] and key not in mgr_map:mgr_map[key]=r[4]
+        if r[5] and key not in date_map:date_map[key]=r[5][:10]
     met={}
     for m in metrics:
-        met[f"{m[0]}|{m[1]}"]={"cpu":m[2],"mem":m[3],"fs":m[4]}
-    # 템플릿 없으면 재다운로드
+        met[m[0]+'|'+m[1]]={'cpu':m[2],'mem':m[3],'fs':m[4]}
     if not os.path.exists(_TMPL_PATH):
         try:
             import urllib.request as _ur2
             _ur2.urlretrieve(_TMPL_URL,_TMPL_PATH)
         except:pass
-    if not os.path.exists(_TMPL_PATH):return jsonify({'error':'template not found'}),404
-    tmpl=_TMPL_PATH
-    all_keys=list(set(list(data.keys())+list(met.keys())))
+    if not os.path.exists(_TMPL_PATH):
+        return jsonify({'error':'template not found'}),404
+    all_keys=sorted(set(list(data.keys())+list(met.keys())))
+    if not all_keys:
+        return jsonify({'error':'조회된 데이터가 없습니다'}),404
     zip_buf=io.BytesIO()
     with zipfile.ZipFile(zip_buf,'w',zipfile.ZIP_DEFLATED) as zf:
-        for key in sorted(all_keys):
+        for idx2,key in enumerate(all_keys):
             d,l=key.split('|',1)
             items=data.get(key,{})
             m=met.get(key,{})
-            wb=openpyxl.load_workbook(tmpl)
+            wb=openpyxl.load_workbook(_TMPL_PATH)
             ws=wb.active
-            ws['A1']=f'\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( {month}\uc6d4)  \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c'
-            ws['K3']=f'{d} {l}'
-            item_map={'\ud328\ub110':'AG6','\ubcf4\ub4dc':'AG9','PC':'AG9','\uce74\uba54\ub77c':'AG15','\ubaa8\uc158\uce90\uce98\uce74\uba54\ub77c':'AG16','\uc2a4\ud53c\ucee4':'AG17','\ub9c8\uc774\ud06c':'AG18','\uae30\ud0c0':'AG19','\uc804\uc6d0':'AG22','\uc678\uad00\ub370\ucf54':'AG23','\ud558\uc6b0\uc9d5':'AG21','\uc785\ub825\uc7a5\uce58':'AG18'}
+            ws['A1']='\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+str(month)+'\uc6d4)  \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c'
+            ws['K3']=d+' '+l
+            imap={'\ud328\ub110':'AG6','\ubcf4\ub4dc':'AG9','PC':'AG9','\uce74\uba54\ub77c':'AG15','\ubaa8\uc158\uce90\uce98\uce74\uba54\ub77c':'AG16','\uc2a4\ud53c\ucee4':'AG17','\ub9c8\uc774\ud06c':'AG18','\uae30\ud0c0':'AG19','\uc804\uc6d0':'AG22','\uc678\uad00\ub370\ucf54':'AG23','\ud558\uc6b0\uc9d5':'AG21'}
             for it,ct in items.items():
-                cell=item_map.get(it)
-                if cell and ct and ct!='\uc815\uc0c1':
-                    ws[cell]=ct
-            cpu=m.get('cpu','');mem=m.get('mem','');fs=m.get('fs','')
-            if cpu or mem or fs:
-                parts=[]
-                if cpu:parts.append(f'CPU: {cpu}%')
-                if mem:parts.append(f'MEM: {mem}%')
-                if fs:parts.append(f'\ud30c\uc77c\uc2dc\uc2a4\ud15c: {fs}%')
-                existing=ws['AG9'].value or ''
-                pc_text=('  '.join(parts)+('\n'+existing if existing else '')).strip()
+                c2=imap.get(it)
+                if c2 and ct and ct!='\uc815\uc0c1':ws[c2]=ct
+            cpu=m.get('cpu','');mem2=m.get('mem','');fs=m.get('fs','')
+            if cpu or mem2 or fs:
                 ws.unmerge_cells('AG9:AX14')
-                ws['AG10']=cpu+'%' if cpu else ''
-                ws['AG11']=mem+'%' if mem else ''
-                ws['AG12']=fs+'%' if fs else ''
-                ws['AG9']=pc_text
+                if cpu:ws['AG10']=cpu+'%'
+                if mem2:ws['AG11']=mem2+'%'
+                if fs:ws['AG12']=fs+'%'
             dt=date_map.get(key,'')
             if dt:
                 dp=dt.split('-')
-                ws['AL33']=f"{dp[0]}. {int(dp[1]):2d}. {int(dp[2]):2d}."
-            ws['R35']=f'{d} {l}'
-            if mgr_map.get(key):ws['R36']=mgr_map[key]+' (\uc11c\uba85)'
+                ws['AL33']=dp[0]+'. '+str(int(dp[1]))+'. '+str(int(dp[2]))+'.'
+            ws['R35']=d+' '+l
+            if key in mgr_map:ws['R36']=mgr_map[key]+' (\uc11c\uba85)'
             buf=io.BytesIO();wb.save(buf);buf.seek(0)
-            fname=f"{d}_{l}_\uc815\uae30\uc810\uac80\ubcf4\uace0\uc11c_{year}{month_str}.xlsx"
-            zf.writestr(fname,buf.read())
+            safe=str(idx2+1)+'_'+d.encode('ascii','replace').decode().replace('?','')+'_'+l.encode('ascii','replace').decode().replace('?','')+'.xlsx'
+            zf.writestr(safe,buf.read())
     zip_buf.seek(0)
-    return Response(zip_buf.read(),mimetype='application/zip',
-        headers={'Content-Disposition':f'attachment; filename=\uc815\uae30\uc810\uac80\ubcf4\uace0\uc11c_{year}{month_str}.zip'})
-
-
+    resp=Response(zip_buf.read(),mimetype='application/zip')
+    resp.headers['Content-Disposition']='attachment; filename=report_'+str(year)+month_str+'.zip'
+    return resp
 
 @app.route('/api/remote')
 @login_required
