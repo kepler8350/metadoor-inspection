@@ -1,5 +1,9 @@
-import os,json,sqlite3,hashlib
-import os,json,sqlite3,hashlib
+import os,json,sqlite3,hashlib,io,zipfile
+import os,json,sqlite3,hashlib,io,zipfile
+try:
+    import openpyxl
+except ImportError:
+    openpyxl=None
 from flask import Flask,Response,request,session,redirect,jsonify
 from functools import wraps
 from datetime import datetime
@@ -1297,7 +1301,6 @@ def api_metrics():
 
 @app.route('/api/export/regular', methods=['GET'])
 def export_regular():
-    import openpyxl, io, zipfile, os, copy
     year=request.args.get('year',str(datetime.now().year))
     month=request.args.get('month',str(datetime.now().month))
     month_str=str(month).zfill(2)
