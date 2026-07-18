@@ -464,7 +464,10 @@ function printRegularReports(){
       Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
       var mgr='';
       Object.keys(cm).forEach(function(k){if(cm[k].manager&&!mgr)mgr=cm[k].manager;});
-      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='정상')?r.content:'';}
+      function cv(it){
+        var r=cm[it];
+        return (r&&r.content&&r.content!=='정상')?r.content:'정상';
+      }
       var dpArr=dy?dy.split('-'):[];
       var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
       var p='<div class="pg"><table class="main">';
@@ -476,13 +479,13 @@ function printRegularReports(){
       p+='<tr><td>번인</td><td class="qty">1</td></tr>';
       p+='<tr><td>터치</td><td class="qty">1</td></tr>';
       p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">Windows 11 pro</td></tr>';
-      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 \uc0ac\uc6a9\ub960 : '+(mt.cpu||'')+'%</td></tr>';
-      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">\uba54\ubaa8\ub9ac\uc6a9\ub7c9 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
+      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 사용률 : '+(mt.cpu||'')+'%</td></tr>';
+      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">메모리용량 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
       p+='<tr><td>파일시스템</td><td class="qty">1</td><td class="cont" colspan="2">용량 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
-      p+='<tr><td>시스템로그</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td>시스템로그</td><td class="qty">1</td><td class="cont" colspan="2">정상</td></tr>';
       p+='<tr><td>악성코드</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
       p+='<tr><td colspan="2">카메라</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('카메라')+'</td></tr>';
-      p+='<tr><td colspan="2">모션캐캘 카메라</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td colspan="2">모션캐캘 카메라</td><td class="qty">1</td><td class="cont" colspan="2">정상</td></tr>';
       p+='<tr><td colspan="2">스피커</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('스피커')+'</td></tr>';
       p+='<tr><td colspan="2">마이크</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('마이크')+'</td></tr>';
       p+='<tr><td class="cat" rowspan="2">체험형콘텐츠</td><td colspan="2">교육, 영상, 게임</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('기타')+'</td></tr>';
@@ -490,7 +493,7 @@ function printRegularReports(){
       p+='<tr><td class="cat">통신관리</td><td colspan="2">연결상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('하우징')+'</td></tr>';
       p+='<tr><td class="cat">전원관리</td><td colspan="2">공급상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('전원')+'</td></tr>';
       p+='<tr><td class="cat">안전관리</td><td colspan="2">분리/탈락 등 안전상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('외관데코')+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="3">통합관리 CMS</td><td colspan="2">CMS 시스템</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2"></td></tr>';
+      p+='<tr><td class="cat" rowspan="3">통합관리 CMS</td><td colspan="2">CMS 시스템</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">정상</td></tr>';
       p+='<tr><td colspan="2">장비 운영현황</td><td class="qty">1</td></tr>';
       p+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
       p+='<tr><td class="cat">점검의곬</td><td colspan="5" class="opinion"></td></tr>';
