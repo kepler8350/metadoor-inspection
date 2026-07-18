@@ -521,7 +521,7 @@ function printRegularReports(){
         p+='<tr><td class="cat" rowspan="3">\ud1b5\ud569\uad00\ub9ac CMS</td><td colspan="2">CMS \uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">\uc815\uc0c1</td></tr>';
         p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
         p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
-        p+='<tr><td class="cat">\uc810\uac80\uc758\uacec</td><td colspan="5" class="opinion"></td></tr>';
+        p+='<tr><td class="cat">\uc810\uac80\uc758\uacac</td><td colspan="5" class="opinion"></td></tr>';
         p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
         p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
         p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getInspHtml(gc)+'</td></tr>';
