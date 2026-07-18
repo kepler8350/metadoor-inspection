@@ -443,6 +443,18 @@ function downloadRegularReport(){
 }
 
 function printRegularReports(){
+  var YSIGN="data:image/png;base64,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";
+  var MHSIGN='';
+  var A_GROUP=["금정아이숲","금정체육공원","금정도서관","기장어린이도서관","안데르센동화마을","대동골문화센터","애니랑 들락날락","천마니작은도서관","아동보호종합센터","한형석자유아동극장","도모헌 숲속체험관","망미작은도서관","부산시청","연제만화도서관","풀잎작은도서관","부산복합혁신센터","근현대역사관","송정동 어린이작은도서관","영화의전당","반송종합사회복지관"];
+  function isA(loc){return A_GROUP.indexOf(loc)>=0;}
+  function sc2(name,img){
+    var h='';
+    h+='<span style="position:relative;display:inline-block;min-width:100px">';
+    if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-45px;left:50%;transform:translateX(-50%);height:136px;z-index:5"></span>';
+    h+=name+'&nbsp;&nbsp;&nbsp;(서명)';
+    h+='</span>';
+    return h;
+  }
   Promise.all([
     fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
     fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
@@ -464,12 +476,13 @@ function printRegularReports(){
       Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
       var mgr='';
       Object.keys(cm).forEach(function(k){if(cm[k].manager&&!mgr)mgr=cm[k].manager;});
-      function cv(it){
-        var r=cm[it];
-        return (r&&r.content&&r.content!=='정상')?r.content:'정상';
-      }
+      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='정상')?r.content:'정상';}
       var dpArr=dy?dy.split('-'):[];
       var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
+      var grp=isA(l)?'A':'B';
+      var inspectorSign=grp==='A'?sc2('이&nbsp;&nbsp;순&nbsp;&nbsp;규',YSIGN):sc2('이&nbsp;&nbsp;미&nbsp;&nbsp;현',MHSIGN);
+      var confSub=grp==='A'?d+' '+l:'부산시청 15분도시과';
+      var confName=grp==='A'?'(서명)':'최&nbsp;&nbsp;승&nbsp;&nbsp;혜 (인)';
       var p='<div class="pg"><table class="main">';
       p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
       p+='<tr><td colspan="6" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 점검조치보고서</td></tr>';
@@ -496,12 +509,12 @@ function printRegularReports(){
       p+='<tr><td class="cat" rowspan="3">통합관리 CMS</td><td colspan="2">CMS 시스템</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">정상</td></tr>';
       p+='<tr><td colspan="2">장비 운영현황</td><td class="qty">1</td></tr>';
       p+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
-      p+='<tr><td class="cat">점검의곬</td><td colspan="5" class="opinion"></td></tr>';
+      p+='<tr><td class="cat">점검의견</td><td colspan="5" class="opinion"></td></tr>';
       p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td>';
       p+='<td rowspan="4" class="date">점검일자<br><br>'+dateStr+'</td></tr>';
-      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign">이&nbsp;순&nbsp;규&nbsp;&nbsp;&nbsp;(서명)</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">'+d+' '+l+'</td></tr>';
-      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+(mgr?mgr+' (서명)':'(서명)')+'</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign" style="text-align:left;padding-left:8px;overflow:visible;position:relative">'+inspectorSign+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">'+confSub+'</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="3" style="text-align:center">'+confName+'</td></tr>';
       p+='</table></div>';
       pages+=p;
     });
@@ -514,7 +527,7 @@ function printRegularReports(){
     css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
     css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}.qty{font-weight:bold}';
     css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.cms{min-height:30px}.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
-    css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle}.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7}';
+    css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;overflow:visible;position:relative}.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7}';
     var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
     var win=window.open('','_blank','width=900,height=1100');
     win.document.write(html);win.document.close();
