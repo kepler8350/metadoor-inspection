@@ -389,7 +389,7 @@ function loadInspection(){
     Object.keys(data).forEach(function(k){totalCnt+=(data[k]||[]).length;});
     var tB=totalCnt>0?'<br><span style="font-size:10px;font-weight:400;color:#f39c12">'+totalCnt+'건</span>':'';
     var is='style="width:64px;text-align:center;border:1px solid #ddd;border-radius:3px;padding:2px 4px;font-size:12px"';
-    var dlBtn='<div style="margin-bottom:8px">' +'<button onclick="printRegularReports()" style="background:#27ae60;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-right:8px">📋 리포트 출력(PDF)</button>' +'<button onclick="downloadRegularReport()" style="background:#1a5276;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">📅 엑셌로 다운로드</button></div>';
+    var dlBtn='<div style="margin-bottom:8px">' +'<button onclick="printRegularReports()" style="background:#27ae60;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-right:8px">📋 리포트 출력(PDF)</button>' +'<button onclick="showRptSettings()" style="background:#8e44ad;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-right:8px">⚙️ 그룹 설정</button>' +'<button onclick="downloadRegularReport()" style="background:#1a5276;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">📅 엑셌로 다운로드</button></div>';
     var html=dlBtn+'<div class="tbl-wrap"><table style="width:auto;min-width:720px"><thead><tr>'
       +'<th class="loc-th" style="width:220px">설치위치</th>'
       +'<th style="width:88px;text-align:center">CPU<br><small>(사용률 %)</small></th>'
@@ -444,16 +444,29 @@ function downloadRegularReport(){
 
 function printRegularReports(){
   var YSIGN="data:image/png;base64,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";
-  var MHSIGN='';
-  var A_GROUP=["금정아이숲","금정체육공원","금정도서관","기장어린이도서관","안데르센동화마을","대동골문화센터","애니랑 들락날락","천마니작은도서관","아동보호종합센터","한형석자유아동극장","도모헌 숲속체험관","망미작은도서관","부산시청","연제만화도서관","풀잎작은도서관","부산복합혁신센터","근현대역사관","송정동 어린이작은도서관","영화의전당","반송종합사회복지관"];
+  var MHSIGN="data:image/png;base64,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";
+  var A_GROUP=["\\uae08\\uc815\\uc544\\uc774\\uc232","\\uae08\\uc815\\uccb4\\uc721\\uacf5\\uc6d0","\\uae08\\uc815\\ub3c4\\uc11c\\uad00","\\uae30\\uc7a5\\uc5b4\\ub9b0\\uc774\\ub3c4\\uc11c\\uad00","\\uc548\\ub370\\ub974\\uc13c\\ub3d9\\ud654\\ub9c8\\uc744","\\ub300\\ub3d9\\uace8\\ubb38\\ud654\\uc13c\\ud130","\\uc560\\ub2c8\\ub791 \\ub4e4\\ub77d\\ub0a0\\ub77d","\\ucc9c\\ub9c8\\ub2c8\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\uc544\\ub3d9\\ubcf4\\ud638\\uc885\\ud569\\uc13c\\ud130","\\ud55c\\ud615\\uc11d\\uc790\\uc720\\uc544\\ub3d9\\uadf9\\uc7a5","\\ub3c4\\ubaa8\\ud5cc \\uc232\\uc18d\\uccb4\\ud5d8\\uad00","\\ub9dd\\ubbf8\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\ubd80\\uc0b0\\uc2dc\\uccad","\\uc5f0\\uc81c\\ub9cc\\ud654\\ub3c4\\uc11c\\uad00","\\ud480\\uc78e\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\ubd80\\uc0b0\\ubcf5\\ud569\\ud601\\uc2e0\\uc13c\\ud130","\\uadfc\\ud604\\ub300\\uc5ed\\uc0ac\\uad00","\\uc1a1\\uc815\\ub3d9 \\uc5b4\\ub9b0\\uc774\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\uc601\\ud654\\uc758\\uc804\\ub2f9","\\ubc18\\uc1a1\\uc885\\ud569\\uc0ac\\ud68c\\ubcf5\\uc9c0\\uad00"];
   function isA(loc){return A_GROUP.indexOf(loc)>=0;}
+  var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
+  var aCfg=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
+  var bCfg=cfg.B||{inspector:'\uc774\ubbf8\ud604',confSub:'city',confName:'choi'};
   function sc2(name,img){
     var h='';
     h+='<span style="position:relative;display:inline-block;min-width:100px">';
     if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-45px;left:50%;transform:translateX(-50%);height:136px;z-index:5"></span>';
-    h+=name+'&nbsp;&nbsp;&nbsp;(서명)';
+    h+=name+'&nbsp;&nbsp;&nbsp;(\uc11c\uba85)';
     h+='</span>';
     return h;
+  }
+  function getInspectorHtml(grpCfg){
+    if(grpCfg.inspector==='\uc774\uc21c\uaddc')return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
+    return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);
+  }
+  function getConfSub(grpCfg,d,l){
+    return grpCfg.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';
+  }
+  function getConfName(grpCfg){
+    return grpCfg.confName==='sign'?'(\uc11c\uba85)':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';
   }
   Promise.all([
     fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
@@ -474,51 +487,50 @@ function printRegularReports(){
       recs.forEach(function(r){if(!cm[r.item])cm[r.item]=r;});
       var dy='';
       Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
-      var mgr='';
-      Object.keys(cm).forEach(function(k){if(cm[k].manager&&!mgr)mgr=cm[k].manager;});
-      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='정상')?r.content:'정상';}
+      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='\uc815\uc0c1')?r.content:'\uc815\uc0c1';}
       var dpArr=dy?dy.split('-'):[];
       var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
       var grp=isA(l)?'A':'B';
-      var inspectorSign=grp==='A'?sc2('이&nbsp;&nbsp;순&nbsp;&nbsp;규',YSIGN):sc2('이&nbsp;&nbsp;미&nbsp;&nbsp;현',MHSIGN);
-      var confSub=grp==='A'?d+' '+l:'부산시청 15분도시과';
-      var confName=grp==='A'?'(서명)':'최&nbsp;&nbsp;승&nbsp;&nbsp;혜 (인)';
+      var grpCfg=grp==='A'?aCfg:bCfg;
+      var inspHtml=getInspectorHtml(grpCfg);
+      var confSub=getConfSub(grpCfg,d,l);
+      var confName=getConfName(grpCfg);
       var p='<div class="pg"><table class="main">';
       p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
-      p+='<tr><td colspan="6" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 점검조치보고서</td></tr>';
-      p+='<tr><td colspan="6" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
-      p+='<tr class="hdr"><td>점검 항목</td><td colspan="2">장비명</td><td>수량</td><td colspan="2">점검내용(결과)</td></tr>';
-      p+='<tr><td class="cat" rowspan="13">디지털<br>사이니지</td><td rowspan="3">86인치 패널</td><td>액정</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('패널')+'</td></tr>';
-      p+='<tr><td>번인</td><td class="qty">1</td></tr>';
-      p+='<tr><td>터치</td><td class="qty">1</td></tr>';
+      p+='<tr><td colspan="6" class="title">\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+mo+'\uc6d4)&nbsp; \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c</td></tr>';
+      p+='<tr><td colspan="6" class="loc">\ub4e4\ub77d\ub0a0\ub77d\uba85 : '+d+' '+l+'</td></tr>';
+      p+='<tr class="hdr"><td>\uc810\uac80 \ud56d\ubaa9</td><td colspan="2">\uc7a5\ube44\uba85</td><td>\uc218\ub7c9</td><td colspan="2">\uc810\uac80\ub0b4\uc6a9(\uacb0\uacfc)</td></tr>';
+      p+='<tr><td class="cat" rowspan="13">\ub514\uc9c0\ud138<br>\uc0ac\uc774\ub2c8\uc9c0</td><td rowspan="3">86\uc778\uce58 \ud328\ub110</td><td>\uc561\uc815</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('\ud328\ub110')+'</td></tr>';
+      p+='<tr><td>\ubc88\uc778</td><td class="qty">1</td></tr>';
+      p+='<tr><td>\ud130\uce58</td><td class="qty">1</td></tr>';
       p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">Windows 11 pro</td></tr>';
-      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 사용률 : '+(mt.cpu||'')+'%</td></tr>';
-      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">메모리용량 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
-      p+='<tr><td>파일시스템</td><td class="qty">1</td><td class="cont" colspan="2">용량 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
-      p+='<tr><td>시스템로그</td><td class="qty">1</td><td class="cont" colspan="2">정상</td></tr>';
-      p+='<tr><td>악성코드</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
-      p+='<tr><td colspan="2">카메라</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('카메라')+'</td></tr>';
-      p+='<tr><td colspan="2">모션캐캘 카메라</td><td class="qty">1</td><td class="cont" colspan="2">정상</td></tr>';
-      p+='<tr><td colspan="2">스피커</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('스피커')+'</td></tr>';
-      p+='<tr><td colspan="2">마이크</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('마이크')+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">체험형콘텐츠</td><td colspan="2">교육, 영상, 게임</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('기타')+'</td></tr>';
-      p+='<tr><td colspan="2">화상통화, AI영어회화</td><td class="qty">1</td></tr>';
-      p+='<tr><td class="cat">통신관리</td><td colspan="2">연결상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('하우징')+'</td></tr>';
-      p+='<tr><td class="cat">전원관리</td><td colspan="2">공급상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('전원')+'</td></tr>';
-      p+='<tr><td class="cat">안전관리</td><td colspan="2">분리/탈락 등 안전상태</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('외관데코')+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="3">통합관리 CMS</td><td colspan="2">CMS 시스템</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">정상</td></tr>';
-      p+='<tr><td colspan="2">장비 운영현황</td><td class="qty">1</td></tr>';
-      p+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
-      p+='<tr><td class="cat">점검의견</td><td colspan="5" class="opinion"></td></tr>';
-      p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td>';
-      p+='<td rowspan="4" class="date">점검일자<br><br>'+dateStr+'</td></tr>';
-      p+='<tr><td class="sub">이름</td><td colspan="3" class="sign" style="text-align:left;padding-left:8px;overflow:visible;position:relative">'+inspectorSign+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">'+confSub+'</td></tr>';
-      p+='<tr><td class="sub">이름</td><td colspan="3" style="text-align:center">'+confName+'</td></tr>';
+      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 \uc0ac\uc6a9\ub960 : '+(mt.cpu||'')+'%</td></tr>';
+      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">\uba54\ubaa8\ub9ac\uc6a9\ub7c9 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
+      p+='<tr><td>\ud30c\uc77c\uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td class="cont" colspan="2">\uc6a9\ub7c9 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
+      p+='<tr><td>\uc2dc\uc2a4\ud15c\ub85c\uadf8</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
+      p+='<tr><td>\uc545\uc131\ucf54\ub4dc</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
+      p+='<tr><td colspan="2">\uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uce74\uba54\ub77c')+'</td></tr>';
+      p+='<tr><td colspan="2">\ubaa8\uc158\uce90\uce98 \uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
+      p+='<tr><td colspan="2">\uc2a4\ud53c\ucee4</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc2a4\ud53c\ucee4')+'</td></tr>';
+      p+='<tr><td colspan="2">\ub9c8\uc774\ud06c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ub9c8\uc774\ud06c')+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">\uccb4\ud5d8\ud615\ucf58\ud150\uce20</td><td colspan="2">\uad50\uc721, \uc601\uc0c1, \uac8c\uc784</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('\uae30\ud0c0')+'</td></tr>';
+      p+='<tr><td colspan="2">\ud654\uc0c1\ud1b5\ud654, AI\uc601\uc5b4\ud68c\ud654</td><td class="qty">1</td></tr>';
+      p+='<tr><td class="cat">\ud1b5\uc2e0\uad00\ub9ac</td><td colspan="2">\uc5f0\uacb0\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ud558\uc6b0\uc9d5')+'</td></tr>';
+      p+='<tr><td class="cat">\uc804\uc6d0\uad00\ub9ac</td><td colspan="2">\uacf5\uae09\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc804\uc6d0')+'</td></tr>';
+      p+='<tr><td class="cat">\uc548\uc804\uad00\ub9ac</td><td colspan="2">\ubd84\ub9ac/\ud0c8\ub77d \ub4f1 \uc548\uc804\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc678\uad00\ub370\ucf54')+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="3">\ud1b5\ud569\uad00\ub9ac CMS</td><td colspan="2">CMS \uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">\uc815\uc0c1</td></tr>';
+      p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
+      p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
+      p+='<tr><td class="cat">\uc810\uac80\uc758\uacec</td><td colspan="5" class="opinion"></td></tr>';
+      p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
+      p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
+      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" class="sign" style="text-align:left;padding-left:8px;overflow:visible;position:relative">'+inspHtml+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+confSub+'</td></tr>';
+      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+confName+'</td></tr>';
       p+='</table></div>';
       pages+=p;
     });
-    if(!pages){alert('조회된 데이터가 없습니다');return;}
+    if(!pages){alert('\uc870\ud68c\ub41c \ub370\uc774\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4');return;}
     var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}';
     css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:8.5pt}';
     css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}.main{width:100%;border-collapse:collapse;table-layout:fixed}';
@@ -533,6 +545,75 @@ function printRegularReports(){
     win.document.write(html);win.document.close();
     setTimeout(function(){win.print();},800);
   });
+}
+
+function showRptSettings(){
+  var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
+  var a=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
+  var b=cfg.B||{inspector:'\uc774\ubbf8\ud604',confSub:'city',confName:'choi'};
+  var ov=document.getElementById('rptCfgOv');
+  if(ov)ov.remove();
+  var el=document.createElement('div');
+  el.id='rptCfgOv';
+  el.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  el.innerHTML=`<div style="background:#fff;border-radius:8px;padding:24px;width:480px;max-height:90vh;overflow-y:auto">
+  <h3 style="margin:0 0 16px;font-size:15pt">📋 리포트 그룹 설정</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <div style="background:#e8f4fd;border-radius:6px;padding:12px">
+    <h4 style="margin:0 0 10px;color:#1a5276">A그룹</h4>
+    <p style="font-size:10px;color:#555;margin:0 0 8px">금정아이숲·체육공원·도서관·기장어린이도서관·애니랑·천마니·아동보호·한형석·도모헌·망미·부산시청·연제·풀잎·복합혁신·근현대역사관·송정동·영화의전당·반송 등</p>
+    <label style="display:block;margin-bottom:6px"><b>점검자 이름</b></label>
+    <select id="aCfgInsp" style="width:100%;padding:4px;margin-bottom:8px">
+      <option value="\uc774\uc21c\uaddc" ${a.inspector==='\uc774\uc21c\uaddc'?'selected':''}>이 순 규</option>
+      <option value="\uc774\ubbf8\ud604" ${a.inspector==='\uc774\ubbf8\ud604'?'selected':''}>이 미 현</option>
+    </select>
+    <label style="display:block;margin-bottom:6px"><b>확인자 소속</b></label>
+    <select id="aCfgSub" style="width:100%;padding:4px;margin-bottom:8px">
+      <option value="loc" ${a.confSub==='loc'?'selected':''}>들락날락명</option>
+      <option value="city" ${a.confSub==='city'?'selected':''}>부산시청 15분도시과</option>
+    </select>
+    <label style="display:block;margin-bottom:6px"><b>확인자 이름</b></label>
+    <select id="aCfgName" style="width:100%;padding:4px">
+      <option value="sign" ${a.confName==='sign'?'selected':''}>( 서 명 )</option>
+      <option value="choi" ${a.confName==='choi'?'selected':''}>최 승 혜 (인)</option>
+    </select>
+  </div>
+  <div style="background:#fef9e7;border-radius:6px;padding:12px">
+    <h4 style="margin:0 0 10px;color:#7d6608">B그룹</h4>
+    <p style="font-size:10px;color:#555;margin:0 0 8px">온빛어린이·혁신어울림·부산사회복지·부산해양·부산진구·꿈자람·만덕·덕천·사상·그리며·꿈뜨락·을숙도·다대·노을나루 등</p>
+    <label style="display:block;margin-bottom:6px"><b>점검자 이름</b></label>
+    <select id="bCfgInsp" style="width:100%;padding:4px;margin-bottom:8px">
+      <option value="\uc774\uc21c\uaddc" ${b.inspector==='\uc774\uc21c\uaddc'?'selected':''}>이 순 규</option>
+      <option value="\uc774\ubbf8\ud604" ${b.inspector==='\uc774\ubbf8\ud604'?'selected':''}>이 미 현</option>
+    </select>
+    <label style="display:block;margin-bottom:6px"><b>확인자 소속</b></label>
+    <select id="bCfgSub" style="width:100%;padding:4px;margin-bottom:8px">
+      <option value="loc" ${b.confSub==='loc'?'selected':''}>들락날락명</option>
+      <option value="city" ${b.confSub==='city'?'selected':''}>부산시청 15분도시과</option>
+    </select>
+    <label style="display:block;margin-bottom:6px"><b>확인자 이름</b></label>
+    <select id="bCfgName" style="width:100%;padding:4px">
+      <option value="sign" ${b.confName==='sign'?'selected':''}>( 서 명 )</option>
+      <option value="choi" ${b.confName==='choi'?'selected':''}>최 승 혜 (인)</option>
+    </select>
+  </div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+    <button onclick="document.getElementById('rptCfgOv').remove()" style="padding:8px 20px;border:1px solid #ccc;border-radius:4px;cursor:pointer">취소</button>
+    <button onclick="saveRptCfg()" style="padding:8px 20px;background:#1a5276;color:#fff;border:none;border-radius:4px;cursor:pointer">저장</button>
+  </div>
+</div>`;
+  document.body.appendChild(el);
+}
+
+function saveRptCfg(){
+  var cfg={
+    A:{inspector:document.getElementById('aCfgInsp').value,confSub:document.getElementById('aCfgSub').value,confName:document.getElementById('aCfgName').value},
+    B:{inspector:document.getElementById('bCfgInsp').value,confSub:document.getElementById('bCfgSub').value,confName:document.getElementById('bCfgName').value}
+  };
+  localStorage.setItem('rptCfg',JSON.stringify(cfg));
+  document.getElementById('rptCfgOv').remove();
+  alert('\uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4.');
 }
 function showRegularHist(encodedKey){
   var key=decodeURIComponent(encodedKey);
