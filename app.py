@@ -443,119 +443,112 @@ function downloadRegularReport(){
 }
 
 function printRegularReports(){
-  var YSIGN="data:image/png;base64,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";
-  var MHSIGN='';
-    var A_GROUP=["\\uae08\\uc815\\uc544\\uc774\\uc232","\\uae08\\uc815\\uccb4\\uc721\\uacf5\\uc6d0","\\uae08\\uc815\\ub3c4\\uc11c\\uad00","\\uae30\\uc7a5\\uc5b4\\ub9b0\\uc774\\ub3c4\\uc11c\\uad00","\\uc548\\ub370\\ub974\\uc13c\\ub3d9\\ud654\\ub9c8\\uc744","\\ub300\\ub3d9\\uace8\\ubb38\\ud654\\uc13c\\ud130","\\uc560\\ub2c8\\ub791 \\ub4e4\\ub77d\\ub0a0\\ub77d","\\ucc9c\\ub9c8\\ub2c8\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\uc544\\ub3d9\\ubcf4\\ud638\\uc885\\ud569\\uc13c\\ud130","\\ud55c\\ud615\\uc11d\\uc790\\uc720\\uc544\\ub3d9\\uadf9\\uc7a5","\\ub3c4\\ubaa8\\ud5cc \\uc232\\uc18d\\uccb4\\ud5d8\\uad00","\\ub9dd\\ubbf8\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\ubd80\\uc0b0\\uc2dc\\uccad","\\uc5f0\\uc81c\\ub9cc\\ud654\\ub3c4\\uc11c\\uad00","\\ud480\\uc78e\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\ubd80\\uc0b0\\ubcf5\\ud569\\ud601\\uc2e0\\uc13c\\ud130","\\uadfc\\ud604\\ub300\\uc5ed\\uc0ac\\uad00","\\uc1a1\\uc815\\ub3d9 \\uc5b4\\ub9b0\\uc774\\uc791\\uc740\\ub3c4\\uc11c\\uad00","\\uc601\\ud654\\uc758\\uc804\\ub2f9","\\ubc18\\uc1a1\\uc885\\ud569\\uc0ac\\ud68c\\ubcf5\\uc9c0\\uad00"];
-  function isA(loc){return A_GROUP.indexOf(loc)>=0;}
-  var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
-  var aCfg=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
-  var bCfg=cfg.B||{inspector:'\uc774\ubbf8\ud604',confSub:'city',confName:'choi'};
-  function sc2(name,img){
-    var h='';
-    h+='<span style="position:relative;display:inline-block;min-width:100px">';
-    if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);height:68px;z-index:5"></span>';
-    h+=name+'&nbsp;&nbsp;&nbsp;(\uc11c\uba85)';
-    h+='</span>';
-    return h;
+  var YSIGN=window._YSIGN||'';
+  if(!YSIGN){
+    var sc=document.querySelector('script[src]');
+    var doc2=document.querySelector('.cm-content');
   }
-  function getInspectorHtml(grpCfg){
-    var isMH=(grpCfg.inspector||'').indexOf('\ubbf8\ud604')>=0||(grpCfg.inspector||'').indexOf('\uc774\ubbf8\ud604')>=0;
-    if(isMH)return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);
-    return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
-  }
-  function getConfSub(grpCfg,d,l){
-    return grpCfg.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';
-  }
-  function getConfName(grpCfg){
-    return grpCfg.confName==='sign'?'(\uc11c\uba85)':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';
-  }
+  // YSIGN은 printAllMaintReports 내부에 있으므로 여기서도 직접 참조할 수 없음
+  // 대신 window.__YSIGN, window.__MHSIGN 캐시 활용
   var mhUrl='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%9D%B4%EB%AF%B8%ED%98%84%EC%82%AC%EC%9D%B8.png';
-  if(!MHSIGN){
-    fetch(mhUrl).then(r=>r.blob()).then(function(b){
-      var reader=new FileReader();
-      reader.onload=function(e){MHSIGN=e.target.result;};
-      reader.readAsDataURL(b);
+  var ysUrl='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%9D%B4%EC%88%9C%EA%B7%9C%EC%82%AC%EC%9D%B8.png';
+  function _doRpt(YSIGN,MHSIGN){
+    var A_GROUP=["\uae08\uc815\uc544\uc774\uc232","\uae08\uc815\uccb4\uc721\uacf5\uc6d0","\uae08\uc815\ub3c4\uc11c\uad00","\uae30\uc7a5\uc5b4\ub9b0\uc774\ub3c4\uc11c\uad00","\uc548\ub370\ub974\uc13c\ub3d9\ud654\ub9c8\uc744","\ub300\ub3d9\uace8\ubb38\ud654\uc13c\ud130","\uc560\ub2c8\ub791 \ub4e4\ub77d\ub0a0\ub77d","\ucc9c\ub9c8\ub2c8\uc791\uc740\ub3c4\uc11c\uad00","\uc544\ub3d9\ubcf4\ud638\uc885\ud569\uc13c\ud130","\ud55c\ud615\uc11d\uc790\uc720\uc544\ub3d9\uadf9\uc7a5","\ub3c4\ubaa8\ud5cc \uc232\uc18d\uccb4\ud5d8\uad00","\ub9dd\ubbf8\uc791\uc740\ub3c4\uc11c\uad00","\ubd80\uc0b0\uc2dc\uccad","\uc5f0\uc81c\ub9cc\ud654\ub3c4\uc11c\uad00","\ud480\uc78e\uc791\uc740\ub3c4\uc11c\uad00","\ubd80\uc0b0\ubcf5\ud569\ud601\uc2e0\uc13c\ud130","\uadfc\ud604\ub300\uc5ed\uc0ac\uad00","\uc1a1\uc815\ub3d9 \uc5b4\ub9b0\uc774\uc791\uc740\ub3c4\uc11c\uad00","\uc601\ud654\uc758\uc804\ub2f9","\ubc18\uc1a1\uc885\ud569\uc0ac\ud68c\ubcf5\uc9c0\uad00"];
+    function isA(loc){return A_GROUP.indexOf(loc)>=0;}
+    var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
+    var aCfg=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
+    var bCfg=cfg.B||{inspector:'\uc774\ubbf8\ud604',confSub:'city',confName:'choi'};
+    function sc2(name,img){
+      var h='<span style="position:relative;display:inline-block;min-width:80px;text-align:center">';
+      if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);height:68px;z-index:5"></span>';
+      h+=name+'&nbsp;&nbsp;(\uc11c\uba85)</span>';
+      return h;
+    }
+    function getInspHtml(grpCfg){
+      var isMH=(grpCfg.inspector||'').indexOf('\ubbf8')>=0;
+      if(isMH)return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);
+      return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
+    }
+    function getConfSub(gc,d,l){return gc.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';}
+    function getConfName(gc){return gc.confName==='sign'?'(\uc11c\uba85)':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';}
+    Promise.all([
+      fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
+      fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
+    ]).then(function(results){
+      var data=results[0],metrics=results[1];
+      var mo=String(curMonth).padStart(2,'0');
+      var pages='';
+      var locs=[];
+      Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
+      locs.forEach(function(item){
+        var d=item.d,l=item.l;
+        var key=d+'|'+l;
+        var mt=metrics[key]||{cpu:'',mem:'',fs:''};
+        var recs=data[key]||[];
+        if(!recs.length&&!mt.cpu&&!mt.mem&&!mt.fs)return;
+        var cm={};
+        recs.forEach(function(r){if(!cm[r.item])cm[r.item]=r;});
+        var dy='';
+        Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
+        function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='\uc815\uc0c1')?r.content:'\uc815\uc0c1';}
+        var dpArr=dy?dy.split('-'):[];
+        var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
+        var grp=isA(l)?'A':'B';
+        var gc=grp==='A'?aCfg:bCfg;
+        var p='<div class="pg"><table class="main">';
+        p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
+        p+='<tr><td colspan="6" class="title">\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+mo+'\uc6d4)&nbsp; \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c</td></tr>';
+        p+='<tr><td colspan="6" class="loc">\ub4e4\ub77d\ub0a0\ub77d\uba85 : '+d+' '+l+'</td></tr>';
+        p+='<tr class="hdr"><td>\uc810\uac80 \ud56d\ubaa9</td><td colspan="2">\uc7a5\ube44\uba85</td><td>\uc218\ub7c9</td><td colspan="2">\uc810\uac80\ub0b4\uc6a9(\uacb0\uacfc)</td></tr>';
+        p+='<tr><td class="cat" rowspan="13">\ub514\uc9c0\ud138<br>\uc0ac\uc774\ub2c8\uc9c0</td><td rowspan="3">86\uc778\uce58 \ud328\ub110</td><td>\uc561\uc815</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('\ud328\ub110')+'</td></tr>';
+        p+='<tr><td>\ubc88\uc778</td><td class="qty">1</td></tr>';
+        p+='<tr><td>\ud130\uce58</td><td class="qty">1</td></tr>';
+        p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">Windows 11 pro</td></tr>';
+        p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 \uc0ac\uc6a9\ub960 : '+(mt.cpu||'')+'%</td></tr>';
+        p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">\uba54\ubaa8\ub9ac\uc6a9\ub7c9 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
+        p+='<tr><td>\ud30c\uc77c\uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td class="cont" colspan="2">\uc6a9\ub7c9 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
+        p+='<tr><td>\uc2dc\uc2a4\ud15c\ub85c\uadf8</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
+        p+='<tr><td>\uc545\uc131\ucf54\ub4dc</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
+        p+='<tr><td colspan="2">\uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uce74\uba54\ub77c')+'</td></tr>';
+        p+='<tr><td colspan="2">\ubaa8\uc158\uce90\uce98 \uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
+        p+='<tr><td colspan="2">\uc2a4\ud53c\ucee4</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc2a4\ud53c\ucee4')+'</td></tr>';
+        p+='<tr><td colspan="2">\ub9c8\uc774\ud06c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ub9c8\uc774\ud06c')+'</td></tr>';
+        p+='<tr><td class="cat" rowspan="2">\uccb4\ud5d8\ud615\ucf58\ud150\uce20</td><td colspan="2">\uad50\uc721, \uc601\uc0c1, \uac8c\uc784</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('\uae30\ud0c0')+'</td></tr>';
+        p+='<tr><td colspan="2">\ud654\uc0c1\ud1b5\ud654, AI\uc601\uc5b4\ud68c\ud654</td><td class="qty">1</td></tr>';
+        p+='<tr><td class="cat">\ud1b5\uc2e0\uad00\ub9ac</td><td colspan="2">\uc5f0\uacb0\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ud558\uc6b0\uc9d5')+'</td></tr>';
+        p+='<tr><td class="cat">\uc804\uc6d0\uad00\ub9ac</td><td colspan="2">\uacf5\uae09\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc804\uc6d0')+'</td></tr>';
+        p+='<tr><td class="cat">\uc548\uc804\uad00\ub9ac</td><td colspan="2">\ubd84\ub9ac/\ud0c8\ub77d \ub4f1 \uc548\uc804\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc678\uad00\ub370\ucf54')+'</td></tr>';
+        p+='<tr><td class="cat" rowspan="3">\ud1b5\ud569\uad00\ub9ac CMS</td><td colspan="2">CMS \uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">\uc815\uc0c1</td></tr>';
+        p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
+        p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
+        p+='<tr><td class="cat">\uc810\uac80\uc758\uacec</td><td colspan="5" class="opinion"></td></tr>';
+        p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
+        p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getInspHtml(gc)+'</td></tr>';
+        p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+getConfSub(gc,d,l)+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+getConfName(gc)+'</td></tr>';
+        p+='</table></div>';
+        pages+=p;
+      });
+      if(!pages){alert('\uc870\ud68c\ub41c \ub370\uc774\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4');return;}
+      var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:8.5pt}';
+      css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}.main{width:100%;border-collapse:collapse;table-layout:fixed}';
+      css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:38px}';
+      css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
+      css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}.qty{font-weight:bold}';
+      css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.cms{min-height:30px}.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
+      css+='.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7}';
+      var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
+      var win=window.open('','_blank','width=900,height=1100');
+      win.document.write(html);win.document.close();
+      setTimeout(function(){win.print();},800);
     });
   }
-  Promise.all([
-    fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
-    fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
-  ]).then(function(results){
-    var data=results[0],metrics=results[1];
-    var mo=String(curMonth).padStart(2,'0');
-    var pages='';
-    var locs=[];
-    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
-    locs.forEach(function(item){
-      var d=item.d,l=item.l;
-      var key=d+'|'+l;
-      var mt=metrics[key]||{cpu:'',mem:'',fs:''};
-      var recs=data[key]||[];
-      if(!recs.length&&!mt.cpu&&!mt.mem&&!mt.fs)return;
-      var cm={};
-      recs.forEach(function(r){if(!cm[r.item])cm[r.item]=r;});
-      var dy='';
-      Object.keys(cm).forEach(function(k){if(cm[k].created_at&&!dy)dy=cm[k].created_at.slice(0,10);});
-      function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='\uc815\uc0c1')?r.content:'\uc815\uc0c1';}
-      var dpArr=dy?dy.split('-'):[];
-      var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
-      var grp=isA(l)?'A':'B';
-      var grpCfg=grp==='A'?aCfg:bCfg;
-      var inspHtml=getInspectorHtml(grpCfg);
-      var confSub=getConfSub(grpCfg,d,l);
-      var confName=getConfName(grpCfg);
-      var p='<div class="pg"><table class="main">';
-      p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
-      p+='<tr><td colspan="6" class="title">\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+mo+'\uc6d4)&nbsp; \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c</td></tr>';
-      p+='<tr><td colspan="6" class="loc">\ub4e4\ub77d\ub0a0\ub77d\uba85 : '+d+' '+l+'</td></tr>';
-      p+='<tr class="hdr"><td>\uc810\uac80 \ud56d\ubaa9</td><td colspan="2">\uc7a5\ube44\uba85</td><td>\uc218\ub7c9</td><td colspan="2">\uc810\uac80\ub0b4\uc6a9(\uacb0\uacfc)</td></tr>';
-      p+='<tr><td class="cat" rowspan="13">\ub514\uc9c0\ud138<br>\uc0ac\uc774\ub2c8\uc9c0</td><td rowspan="3">86\uc778\uce58 \ud328\ub110</td><td>\uc561\uc815</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('\ud328\ub110')+'</td></tr>';
-      p+='<tr><td>\ubc88\uc778</td><td class="qty">1</td></tr>';
-      p+='<tr><td>\ud130\uce58</td><td class="qty">1</td></tr>';
-      p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">Windows 11 pro</td></tr>';
-      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 \uc0ac\uc6a9\ub960 : '+(mt.cpu||'')+'%</td></tr>';
-      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">\uba54\ubaa8\ub9ac\uc6a9\ub7c9 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
-      p+='<tr><td>\ud30c\uc77c\uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td class="cont" colspan="2">\uc6a9\ub7c9 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
-      p+='<tr><td>\uc2dc\uc2a4\ud15c\ub85c\uadf8</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
-      p+='<tr><td>\uc545\uc131\ucf54\ub4dc</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
-      p+='<tr><td colspan="2">\uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uce74\uba54\ub77c')+'</td></tr>';
-      p+='<tr><td colspan="2">\ubaa8\uc158\uce90\uce98 \uce74\uba54\ub77c</td><td class="qty">1</td><td class="cont" colspan="2">\uc815\uc0c1</td></tr>';
-      p+='<tr><td colspan="2">\uc2a4\ud53c\ucee4</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc2a4\ud53c\ucee4')+'</td></tr>';
-      p+='<tr><td colspan="2">\ub9c8\uc774\ud06c</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ub9c8\uc774\ud06c')+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">\uccb4\ud5d8\ud615\ucf58\ud150\uce20</td><td colspan="2">\uad50\uc721, \uc601\uc0c1, \uac8c\uc784</td><td class="qty">1</td><td rowspan="2" class="cont" colspan="2">'+cv('\uae30\ud0c0')+'</td></tr>';
-      p+='<tr><td colspan="2">\ud654\uc0c1\ud1b5\ud654, AI\uc601\uc5b4\ud68c\ud654</td><td class="qty">1</td></tr>';
-      p+='<tr><td class="cat">\ud1b5\uc2e0\uad00\ub9ac</td><td colspan="2">\uc5f0\uacb0\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\ud558\uc6b0\uc9d5')+'</td></tr>';
-      p+='<tr><td class="cat">\uc804\uc6d0\uad00\ub9ac</td><td colspan="2">\uacf5\uae09\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc804\uc6d0')+'</td></tr>';
-      p+='<tr><td class="cat">\uc548\uc804\uad00\ub9ac</td><td colspan="2">\ubd84\ub9ac/\ud0c8\ub77d \ub4f1 \uc548\uc804\uc0c1\ud0dc</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('\uc678\uad00\ub370\ucf54')+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="3">\ud1b5\ud569\uad00\ub9ac CMS</td><td colspan="2">CMS \uc2dc\uc2a4\ud15c</td><td class="qty">1</td><td rowspan="3" class="cont cms" colspan="2">\uc815\uc0c1</td></tr>';
-      p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
-      p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
-      p+='<tr><td class="cat">\uc810\uac80\uc758\uacec</td><td colspan="5" class="opinion"></td></tr>';
-      p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
-      p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
-      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" class="sign" style="text-align:center;overflow:visible;position:relative">'+inspHtml+'</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+confSub+'</td></tr>';
-      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+confName+'</td></tr>';
-      p+='</table></div>';
-      pages+=p;
-    });
-    if(!pages){alert('\uc870\ud68c\ub41c \ub370\uc774\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4');return;}
-    var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}';
-    css+='body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:8.5pt}';
-    css+='.pg{width:210mm;padding:3mm 5mm;page-break-after:always}.main{width:100%;border-collapse:collapse;table-layout:fixed}';
-    css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:2px 3px;word-break:keep-all;height:38px}';
-    css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:8px 4px;border:none;background:#e0e0e0;height:auto}';
-    css+='.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
-    css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}.qty{font-weight:bold}';
-    css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.cms{min-height:30px}.opinion{min-height:40px;text-align:left;vertical-align:top;padding:3px}';
-    css+='.sign{text-align:left;padding:3px 6px;vertical-align:middle;overflow:visible;position:relative}.date{text-align:center;vertical-align:middle;font-size:9.5pt;background:#f7f7f7}';
-    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
-    var win=window.open('','_blank','width=900,height=1100');
-    win.document.write(html);win.document.close();
-    setTimeout(function(){win.print();},800);
-  });
+  // YSIGN/MHSIGN 캐시 로드
+  var p1=window.__YSIGN?Promise.resolve(window.__YSIGN):fetch(ysUrl).then(r=>r.blob()).then(function(b){return new Promise(function(res){var rd=new FileReader();rd.onload=function(e){window.__YSIGN=e.target.result;res(e.target.result);};rd.readAsDataURL(b);});});
+  var p2=window.__MHSIGN?Promise.resolve(window.__MHSIGN):fetch(mhUrl).then(r=>r.blob()).then(function(b){return new Promise(function(res){var rd=new FileReader();rd.onload=function(e){window.__MHSIGN=e.target.result;res(e.target.result);};rd.readAsDataURL(b);});});
+  Promise.all([p1,p2]).then(function(signs){_doRpt(signs[0],signs[1]);});
 }
-
 function showRptSettings(){
   var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
   var a=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
