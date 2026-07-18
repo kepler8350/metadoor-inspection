@@ -453,14 +453,15 @@ function printRegularReports(){
   function sc2(name,img){
     var h='';
     h+='<span style="position:relative;display:inline-block;min-width:100px">';
-    if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-45px;left:50%;transform:translateX(-50%);height:136px;z-index:5"></span>';
+    if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);height:68px;z-index:5"></span>';
     h+=name+'&nbsp;&nbsp;&nbsp;(\uc11c\uba85)';
     h+='</span>';
     return h;
   }
   function getInspectorHtml(grpCfg){
-    if(grpCfg.inspector==='\uc774\uc21c\uaddc')return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
-    return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);
+    var isMH=(grpCfg.inspector||'').indexOf('\ubbf8\ud604')>=0||(grpCfg.inspector||'').indexOf('\uc774\ubbf8\ud604')>=0;
+    if(isMH)return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);
+    return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
   }
   function getConfSub(grpCfg,d,l){
     return grpCfg.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';
@@ -524,7 +525,7 @@ function printRegularReports(){
       p+='<tr><td class="cat">\uc810\uac80\uc758\uacec</td><td colspan="5" class="opinion"></td></tr>';
       p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
       p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
-      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" class="sign" style="text-align:left;padding-left:8px;overflow:visible;position:relative">'+inspHtml+'</td></tr>';
+      p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" class="sign" style="text-align:center;overflow:visible;position:relative">'+inspHtml+'</td></tr>';
       p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+confSub+'</td></tr>';
       p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+confName+'</td></tr>';
       p+='</table></div>';
