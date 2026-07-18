@@ -475,12 +475,12 @@ function printRegularReports(){
       p+='<tr><td class="cat" rowspan="13">디지털<br>사이니지</td><td rowspan="3">86인치 패널</td><td>액정</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('패널')+'</td></tr>';
       p+='<tr><td>번인</td><td class="qty">1</td></tr>';
       p+='<tr><td>터치</td><td class="qty">1</td></tr>';
-      p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">'+(cv('보드')||cv('PC'))+'</td></tr>';
-      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.cpu?mt.cpu+'%':'')+'</td></tr>';
-      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.mem?mt.mem+'%':'')+'</td></tr>';
-      p+='<tr><td>파일시스템</td><td class="qty">1</td><td class="cont" colspan="2">'+(mt.fs?mt.fs+'%':'')+'</td></tr>';
+      p+='<tr><td rowspan="6">PC</td><td>OS</td><td class="qty">1</td><td class="cont" colspan="2">Windows 11 pro</td></tr>';
+      p+='<tr><td>CPU</td><td class="qty">1</td><td class="cont" colspan="2">AMD 5600 \uc0ac\uc6a9\ub960 : '+(mt.cpu||'')+'%</td></tr>';
+      p+='<tr><td>MEM</td><td class="qty">1</td><td class="cont" colspan="2">\uba54\ubaa8\ub9ac\uc6a9\ub7c9 : 16Gb / '+(mt.mem||'')+'%</td></tr>';
+      p+='<tr><td>파일시스템</td><td class="qty">1</td><td class="cont" colspan="2">용량 : 1Tb / '+(mt.fs||'')+'Gb</td></tr>';
       p+='<tr><td>시스템로그</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
-      p+='<tr><td>악성코드</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
+      p+='<tr><td>악성코드</td><td class="qty">1</td><td class="cont" colspan="2">V3 ver.9.0</td></tr>';
       p+='<tr><td colspan="2">카메라</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('카메라')+'</td></tr>';
       p+='<tr><td colspan="2">모션캐캘 카메라</td><td class="qty">1</td><td class="cont" colspan="2"></td></tr>';
       p+='<tr><td colspan="2">스피커</td><td class="qty">1</td><td class="cont" colspan="2">'+cv('스피커')+'</td></tr>';
