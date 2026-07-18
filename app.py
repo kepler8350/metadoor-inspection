@@ -344,7 +344,7 @@ function printAllMaintReports(){
     pages+='<tr><td colspan="2">장비 운영현황</td><td class="qty">1</td></tr>';
     pages+='<tr><td colspan="2">콘텐츠 운영현황</td><td class="qty">1</td></tr>';
     // 점검의견
-    pages+='<tr><td class="cat">점검의곬</td><td colspan="5" class="opinion"></td></tr>';
+    pages+='<tr><td class="cat">점검의견</td><td colspan="5" class="opinion"></td></tr>';
     // 점검자/확인자 - col5(점검내용)과 col6(점검일자) 분리
     pages+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td><td rowspan="4" class="date">점검일자<br><br>'+yr+'.&nbsp;'+m2+'.&nbsp;'+dy+'.</td></tr>';
     pages+='<tr><td class="sub">이름</td><td colspan="3" class="sign">'+sc('이&nbsp;순&nbsp;규',YSIGN,136,-35)+'</td></tr>';
@@ -460,7 +460,7 @@ function printRegularReports(){
     var bCfg=cfg.B||{inspector:'\uc774\ubbf8\ud604',confSub:'city',confName:'choi'};
     function sc2(name,img){
       var h='<span style="position:relative;display:inline-block;min-width:80px;text-align:center">';
-      if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);height:68px;z-index:5"></span>';
+      if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(calc(-50% + 6em));height:68px;z-index:5"></span>';
       h+=name+'&nbsp;&nbsp;(\uc11c\uba85)</span>';
       return h;
     }
@@ -470,7 +470,7 @@ function printRegularReports(){
       return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
     }
     function getConfSub(gc,d,l){return gc.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';}
-    function getConfName(gc){return gc.confName==='sign'?'(\uc11c\uba85)':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';}
+    function getConfName(gc){return gc.confName==='sign'?'<span style="padding-left:4em">(\uc11c\uba85)</span>':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';}
     Promise.all([
       fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
       fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
