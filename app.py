@@ -497,7 +497,7 @@ function printRegularReports(){
         var gc=grp==='A'?aCfg:bCfg;
         var p='<div class="pg"><table class="main">';
         p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
-        p+='<tr><td colspan="6" class="title">\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+mo+'\uc6d4)&nbsp; \uc810\uac80\uc870\uce58\ubcf4\uace0\uc11c</td></tr>';
+        p+='<tr><td colspan="6" class="title">\ub514\uc9c0\ud138 \uc0ac\uc774\ub2c8\uc9c0 \uc720\uc9c0\uad00\ub9ac ( '+mo+'\uc6d4)&nbsp; \uc815\uae30\uc810\uac80\ubcf4\uace0\uc11c</td></tr>';
         p+='<tr><td colspan="6" class="loc">\ub4e4\ub77d\ub0a0\ub77d\uba85 : '+d+' '+l+'</td></tr>';
         p+='<tr class="hdr"><td>\uc810\uac80 \ud56d\ubaa9</td><td colspan="2">\uc7a5\ube44\uba85</td><td>\uc218\ub7c9</td><td colspan="2">\uc810\uac80\ub0b4\uc6a9(\uacb0\uacfc)</td></tr>';
         p+='<tr><td class="cat" rowspan="13">\ub514\uc9c0\ud138<br>\uc0ac\uc774\ub2c8\uc9c0</td><td rowspan="3">86\uc778\uce58 \ud328\ub110</td><td>\uc561\uc815</td><td class="qty">1</td><td rowspan="3" class="cont" colspan="2">'+cv('\ud328\ub110')+'</td></tr>';
