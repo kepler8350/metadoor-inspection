@@ -188,7 +188,7 @@ def admin_dash():
     H.append(f'<select id="sel-year" onchange="loadData()"></select>')
     H.append(f'<select id="sel-month" onchange="loadData()"></select>')
     H.append('<button onclick="loadData()">조회</button>')
-    H.append('<button id="btn-maint-report" onclick="printReport()" style="background:#27ae60;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-left:8px;display:none">리포트 출력</button>')
+    H.append('<button id="btn-maint-report" onclick="printAllMaintReports()" style="background:#27ae60;color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;margin-left:8px;display:none">리포트 출력</button>')
     H.append('</div>')
     H.append('</div>')
     H.append('<div class="content" id="content"></div>')
@@ -229,7 +229,7 @@ function loadData(){
   else if(curMenu==='report')loadReport();
   else loadMembers();
 }
-function loadMaintenance(){window._curMenu='maintenance';
+function loadMaintenance(){
   window._mData={};
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
@@ -280,82 +280,7 @@ function loadMaintenance(){window._curMenu='maintenance';
 
 
 
-function printReport(){
-  var menu=window._curMenu||'maintenance';
-  if(menu==='remote')printRemoteReports();
-  else printAllMaintReports();
-}
 
-function printRemoteReports(){
-  var yr=curYear,mo=String(curMonth).padStart(2,'0');
-  fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
-    // 위치별 항목 데이터 정리
-    var locData={};
-    Object.keys(data).forEach(function(k){
-      var pts=k.split('|');if(pts.length<3)return;
-      var lk=pts[0]+'|'+pts[1];
-      var itemKey=pts.slice(2).join('|'); // 예: 체험형콘텐츠>소프트웨어
-      if(!locData[lk])locData[lk]={};
-      var recs=data[k]||[];
-      if(recs.length>0)locData[lk][itemKey]=recs[recs.length-1];
-    });
-    var pages='';
-    var locs=[];
-    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
-    locs.forEach(function(item){
-      var d=item.d,l=item.l;
-      var lk=d+'|'+l;
-      var idata=locData[lk]||{};
-      if(Object.keys(idata).length===0)return;
-      // 이상 항목 + 정상 항목 분리
-      var abnItems=[],normItems=[];
-      Object.keys(idata).forEach(function(ik){
-        var rec=idata[ik];
-        if(rec.status==='이상')abnItems.push({key:ik,rec:rec});
-        else normItems.push({key:ik,rec:rec});
-      });
-      var dy='';
-      Object.keys(idata).forEach(function(k){if(idata[k]&&idata[k].check_date&&!dy)dy=idata[k].check_date.slice(0,16).replace('T',' ');});
-      var p='<div class="pg"><table class="main">';
-      p+='<colgroup><col style="width:35%"><col style="width:10%"><col style="width:40%"><col style="width:15%"></colgroup>';
-      p+='<tr><td colspan="4" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 원격점검보고서</td></tr>';
-      p+='<tr><td colspan="4" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
-      p+='<tr class="hdr"><td>점검항목</td><td>점검결과</td><td>조치내용</td><td>점검일시</td></tr>';
-      // 이상 항목 먼저 표시
-      abnItems.forEach(function(it){
-        var label=it.key.replace(/>/g,' > ');
-        var note=it.rec.note||'';
-        var ts=(it.rec.check_date||it.rec.created_at||'').slice(0,16).replace('T',' ');
-        p+='<tr><td>'+label+'</td><td style="text-align:center;color:#e74c3c;font-weight:bold">이상</td><td class="cont">'+note+'</td><td style="text-align:center;font-size:8pt">'+ts+'</td></tr>';
-      });
-      // 정상 항목
-      normItems.forEach(function(it){
-        var label=it.key.replace(/>/g,' > ');
-        var ts=(it.rec.check_date||it.rec.created_at||'').slice(0,16).replace('T',' ');
-        p+='<tr><td>'+label+'</td><td style="text-align:center;color:#27ae60">정상</td><td class="cont"></td><td style="text-align:center;font-size:8pt">'+ts+'</td></tr>';
-      });
-      p+='<tr><td class="cat">점검의곬</td><td colspan="3" class="opinion"></td></tr>';
-      p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td></tr>';
-      var inspector=(abnItems[0]&&abnItems[0].rec.inspector)||(normItems[0]&&normItems[0].rec.inspector)||'원격점검담당자';
-      p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">'+inspector+' (서명)</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">'+d+' '+l+'</td></tr>';
-      p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">(서명)</td></tr>';
-      p+='</table></div>';
-      pages+=p;
-    });
-    if(!pages){alert('조회된 원격점검 데이터가 없습니다');return;}
-    var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:9pt}';
-    css+='.pg{width:210mm;padding:5mm 8mm;page-break-after:always}.main{width:100%;border-collapse:collapse}';
-    css+='.main td,.main th{border:1px solid #000;vertical-align:middle;text-align:center;padding:4px 6px;word-break:keep-all;height:34px}';
-    css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:10px 4px;border:none;background:#e0e0e0;height:auto}.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
-    css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}';
-    css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.opinion{min-height:50px;text-align:left;vertical-align:top;padding:4px}';
-    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
-    var win=window.open('','_blank','width=900,height=1100');
-    win.document.write(html);win.document.close();
-    setTimeout(function(){win.print();},800);
-  });
-}
 function printAllMaintReports(){
   var YSIGN="data:image/png;base64,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";
   var mo=String(curMonth).padStart(2,'0'),yr=curYear;
@@ -1096,7 +1021,7 @@ function openPhotoPopup(src){
   document.body.appendChild(overlay);
 }
 
-function loadRemote(){window._curMenu='remote';
+function loadRemote(){
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
     window._rData={};window._remoteData=data;
@@ -1245,115 +1170,6 @@ function saveRemote(d,l,it){
     check_date:document.getElementById('rc-date').value};
   fetch('/api/remote/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
   .then(r=>r.json()).then(()=>{closeModal('remote-modal');loadRemote();});
-}
-function printReport(){
-  var yr=curYear||new Date().getFullYear();
-  var mo=curMonth||new Date().getMonth()+1;
-  var mnt=window._reportData||{total:0,locs:0};
-  var rmt=window._reportRemote||{total:0,abnCount:0,abnormals:[]};
-  var A4='width:794px;min-height:1123px;background:#fff;margin:20px auto;box-shadow:0 4px 20px rgba(0,0,0,0.3);page-break-after:always;position:relative;';
-  var abRows='';
-  (rmt.abnormals||[]).forEach(function(a){
-    abRows+='<tr style="border-bottom:1px solid #eee">';
-    abRows+='<td style="padding:5px 3px;font-size:10px;text-align:center;word-break:break-all">'+((a.check_date||'').slice(0,10))+'</td>';
-    abRows+='<td style="padding:5px 4px;font-size:11px;word-break:break-all">'+a.d+' '+a.l+'</td>';
-    abRows+='<td style="padding:5px 4px;font-size:11px;word-break:break-all">'+a.it+'</td>';
-    abRows+='<td style="padding:5px 3px;font-size:10px;word-break:break-all;white-space:normal">'+(a.note||'-')+'</td>';
-    abRows+='</tr>';
-  });
-  if(!abRows) abRows='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">조치 없음</td></tr>';
-  var maintRows='';
-  var maintRecs=[];
-  if(window._maintData){Object.entries(window._maintData).forEach(function(e2){var k=e2[0],arr=e2[1];var p=k.split('|');arr.forEach(function(r){maintRecs.push({created_at:r.created_at,district:p[0],location:p[1],item:p[2],content:r.content});});});}
-  maintRecs.sort(function(a,b){return (b.created_at||'').localeCompare(a.created_at||'');});
-  var regRecs=[];
-  if(window._regularData){Object.entries(window._regularData).forEach(function(e3){var k=e3[0],arr=e3[1];var p=k.split('|');arr.forEach(function(r){regRecs.push({created_at:r.created_at,district:p[0],location:p[1],manager:r.manager||r.inspector,signature:r.signature,images:r.images});});});}
-  regRecs.sort(function(a,b){return (b.created_at||'').localeCompare(a.created_at||'');});
-  var regRows='';
-  regRecs.forEach(function(r){
-    regRows+='<tr style="border-bottom:1px solid #eee">';
-    regRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
-    regRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
-    regRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+(r.manager||r.inspector||'-')+'</td>';
-    regRows+='<td style="padding:6px 8px;text-align:center">'+(r.signature?'<img src="'+r.signature+'" style="max-height:40px;max-width:100px">':'-')+'</td>';
-    regRows+='</tr>';
-  });
-  if(!regRows)regRows='<tr><td colspan="4" style="text-align:center;padding:20px;color:#999">점검 데이터 없음</td></tr>';
-
-  maintRecs.slice(0,20).forEach(function(r){
-    maintRows+='<tr style="border-bottom:1px solid #eee">';
-    maintRows+='<td style="padding:6px 8px;font-size:11px;text-align:center">'+((r.created_at||'').slice(0,10))+'</td>';
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.district||'')+' '+(r.location||'')+'</td>';
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.item||'-')+'</td>';
-
-    maintRows+='<td style="padding:6px 8px;font-size:11px">'+(r.content||'-').slice(0,30)+'</td>';
-    maintRows+='</tr>';
-  });
-  var pop=document.getElementById('print-preview-pop');
-  if(!pop){pop=document.createElement('div');pop.id='print-preview-pop';pop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom:40px';document.body.appendChild(pop);}
-  var moStr=String(mo).padStart(2,'0');
-  var imgUrl='https://raw.githubusercontent.com/kepler8350/metadoor-inspection/main/%EC%A0%90%EA%B2%80%EB%B3%B4%EA%B3%A0%EC%84%9C001.jpg';
-  pop.innerHTML=
-    '<div id="pp-toolbar" style="position:sticky;top:0;z-index:1;background:rgba(15,30,50,0.95);width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;box-sizing:border-box;box-shadow:0 2px 10px rgba(0,0,0,0.5)">'+
-    '<span style="color:#fff;font-size:14px;font-weight:700">보고서 미리보기  '+yr+'년 '+mo+'월</span>'+
-    '<div style="display:flex;gap:10px">'+
-    '<button id="pp-pdf-btn" style="background:#1a5276;color:#fff;border:none;border-radius:6px;padding:9px 20px;cursor:pointer;font-size:13px;font-weight:700">PDF 저장</button>'+
-    '<button id="pp-close-btn" style="background:#555;color:#fff;border:none;border-radius:6px;padding:9px 16px;cursor:pointer;font-size:13px">x 닫기</button>'+
-    '</div></div>'+
-    '<div id="pp-pages">'+
-    '<div style="'+A4+'overflow:hidden">'+
-    '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover">'+
-    '<div style="position:absolute;top:14.5%;left:57%;transform:translateX(-50%);font-size:18px;font-weight:900;color:#000">'+mo+'</div>'+
-    '</div>'+
-    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
-    '<div style="border-bottom:3px solid #1a5276;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#1a5276;margin:0 0 6px">MetaDoor 유지보수 점검 보고서</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 부산광역시 메타도어 점검 현황</p></div>'+
-    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:14px">종합 현황</h2>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin-bottom:28px">'+
-    '<div style="background:#f0f8ff;border:1px solid #cde;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#1a5276">'+(mnt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">유지보수 점검</div></div>'+
-    '<div style="background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#27ae60">'+(mnt.locs||0)+'<span style="font-size:12px">곳</span></div><div style="font-size:11px;color:#555;margin-top:3px">점검 위치</div></div>'+
-    '<div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e67e22">'+(rmt.total||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격점검</div></div>'+
-    '<div style="background:#fff0f0;border:1px solid #f5c0c0;border-radius:8px;padding:14px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">'+(rmt.abnCount||0)+'<span style="font-size:12px">건</span></div><div style="font-size:11px;color:#555;margin-top:3px">원격 이상</div></div>'+
-    '</div>'+
-    '<h2 style="font-size:15px;color:#1a5276;border-left:4px solid #1a5276;padding-left:10px;margin-bottom:12px">방문점검 이력 (총 '+maintRecs.length+'건)</h2>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:8px">점검일</th><th style="padding:8px">설치위치</th><th style="padding:8px">대분류</th><th style="padding:8px">조치내용</th></tr></thead>'+
-    '<tbody>'+maintRows+'</tbody></table>'+
-    '</div>'+
-    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
-    '<div style="border-bottom:3px solid #e74c3c;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#e74c3c;margin:0 0 6px">원격점검 조치 현황</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 이상 발생 항목 상세</p></div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed">'+
-    '<thead><tr style="background:#1a5276;color:#fff"><th style="padding:6px 4px;width:13%;word-break:break-all">점검일</th><th style="padding:6px 4px;width:20%;word-break:break-all">설치위치</th><th style="padding:6px 4px;width:20%;word-break:break-all">대분류</th><th style="padding:6px 4px;width:47%">조치내용</th></tr></thead>'+    '<tbody>'+abRows+'</tbody></table>'+
-    '<div style="position:absolute;bottom:40px;right:50px;text-align:right;font-size:11px;color:#bbb">MetaDoor 점검 시스템 | '+yr+'.'+moStr+'</div>'+
-    '</div>'+
-    '<div style="'+A4+'padding:60px 50px;box-sizing:border-box;font-family:sans-serif">'+
-    '<div style="border-bottom:3px solid #27ae60;padding-bottom:12px;margin-bottom:28px">'+
-    '<h1 style="font-size:24px;color:#27ae60;margin:0 0 6px">정기점검 현황</h1>'+
-    '<p style="color:#666;font-size:13px;margin:0">'+yr+'년 '+mo+'월 | 정기방문점검 현황</p></div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-    '<thead><tr style="background:#27ae60;color:#fff">'+
-    '<th style="padding:8px;text-align:center;width:15%">점검일</th>'+
-    '<th style="padding:8px;text-align:center;width:35%">설치위치</th>'+
-    '<th style="padding:8px;text-align:center;width:20%">담당자</th>'+
-    '<th style="padding:8px;text-align:center;width:30%">서명</th></tr></thead>'+
-    '<tbody>'+regRows+'</tbody></table>'+
-    '</div>'+
-    '</div>';
-  pop.style.display='flex';
-  document.getElementById('pp-close-btn').addEventListener('click',function(){pop.style.display='none';});
-  document.getElementById('pp-pdf-btn').addEventListener('click',function(){var sb=document.querySelector('.sidebar');if(sb)sb.style.display='none';
-    var toolbar=document.getElementById('pp-toolbar');
-    toolbar.style.display='none';
-    pop.style.background='white';
-    pop.style.overflow='visible';
-    pop.style.position='static';
-    document.body.style.overflow='visible';
-    window.print();
-    setTimeout(function(){toolbar.style.display='flex';pop.style.background='rgba(0,0,0,0.8)';pop.style.overflow='auto';pop.style.position='fixed';document.body.style.overflow='';},1000);
-  });
 }
 
 function loadReport(){
