@@ -229,7 +229,7 @@ function loadData(){
   else if(curMenu==='report')loadReport();
   else loadMembers();
 }
-function loadMaintenance(){
+function loadMaintenance(){window._curMenu='maintenance';
   window._mData={};
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
@@ -281,7 +281,7 @@ function loadMaintenance(){
 
 
 function printReport(){
-  var menu=new URLSearchParams(location.search).get('menu')||'maintenance';
+  var menu=window._curMenu||'maintenance';
   if(menu==='remote')printRemoteReports();
   else printAllMaintReports();
 }
@@ -1085,7 +1085,7 @@ function openPhotoPopup(src){
   document.body.appendChild(overlay);
 }
 
-function loadRemote(){
+function loadRemote(){window._curMenu='remote';
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
     window._rData={};window._remoteData=data;
