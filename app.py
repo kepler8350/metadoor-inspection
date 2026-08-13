@@ -316,7 +316,7 @@ function printRemoteReports(){
         function sc2(img){
           var h='이&nbsp;&nbsp;미&nbsp;&nbsp;현&nbsp;&nbsp;';
           h+='<span style="position:relative;display:inline-block;min-width:60px">';
-          if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-15px;left:50%;transform:translateX(calc(-50% + 5em));height:68px;z-index:5"></span>';
+          if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-20px;left:50%;transform:translateX(calc(-50% + 5em - 10px));height:68px;z-index:5"></span>';
           h+='(서명)</span>';
           return h;
         }
