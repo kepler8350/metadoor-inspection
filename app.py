@@ -229,7 +229,9 @@ function loadData(){
   else if(curMenu==='report')loadReport();
   else loadMembers();
 }
-function loadMaintenance(){var _rb=document.getElementById('btn-maint-report');if(_rb){_rb.setAttribute('onclick','printAllMaintReports()');_rb.textContent='📋 리포트 출력';};
+function loadMaintenance(){
+  var _b=document.getElementById('btn-maint-report');
+  if(_b){_b.onclick=function(){printAllMaintReports();};_b.textContent='📋 리포트 출력';}
   window._mData={};
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
@@ -295,10 +297,10 @@ function printRemoteReports(){
     });
     var pages='';
     var locs=[];
-    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
+    Object.keys(LOCS).forEach(function(d2){LOCS[d2].forEach(function(l){locs.push({d:d2,l:l});});});
     locs.forEach(function(item){
-      var d=item.d,l=item.l;
-      var lk=d+'|'+l;
+      var d2=item.d,l=item.l;
+      var lk=d2+'|'+l;
       var idata=locData[lk]||{};
       if(Object.keys(idata).length===0)return;
       var abnItems=[],normItems=[];
@@ -311,7 +313,7 @@ function printRemoteReports(){
       var p='<div class="pg"><table class="main">';
       p+='<colgroup><col style="width:35%"><col style="width:10%"><col style="width:40%"><col style="width:15%"></colgroup>';
       p+='<tr><td colspan="4" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 원격점검보고서</td></tr>';
-      p+='<tr><td colspan="4" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
+      p+='<tr><td colspan="4" class="loc">들락날락명 : '+d2+' '+l+'</td></tr>';
       p+='<tr class="hdr"><td>점검항목</td><td>결과</td><td>조치내용</td><td>점검일시</td></tr>';
       abnItems.forEach(function(it){
         var label=it.key.replace(/>/g,' > ');
@@ -327,7 +329,7 @@ function printRemoteReports(){
       p+='<tr><td class="cat">점검의곬</td><td colspan="3" class="opinion"></td></tr>';
       p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td></tr>';
       p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">'+inspector+' (서명)</td></tr>';
-      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">'+d+' '+l+'</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">'+d2+' '+l+'</td></tr>';
       p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">(서명)</td></tr>';
       p+='</table></div>';
       pages+=p;
@@ -1086,7 +1088,9 @@ function openPhotoPopup(src){
   document.body.appendChild(overlay);
 }
 
-function loadRemote(){var _rb=document.getElementById('btn-maint-report');if(_rb){_rb.setAttribute('onclick','printRemoteReports()');_rb.textContent='📊 원격점검 리포트';};
+function loadRemote(){
+  var _b=document.getElementById('btn-maint-report');
+  if(_b){_b.onclick=function(){printRemoteReports();};_b.textContent='📊 원격점검 리포트';}
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
     window._rData={};window._remoteData=data;
