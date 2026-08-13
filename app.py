@@ -229,7 +229,7 @@ function loadData(){
   else if(curMenu==='report')loadReport();
   else loadMembers();
 }
-function loadMaintenance(){
+function loadMaintenance(){var _rb=document.getElementById('btn-maint-report');if(_rb){_rb.setAttribute('onclick','printAllMaintReports()');_rb.textContent='📋 리포트 출력';};
   window._mData={};
   fetch(`/api/maintenance?year=${curYear}&month=${curMonth}`)
   .then(r=>r.json()).then(data=>{
@@ -280,6 +280,71 @@ function loadMaintenance(){
 
 
 
+
+function printRemoteReports(){
+  var yr=curYear,mo=String(curMonth).padStart(2,'0');
+  fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
+    var locData={};
+    Object.keys(data).forEach(function(k){
+      var pts=k.split('|');if(pts.length<3)return;
+      var lk=pts[0]+'|'+pts[1];
+      var itemKey=pts.slice(2).join('|');
+      if(!locData[lk])locData[lk]={};
+      var recs=data[k]||[];
+      if(recs.length>0)locData[lk][itemKey]=recs[recs.length-1];
+    });
+    var pages='';
+    var locs=[];
+    Object.keys(LOCS).forEach(function(d){LOCS[d].forEach(function(l){locs.push({d:d,l:l});});});
+    locs.forEach(function(item){
+      var d=item.d,l=item.l;
+      var lk=d+'|'+l;
+      var idata=locData[lk]||{};
+      if(Object.keys(idata).length===0)return;
+      var abnItems=[],normItems=[];
+      Object.keys(idata).forEach(function(ik){
+        var rec=idata[ik];
+        if(rec.status==='이상')abnItems.push({key:ik,rec:rec});
+        else normItems.push({key:ik,rec:rec});
+      });
+      var inspector=(abnItems[0]&&abnItems[0].rec.inspector)||(normItems[0]&&normItems[0].rec.inspector)||'원격점검담당자';
+      var p='<div class="pg"><table class="main">';
+      p+='<colgroup><col style="width:35%"><col style="width:10%"><col style="width:40%"><col style="width:15%"></colgroup>';
+      p+='<tr><td colspan="4" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 원격점검보고서</td></tr>';
+      p+='<tr><td colspan="4" class="loc">들락날락명 : '+d+' '+l+'</td></tr>';
+      p+='<tr class="hdr"><td>점검항목</td><td>결과</td><td>조치내용</td><td>점검일시</td></tr>';
+      abnItems.forEach(function(it){
+        var label=it.key.replace(/>/g,' > ');
+        var note=it.rec.note||'';
+        var ts=(it.rec.check_date||it.rec.created_at||'').slice(0,16).replace('T',' ');
+        p+='<tr><td>'+label+'</td><td style="text-align:center;color:#e74c3c;font-weight:bold">이상</td><td class="cont">'+note+'</td><td style="text-align:center;font-size:8pt">'+ts+'</td></tr>';
+      });
+      normItems.forEach(function(it){
+        var label=it.key.replace(/>/g,' > ');
+        var ts=(it.rec.check_date||it.rec.created_at||'').slice(0,16).replace('T',' ');
+        p+='<tr><td>'+label+'</td><td style="text-align:center;color:#27ae60">정상</td><td class="cont"></td><td style="text-align:center;font-size:8pt">'+ts+'</td></tr>';
+      });
+      p+='<tr><td class="cat">점검의곬</td><td colspan="3" class="opinion"></td></tr>';
+      p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">주식회사 프라임텍</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">'+inspector+' (서명)</td></tr>';
+      p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="2" style="text-align:center">'+d+' '+l+'</td></tr>';
+      p+='<tr><td class="sub">이름</td><td colspan="2" style="text-align:center">(서명)</td></tr>';
+      p+='</table></div>';
+      pages+=p;
+    });
+    if(!pages){alert('조회된 원격점검 데이터가 없습니다');return;}
+    var css='*{margin:0;padding:0;box-sizing:border-box}@page{margin:5mm;size:A4}body{font-family:"\ub9de\uc740 \uace0\ub515","\ub098\ub214\uace0\ub515",sans-serif;font-size:9pt}';
+    css+='.pg{width:210mm;padding:5mm 8mm;page-break-after:always}.main{width:100%;border-collapse:collapse}';
+    css+='.main td{border:1px solid #000;vertical-align:middle;text-align:center;padding:4px 6px;word-break:keep-all;height:34px}';
+    css+='.title{font-size:13pt;font-weight:bold;text-align:center;padding:10px 4px;border:none;background:#e0e0e0;height:auto}.loc{text-align:left;padding:5px 4px;border:none;font-size:10pt;font-weight:bold;height:auto}';
+    css+='.hdr{background:#f0f0f0;font-weight:bold}.cat{font-weight:bold;background:#f7f7f7}.sub{font-weight:bold;background:#f7f7f7}';
+    css+='.cont{text-align:left;padding:3px 6px;vertical-align:top}.opinion{min-height:50px;text-align:left;vertical-align:top;padding:4px}';
+    var html='<!DOCTYPE html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+pages+'</body></html>';
+    var win=window.open('','_blank','width=900,height=1100');
+    win.document.write(html);win.document.close();
+    setTimeout(function(){win.print();},800);
+  });
+}
 
 function printAllMaintReports(){
   var YSIGN="data:image/png;base64,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";
@@ -1021,7 +1086,7 @@ function openPhotoPopup(src){
   document.body.appendChild(overlay);
 }
 
-function loadRemote(){
+function loadRemote(){var _rb=document.getElementById('btn-maint-report');if(_rb){_rb.setAttribute('onclick','printRemoteReports()');_rb.textContent='📊 원격점검 리포트';};
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
     window._rData={};window._remoteData=data;
