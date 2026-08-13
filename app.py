@@ -311,12 +311,12 @@ function printRemoteReports(){
         function gs(keys){
           var ab=keys.map(function(k){var rec=idata[k];return rec&&rec.status==='이상'?k.split('>').slice(-1)[0]+(rec.note?' (화살표 '+rec.note+')':''):null;}).filter(Boolean);
           if(ab.length)return '<span style="color:#e74c3c">이상: '+ab.join(', ')+'</span>';
-          return '정상';
+          return '';
         }
         function sc2(img){
           var h='이&nbsp;&nbsp;미&nbsp;&nbsp;현&nbsp;&nbsp;';
           h+='<span style="position:relative;display:inline-block;min-width:60px">';
-          if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-10px;left:50%;transform:translateX(calc(-50% + 6em));height:68px;z-index:5"></span>';
+          if(img)h+='<span style="position:relative;display:inline-block;width:0;height:0"><img src="'+img+'" style="position:absolute;bottom:-15px;left:50%;transform:translateX(calc(-50% + 5em));height:68px;z-index:5"></span>';
           h+='(서명)</span>';
           return h;
         }
