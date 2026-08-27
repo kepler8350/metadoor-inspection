@@ -562,7 +562,7 @@ function printRegularReports(){
       return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);
     }
     function getConfSub(gc,d,l){return gc.confSub==='loc'?d+' '+l:'\ubd80\uc0b0\uc2dc\uccad 15\ubd84\ub3c4\uc2dc\uacfc';}
-    function getConfName(gc){return gc.confName==='sign'?'<span style="padding-left:4em">(\uc11c\uba85)</span>':'\ucd5c&nbsp;&nbsp;\uc2b9&nbsp;&nbsp;\ud61c (\uc778)';}
+    function getConfName(gc){return gc.confName==='sign'?'<span style="padding-left:4em">(\uc11c\uba85)</span>':'\ud55c&nbsp;&nbsp;\ucda9&nbsp;&nbsp;\uc2b9 (\uc778)';}
     Promise.all([
       fetch('/api/regular?year='+curYear+'&month='+curMonth).then(r=>r.json()),
       fetch('/api/metrics?year='+curYear+'&month='+curMonth).then(r=>r.json())
@@ -669,7 +669,7 @@ function showRptSettings(){
     <label style="display:block;margin-bottom:6px"><b>확인자 이름</b></label>
     <select id="aCfgName" style="width:100%;padding:4px">
       <option value="sign" ${a.confName==='sign'?'selected':''}>( 서 명 )</option>
-      <option value="choi" ${a.confName==='choi'?'selected':''}>최 승 혜 (인)</option>
+      <option value="choi" ${a.confName==='choi'?'selected':''}>한 충 승 (인)</option>
     </select>
   </div>
   <div style="background:#fef9e7;border-radius:6px;padding:12px">
@@ -688,7 +688,7 @@ function showRptSettings(){
     <label style="display:block;margin-bottom:6px"><b>확인자 이름</b></label>
     <select id="bCfgName" style="width:100%;padding:4px">
       <option value="sign" ${b.confName==='sign'?'selected':''}>( 서 명 )</option>
-      <option value="choi" ${b.confName==='choi'?'selected':''}>최 승 혜 (인)</option>
+      <option value="choi" ${b.confName==='choi'?'selected':''}>한 충 승 (인)</option>
     </select>
   </div>
   </div>
