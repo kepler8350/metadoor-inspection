@@ -585,6 +585,7 @@ function printRegularReports(){
         function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='\uc815\uc0c1')?r.content:'\uc815\uc0c1';}
         var dpArr=dy?dy.split('-'):[];
         var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
+        var remCfg=JSON.parse(localStorage.getItem('remCfg')||'{}');remCfg.inspSub=remCfg.inspSub||'\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d';remCfg.inspName=remCfg.inspName||'\uc774\ubbf8\ud604';
         var grp=isA(l)?'A':'B';
         var gc=grp==='A'?aCfg:bCfg;
         var p='<div class="pg"><table class="main">';
@@ -614,11 +615,11 @@ function printRegularReports(){
         p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
         p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
         p+='<tr><td class="cat">\uc810\uac80\uc758\uacac</td><td colspan="5" class="opinion"></td></tr>';
-        p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d</td>';
+        p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+remCfg.inspSub+'</td>';
         p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
-        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getInspHtml(gc)+'</td></tr>';
-        p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+getConfSub(gc,d,l)+'</td></tr>';
-        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+getConfName(gc)+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getRemInspHtml(remCfg)+'</td></tr>';
+        p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+(remCfg.confSub||getConfSub(gc,d,l))+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+(remCfg.confName||getConfName(gc))+'</td></tr>';
         p+='</table></div>';
         pages+=p;
       });
@@ -641,6 +642,8 @@ function printRegularReports(){
   var p2=window.__MHSIGN?Promise.resolve(window.__MHSIGN):fetch(mhUrl).then(r=>r.blob()).then(function(b){return new Promise(function(res){var rd=new FileReader();rd.onload=function(e){window.__MHSIGN=e.target.result;res(e.target.result);};rd.readAsDataURL(b);});});
   Promise.all([p1,p2]).then(function(signs){_doRpt(signs[0],signs[1]);});
 }
+function getRemInspHtml(rc){var n=rc.inspName||'\uc774\ubbf8\ud604';if(n.indexOf('\ubbf8')>=0)return sc2('\uc774&nbsp;&nbsp;\ubbf8&nbsp;&nbsp;\ud604',MHSIGN);if(n.indexOf('\uc21c')>=0)return sc2('\uc774&nbsp;&nbsp;\uc21c&nbsp;&nbsp;\uaddc',YSIGN);return '<span style="padding-left:1em">'+n+'</span>';}
+function showRemoteSettings(){var rc=JSON.parse(localStorage.getItem('remCfg')||'{}');var ov=document.createElement('div');ov.id='remCfgOv';ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';var box=document.createElement('div');box.style.cssText='background:#fff;padding:24px;border-radius:8px;min-width:300px;font-size:14px';var h=document.createElement('h3');h.textContent='\uc6d0\uaca9\uc810\uac80 \uc124\uc815';h.style.margin='0 0 16px';box.appendChild(h);var flds=[['\uc810\uac80\uc790 \uc18c\uc18d','inspSub',rc.inspSub||'\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d'],['\uc810\uac80\uc790 \uc774\ub984','inspName',rc.inspName||'\uc774\ubbf8\ud604'],['\ud655\uc778\uc790 \uc18c\uc18d','confSub',rc.confSub||''],['\ud655\uc778\uc790 \uc774\ub984','confName',rc.confName||'']];flds.forEach(function(f){var row=document.createElement('div');row.style.cssText='margin-bottom:10px;display:flex;align-items:center';var lbl=document.createElement('label');lbl.textContent=f[0]+': ';lbl.style.cssText='display:inline-block;width:120px;font-weight:bold';var inp=document.createElement('input');inp.id='remCfg_'+f[1];inp.value=f[2];inp.style.cssText='border:1px solid #ccc;padding:4px 8px;border-radius:4px;flex:1';row.appendChild(lbl);row.appendChild(inp);box.appendChild(row);});var btnRow=document.createElement('div');btnRow.style.cssText='margin-top:16px;text-align:center';var saveBtn=document.createElement('button');saveBtn.textContent='\uc800\uc7a5';saveBtn.style.cssText='background:#2980b9;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;margin-right:8px';saveBtn.onclick=function(){var cfg={};flds.forEach(function(f){cfg[f[1]]=document.getElementById('remCfg_'+f[1]).value;});localStorage.setItem('remCfg',JSON.stringify(cfg));document.getElementById('remCfgOv').remove();alert('\uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4');};var cBtn=document.createElement('button');cBtn.textContent='\ucde8\uc18c';cBtn.style.cssText='background:#7f8c8d;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer';cBtn.onclick=function(){document.getElementById('remCfgOv').remove();};btnRow.appendChild(saveBtn);btnRow.appendChild(cBtn);box.appendChild(btnRow);ov.appendChild(box);document.body.appendChild(ov);}
 function showRptSettings(){
   var cfg=JSON.parse(localStorage.getItem('rptCfg')||'{}');
   var a=cfg.A||{inspector:'\uc774\uc21c\uaddc',confSub:'loc',confName:'sign'};
@@ -1114,7 +1117,7 @@ function openPhotoPopup(src){
 
 function loadRemote(){
   var _b=document.getElementById('btn-maint-report');
-  if(_b){_b.onclick=function(){printRemoteReports();};_b.textContent='📊 원격점검 리포트';}
+  if(_b){_b.onclick=function(){printRemoteReports();};_b.textContent='📊 원격점검 리포트';var _s=document.getElementById('btn-remote-settings');if(_s)_s.remove();_s=document.createElement('button');_s.id='btn-remote-settings';_s.style.cssText='background:#8e44ad;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px;margin-left:6px';_s.textContent='\u2699\ufe0f';_s.title='\uc6d0\uaca9\uc810\uac80 \uc124\uc815';_s.onclick=showRemoteSettings;if(_b&&_b.parentNode)_b.parentNode.insertBefore(_s,_b.nextSibling);}
   const yr=curYear||new Date().getFullYear(),mo=String(curMonth||new Date().getMonth()+1).padStart(2,'0');
   fetch('/api/remote?year='+yr+'&month='+mo).then(function(r){return r.json();}).then(function(data){
     window._rData={};window._remoteData=data;
