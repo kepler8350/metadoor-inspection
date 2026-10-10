@@ -586,7 +586,6 @@ function printRegularReports(){
         function cv(it){var r=cm[it];return (r&&r.content&&r.content!=='\uc815\uc0c1')?r.content:'\uc815\uc0c1';}
         var dpArr=dy?dy.split('-'):[];
         var dateStr=dpArr.length===3?dpArr[0]+'. '+parseInt(dpArr[1])+'. '+parseInt(dpArr[2])+'.':'';
-        var remCfg=JSON.parse(localStorage.getItem('remCfg')||'{}');remCfg.inspSub=remCfg.inspSub||'\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d';remCfg.inspName=remCfg.inspName||'\uc774\ubbf8\ud604';
         var grp=isA(l)?'A':'B';
         var gc=grp==='A'?aCfg:bCfg;
         var p='<div class="pg"><table class="main">';
@@ -616,11 +615,11 @@ function printRegularReports(){
         p+='<tr><td colspan="2">\uc7a5\ube44 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
         p+='<tr><td colspan="2">\ucf58\ud150\uce20 \uc6b4\uc601\ud604\ud669</td><td class="qty">1</td></tr>';
         p+='<tr><td class="cat">\uc810\uac80\uc758\uacac</td><td colspan="5" class="opinion"></td></tr>';
-        p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+remCfg.inspSub+'</td>';
+        p+='<tr><td class="cat" rowspan="2">\uc810\uac80\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+'\uc8fc\uc2dd\ud68c\uc0ac \ud504\ub77c\uc784\ud14d'+'</td>';
         p+='<td rowspan="4" class="date">\uc810\uac80\uc77c\uc790<br><br>'+dateStr+'</td></tr>';
-        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getRemInspHtml(remCfg)+'</td></tr>';
-        p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+(remCfg.confSub||getConfSub(gc,d,l))+'</td></tr>';
-        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+(remCfg.confName||getConfName(gc))+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+getInspHtml(gc)+'</td></tr>';
+        p+='<tr><td class="cat" rowspan="2">\ud655\uc778\uc790</td><td class="sub">\uc18c\uc18d</td><td colspan="3" style="text-align:center">'+getConfSub(gc,d,l)+'</td></tr>';
+        p+='<tr><td class="sub">\uc774\ub984</td><td colspan="3" style="text-align:center">'+getConfName(gc)+'</td></tr>';
         p+='</table></div>';
         pages+=p;
       });
