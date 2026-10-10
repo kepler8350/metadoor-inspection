@@ -320,6 +320,7 @@ function printRemoteReports(){
           h+='(서명)</span>';
           return h;
         }
+        var remCfg=JSON.parse(localStorage.getItem('remCfg')||'{}');
         var p='<div class="pg"><table class="main">';
         p+='<colgroup><col style="width:13%"><col style="width:14%"><col style="width:15%"><col style="width:7%"><col style="width:20%"><col style="width:10%"></colgroup>';
         p+='<tr><td colspan="6" class="title">디지털 사이니지 유지관리 ( '+mo+'월)&nbsp; 원격점검보고서</td></tr>';
@@ -350,8 +351,8 @@ function printRemoteReports(){
         p+='<tr><td class="cat" rowspan="2">점검자</td><td class="sub">소속</td><td colspan="3" style="text-align:center">주식회사 프라임텍</td>';
         p+='<td rowspan="4" class="date">점검일자<br><br>'+dateStr+'</td></tr>';
         p+='<tr><td class="sub">이름</td><td colspan="3" style="text-align:center;overflow:visible;position:relative">'+sc2(MHSIGN)+'</td></tr>';
-        p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3"></td></tr>';
-        p+='<tr><td class="sub">이름</td><td colspan="3"></td></tr>';
+        p+='<tr><td class="cat" rowspan="2">확인자</td><td class="sub">소속</td><td colspan="3">'+remCfg.confSub+'</td></tr>';
+        p+='<tr><td class="sub">이름</td><td colspan="3">'+remCfg.confName+'</td></tr>';
         p+='</table></div>';
         pages+=p;
       });
